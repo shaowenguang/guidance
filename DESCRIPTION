@@ -1,10 +1,19 @@
 Package: Prom
+Type: Package
 Title: Proteomic Map
-Version: 0.0.1
+Version: 0.99.1
 Authors@R: person("Wenguang", "Shao", email = "shaowenguang@gmail.com", role = c("aut", "cre"))
+Maintainer: 
 Description: Proteomic map.
-Depends: R (>= 3.3.1)
-License: What license is it under?
+Depends: R (>= 3.3.1) 
+License: What license is it under? (GPL-3)
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 6.0.1
+Imports:
+    
+Suggests: knitr,
+    rmarkdown
+VignetteBuilder: knitr
+RoxygenNote: 6.1.1
+
+
