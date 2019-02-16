@@ -1,0 +1,13 @@
+Meta
+doc
+*.Rproj
+#*.Rapp*
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+#*.Rapp.history
+#inst/doc
+#vignettes/
+/.Rd2pdf*
+#NAMESPACE
