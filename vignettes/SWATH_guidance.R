@@ -21,9 +21,8 @@ BiocManager::install("qvalue", version = "3.8")
 
 #wenguang: it will creat a global variable anno for sample_annotation table...
 #peptideIons <- import_openswath(search_results="feature_alignment.csv", sample_annotation="sample_annotation", level="PeptideIon") 
-peptideIons <- import_openswath(search_results="E1508100902_feature_alignment.tsv", sample_annotation="sample_annotation", level="PeptideIon")
-peptideIons <- import_openswath(search_results= "D:/SWATH-guidance/E1508100902_feature_alignment.tsv", 
-                                sample_annotation="D:/SWATH-guidance/sample_annotation", level="PeptideIon")
+peptideIons <- import_openswath(search_results= "D:/SWATH-guidance/feature_alignment.csv", 
+                                sample_annotation="D:/SWATH-guidance/sample_annotation", level="PeptideIon") 
 
 
 all_peptideIons <- long2wide(peptideIons)
@@ -135,6 +134,20 @@ temp$error.y <- abs(log2(temp$mean_intensity_E.y) - log2(temp$mean_intensity_C.y
 ############################### train model ######################################
 model_lda_ecoli <- get_lda_model(ecoli[numPerProt > 4 , ], index_feature_selected)
 
+# prepare data matrix 
+peptideIons <- import_openswath(search_results= "D:/SWATH-guidance/feature_alignment.csv", 
+                                sample_annotation="D:/SWATH-guidance/sample_annotation", level="PeptideIon") 
+
+all_peptideIons <- long2wide(peptideIons)
+
+all_peptideIons_normalized <- normalize_data(all_peptideIons, replaceNA="keep", normalization="none")
+cons_peptideIons <- merge_replicates(all_peptideIons_normalized, anno)
+
+cons_peptideIons <- cons_peptideIons[which(grepl("^1/", cons_peptideIons$ProteinName)), ]
+cons_peptideIons_features <- calc_features(cons_peptideIons)
+
+index_mean_int <- which(grepl("^mean_intensity", names(cons_peptideIons_features)))
+
 # data preparation 
 ecoli_std <- c(2,3,4,6,8)
 
@@ -167,3 +180,32 @@ model_lda_ecoli <- get_lda_model(ecoli[numPerProt > 4 , ], index_feature_selecte
 #library(devtools)
 #model_lda_withCor <- copy(model_lda_ecoli)
 #use_data(model_lda_withCor, pkg="~/project/rep/R_package/v2/Prom/R/", overwrite=T)
+
+
+
+#### plotting functions 
+library(data.table)
+library(Prom)
+
+all_peptideIons <- import_openswath_matrix_fromEulerPortal(search_results="E1702271600_matrix_requant", sample_annotation="sample_annotation") 
+
+all_peptideIons_normalized <- normalize_data(all_peptideIons, replaceNA="keep", normalization="TIC")
+
+cons_peptideIons <- merge_replicates(all_peptideIons_normalized, anno, bool_NA_means_requant = T)
+
+cons_peptideIons <- cons_peptideIons[which(grepl("^1/", cons_peptideIons$ProteinName)), ]
+
+cons_peptideIons_features <- calc_features(cons_peptideIons)
+
+test <- perform_selection(cons_peptideIons_features)
+
+prot_list <- c("1/O75976", "1/Q9UJX3", "1/Q13501", "1/P25391")
+
+pdf("example_protein_profiles_paper.pdf", width=7.5*3, height=4.1*2)
+
+for(i in 1:length(prot_list)) {
+  case <- test[test$ProteinName==prot_list[i], ]
+  plot_a_heatmap_include_prob_update(case)
+}
+
+dev.off()
