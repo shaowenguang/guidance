@@ -1,11 +1,12 @@
 ---
 title: "SWATH-guidance"
-author: "Wenguang Shao, Patrick Pedrioli, Chloe H. Lee and Ruedi Aebersold"
-affiliation: Institute of Molecular Systems Biology, Department of Biology, ETH Zurich, Switzerland
+author: | 
+  | Wenguang Shao
+  | Institute of Molecular Systems Biology, Department of Biology, ETH Zurich, Switzerland
 date: "`r Sys.Date()`"
 output: pdf_document
 vignette: >
-  %\VignetteIndexEntry{proBatch package overview}
+  %\VignetteIndexEntry{guidance package overview}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
   %\usepackage[utf8]{inputenc}
@@ -15,7 +16,7 @@ abstract: |
   The workflow of SWATH-guidance consists of three major steps – intensity normalization, peptide/fragment selection and statistical analysis – in interface with widely used upstream and downstream statistical tools in DIA community. This package was programmed and intended for researchers in proteomics without extensive programming skills but with basic R knowledge. 
 
 toc: yes
-toc_depth: 2
+toc_depth: 1  
 numbersections: true
 
 ---
@@ -32,6 +33,8 @@ knitr::opts_chunk$set(
 )
 ```
 
+\pagebreak
+
 # Introduction
 
 ## SWATH-guidance in DIA/SWATH-MS analysis workflow 
@@ -43,22 +46,36 @@ A recent advancement in data-independent acquisition (DIA)/ SWATH-MS methods all
 
 To circumvent the limitations in the current approach, we present SWATH-guidance, an automated machine learning-based approach for an accurate and sensitive detection of protein abundance, and this strategy exhibited higher accuracy, consistency and reproducibility on quantitative gold standard (QGS) dataset in comparison to conventional methods, top3 and mapDIA [Shao et al.]. Furthermore, the SWATH-guidance is readily compatible with widely used statistical tools in the DIA community such as PECA and mapDIA.  
 
-This SWATH-guidance package provides functions to import and convert SWATH data compatible for downstream analysis, normalize fragment/peptide-level intensities, calculate peptide features, selects peptides/fragment that preserves the major quantitative pattern and infer protein abundance. 
+This SWATH-guidance package provides functions to import and convert SWATH data compatible for downstream analysis, normalize fragment/peptide-level intensities, calculate peptide features, selects peptides/fragment that preserves the major quantitative pattern and infer protein abundance (Figure 1).
 
-Thus, we believe this will be a valuable tool to accurately infer protein abundances, particularly useful to quantify proteins with smaller abundance changes, and is readily applicable for popular life science research such as large-scale sample profiling, biomarker discovery and personalized medicine. 
+```{r guidance_workflow, include = TRUE, fig.align = "center", echo=FALSE, fig.cap="Workflow of SWATH-guidance", out.width = '70%'}
+knitr::include_graphics("guidance_workflow.png")
+```
+
+Thus, we believe that `SWATH-guidance` will be a valuable tool to accurately infer protein abundances from DIA/SWATH-MS measurements, particularly useful to quantify proteins with smaller abundance changes, and is readily applicable for popular life science research such as large-scale sample profiling, biomarker discovery and personalized medicine. 
+
+\pagebreak
 
 ## Implementation of linear discriminant analysis (LDA) model for feature selection
-The highlight of the package is implementation of automated machine learning approach to integrate multiple features to infer protein inference. We employed linear discriminant analysis (LDA) model to predict for peptides that accurately reflect the abundance of their corresponding proteins.
+The highlight of the package is implementation of automated machine learning approach to integrate multiple features to infer protein abundance. We employed linear discriminant analysis (LDA) model to predict for peptides that accurately reflect the abundance of their corresponding proteins.
 
 In essence, the LDA algorithm finds directions, or linear discriminates, that maximize the separation between classes i.e. good or bad peptides, then use these directions to predict the class of each peptide. The model outputs the probability of belonging to a given class based on one or multiple predictor variables i.e. computed feature statistics. 
 
-We provide trained LDA model using QGS dataset but users can train an LDA model using their own dataset. Refer to Part 3 for step-by-step demonstration to train an LDA model of own dataset.  
+We provide LDA models trained with quantitative golden standard (QGS) dataset. The QGS is designed in a defined ratio of *E.coli*, mouse and human proteins (Figure 2). In particular, each sample contains differnet ratio of *E.coli* and mouse proteins to display differential expressions in *E.coli* and mouse proteins but equal expression pattern of Human proteins. 
+
+```{r QGS_dataset, include = TRUE, fig.align = "center", echo=FALSE, fig.cap="Design of Quantitative Golden Standard (QGS)", out.width = '60%'}
+knitr::include_graphics("QGS_design.png")
+```
+
+If users have own standard measurements and with to train own LDA models, refer to Part 4 for step-by-step demonstration on how to train an LDA model with own dataset. 
+
+\pagebreak
 
 # Package installation and data loading 
 
 ## Installing SWATH-guidance
 To install the SWATH-guidance package, the following commands can be executed in R:
-```{r install_proBatch, fig.show='hold', eval = FALSE}
+```{r install_guidance, fig.show='hold', eval = FALSE}
 # Once the SWATH-guidance package is in Bioconductor, can easily install by: 
 install.packages("SWATH-guidance") 
 library(SWATH-guidance)
@@ -69,6 +86,7 @@ devtools::install_github("shaowenguang/guidance ", build_vignettes = TRUE)
 ```
 
 ```{r dependencies}
+# dependencies for now, before package well established 
 library(data.table)
 library(MASS)
 library(ggplot2)
@@ -81,37 +99,46 @@ library(gridExtra)
 ```
 
 
-## Example data: quantitative golden standard (QGS) dataset 
-The example data is a reduced OpenSWATH output file generated from the Quantification Gold Standard (QGS) dataset [figure 1]. The dataset contains different ratio of *E.coli* and mouse samples to display differential expressions in *E.coli* and mouse proteins and equal expression pattern of Human proteins. The data is annotated into two biological samples, A and B. 
+## Example data
+The example data is a reduced SWATH output file generated from the ... dataset. Details on which dataset to include in the package for demonstration purpose.  
 
-```{r QGS_dataset, include = TRUE, fig.align = "center", echo=FALSE, fig.cap="Design of Quantitative Golden Standard (QGS)", out.width = '50%'}
-#knitr::include_graphics("Batch_effects_workflow_staircase.png")
-```
+(I think we need a reduced SWTAH data that can be deposited in the package, but not QGS dataset)
 
 ## Loading the data 
-The package provides a function to import SWATH data and sample annotation:
+The package provides `import_openswath()` function to import SWATH data and sample annotation:
 ```{r load_data, fig.show='hold'}
 library(Prom)
 peptideIons <- import_openswath(search_results= "D:/SWATH-guidance/feature_alignment.csv", 
-                                sample_annotation="D:/SWATH-guidance/sample_annotation", level="PeptideIon") 
+                                sample_annotation="D:/SWATH-guidance/sample_annotation", 
+                                level="PeptideIon") 
 ```
 
-The users can import SWATH data of different peptide/fragment levels by denoting `level` to `"PeptideIon"`,`"Transition"`, `"Peptide"`or `"PeptideWithMod"`. Note that downstream analysis is subjected to change depending on peptide/fragment level of imported data. (Details/ characteristic of each level?) 
+The users can import SWATH data of different peptide/fragment levels by denoting `level` to `"PeptideIon"`,`"Transition"`, `"Peptide"`or `"PeptideWithMod"`. Note that downstream analysis may be different depending on peptide/fragment level of imported data. 
 
+## Preparing the data
+The SWATH data is in long format, but to facilitate downstream analysis to normalize, compute features and select features, we provide a helpful utility function `long2wide()` to convert from long to wide format data.  
+
+```{r long2wide, fig.show='hold'}
+all_peptideIons <- long2wide(peptideIons)
+```
+
+
+\pagebreak
 
 # Analyze data 
 We hereby show a step-by-step demonstration to normalize peptide/fragment-level intensities, calculate and select features and conduct statistical tests to accurately infer protein abundance from DIA/SWATH-MS data. 
 
 ## Normalize data
-The openSWATH data is in long format to facilitate downstream analysis to normalize, compute features and select features, the data needs to be converted into matrix format. We provide a helpful utility function to convert from long to wide format data.  
+The `normalize_data()` provides options to normalize intensities across different samples by `"mediancenter"`,`"quantile"`, 
+`"TIC"` or`"iRT"`. If there is no need to normalize intensities, can denote `normalization = "none”`. 
 
-The `normalize_data()` provides options to normalize intensities across different samples by `"mediancenter"`,`"quantile"`, `"TIC"` or`"iRT"`. If there is no need to normalize intensities, can denote `normalization = "none”`. 
+Quantile normalization and median-centering are two commonly used methods for normalizing proteomics data. The TIC normalization is based on total ion count (TIC), where all mass spectra are divided by their TIC, resulting in the same integrated area under the spectrum. TIC normalization is useful across samples containing similar cell types, but when comparing widely different tissues types, TIC-corrected expression levels may not be applicable. For samples with injected iRT (indexed retention time) standards, the data can also be normalized against the measurements of iRT peptides. 
 
 For implementation, users can also specify how to treat missing values via `replaceNA =` either to `"remove"` or `"keep"` them, alternatively to replace them by `"zero"` or `“min_intensity"`. 
 
 ```{r normalize_data, fig.show='hold'}
-all_peptideIons <- long2wide(peptideIons)
-all_peptideIons_normalized <- normalize_data(all_peptideIons, replaceNA="keep", normalization="mediancenter")
+all_peptideIons_normalized <- normalize_data(all_peptideIons, replaceNA="keep", 
+                                             normalization="mediancenter")
 ```
 
 ## Calculate features
@@ -123,134 +150,224 @@ In addition to sample-oriented features, `calc_feature()` computes statistics am
 cons_peptideIons <- merge_replicates(all_peptideIons_normalized, anno)
 cons_peptideIons_features <- calc_features(cons_peptideIons)
 
+# following statistics are computed for each peptide: 
+setdiff(colnames(cons_peptideIons_features), colnames(cons_peptideIons))
+```
+
+\pagebreak
+
+```{r calculate_feature_table, fig.show='hold'}
+# data table illstrating subset of computed values:
 library(knitr)
 library(dplyr)
 kable(cons_peptideIons_features[1:5,] %>%
-  select(c("PeptideIon", 
-           "feature_mean_intensity_all","feature_cv_intensity_all", "feature_numNA_intensity_all",
-           "feature_averaged_score_all", "feature_sd_width_all", "feature_median_PCC",         
-           "feature_median_SCC", "feature_MAD_dist", "median_PCC_PerProt")))
+        select(c("PeptideIon", "feature_mean_intensity_all" , "feature_cv_intensity_all")))
 ```
 
-Visualize the feature (barplots, correlation matrix, trend lines for subset of peptides as supplmentary diagram)
 
+The feature-level statistics can be visualized using `ggplot2` into barplots, correlation matrix, trend lines and etc. The following is an example demontration of visualizing quantitative pattern of a feature - coefficient of variation (CV) of peptide intensities - using `ggplot2`. 
+
+```{r calculate_feature_plot, fig.show='hold', fig.align='center', fig.height=3, fig.width=4.5}
+# visualize CV of peptide intensities through density plot:
+library(ggplot2)
+ggplot(cons_peptideIons_features, aes(x=feature_cv_intensity_all)) + 
+  geom_density()  + theme(
+  axis.text=element_text(size=12), axis.title=element_text(size=12),    
+  panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+  panel.border = element_blank(), panel.background = element_blank()
+) + labs(fill="") + theme(axis.line.x = element_line(color="black"), 
+                          axis.line.y = element_line(color="black"))
+```
+
+\pagebreak
 
 ## Perform selection on features 
 After calculating feature statistics, we implemented linear discriminant analysis (LDA) model to combine sub-scores describing various features into a poster probability of being a RARE (reproducible abundance representative entities). These RAREs are subset of peptides that accurately and reliably reflects the abundance of their corresponding proteins. 
 
-In this analysis, we assume that the LDA models have already been trained or no training is necessary (see Part II on how to train models with own datasets). 
+In this analysis, we assume that users are using the QGS-trained LDA models (see Part II on how to train models with own datasets). 
 
-```{r perform_selection, fig.show='hold'}
+The function `perform_selection()` calculates the posterior probability using trained LDA model deposited in `SWATH-guidance/data`:
+```{r perform_selection, fig.show='hold',fig.align='center', fig.height=3, fig.width=4.5}
 test <- perform_selection(cons_peptideIons_features) 
-hist(test$prob, main = "Histogram of posterior probability")
 
+# histogram of posterior probaility
+hist(test$prob, main = "Histogram of posterior probability")
 ```
 
+After feature selection, users can visualize pattern of peptides corresponding to the same protein by `plot_a_heatmap_include_prob_update()`. This function visualizes correlation coefficient, average intensity and posterior probability of each peptides and also denote which peptides have been kept or removed through LDA classification. 
+
+```{r feature_plots, fig.show='hold', eval=FALSE}
+# peptides corresponding to the protein of interest  
+prot_name <- "1/sp|P37108|SRP14_HUMAN" 
+
+# In practice  for high-qulity illustrations, we recommend following command to save figure in pdf:
+pdf("example_protein_profiles.pdf", width=7.5*3, height=4.1*2)
+
+test_prot <- test[test$ProteinName==prot_name, ]
+plot_a_heatmap_include_prob_update(test_prot)
+
+dev.off()
+```
+
+```{r feature_plot, include = TRUE, fig.align = "center", echo=FALSE, out.width = '150%'}
+knitr::include_graphics("feature_selection_plot.PNG")
+```
+
+\pagebreak
+
 ## Estimate protein abundance 
-First, to obtain an optimal peptide to protein inference, users can pre-process the feature-selected dataset prior to protein inference step. 
+
+### Filtering & imputation on missing values
+First, to obtain an optimal peptide to protein inference, users can pre-process dataset prior to protein inference step. 
 
 + Filter peptides by posterior probability threshold: users can filter peptides with a decent posterior probability e.g. probability > 0.2 
 ```{r protein_infer_filter, fig.show='hold'}
 test_yesFiltered <- test[prob > 0.2, ]
 ```
 
-+ Impute missing values: in the case of missing values, we provide `imputate_missing_values()` to impute a value following uniform distribution between minimum \times (0.1 \times CV, 1.1 \times CV)
++ Impute missing values: in the case of missing values, we provide `imputate_missing_values()` to impute a value following uniform distribution between minimum $0.1 \times CV$ and minimum $1.1 \times CV$
 ```{r protein_infer_impute, fig.show='hold'}
 test_yesFiltered_yesImputated <- imputate_missing_values(test_yesFiltered, c(3:17))
 ```
 
+
+### Parameter adjustment for protein abundance inference 
 Once the data is ready to proceed with protein inference step, we provide `pept2prot()` to infer protein abundance from peptide/fragment-level intensities. We provide a number of parameters that users can denote for an optimal estimation of protein abundance. 
 
-+ Number of peptides to be utilized for protein inference by denoting a numeric value at `topN`. 
-```{r protein_infer_topN, fig.show='hold'}
-test_yesFiltered_top1_sum_yesImputated <- merge_replicates(pept2prot(test_yesFiltered_yesImputated, 
-                                           "prob", topN = 1, aggfun="sum",bool_weighted_by_prob=F), anno)
-
-test_yesFiltered_top3_sum_yesImputated <- merge_replicates(pept2prot(test_yesFiltered_yesImputated, 
-                                           "prob", 3, aggfun="sum", bool_weighted_by_prob=F), anno)
-
-test_yesFiltered_top99999_sum_yesImputated <- merge_replicates(pept2prot(test_yesFiltered_yesImputated, 
-                                           "prob", 99999, aggfun="sum", bool_weighted_by_prob=F), anno)
-```
-
++ Number of peptides to be utilized for protein inference by denoting a numeric value at `topN`
 + Method to aggregate peptide/fragment intensities by `aggfun = “mean”` or `“sum”` 
-```{r protein_infer_aggfunc, fig.show='hold'}
-test_yesFiltered_top3_mean_yesImputated <- merge_replicates(pept2prot(test_yesFiltered_yesImputated, 
-                                            "prob", 3, aggfun="mean", bool_weighted_by_prob=F), anno)
-```
-
 + Weight intensity of each peptide by their posterior probability by boolean model in estimating protein abundance by denoting `bool_weighted_by_prob = TRUE` 
-```{r protein_infer_weight, fig.show='hold'}
-test_yesFiltered_top3_sum_yesImputated_yesWeighted <- merge_replicates(pept2prot(
+
+The default parameters for protein inference step is as follows: 
+```{r protein_infer_default, fig.show='hold'}
+prot_inf <- merge_replicates(pept2prot(
   test_yesFiltered_yesImputated, "prob", 3, aggfun="sum", bool_weighted_by_prob=T), anno)
+
+# the protein table contains following variables:
+colnames(prot_inf)
 ```
 
-*Illustrate different results depending on different parameters
-*Give guidance or recommended parameter for each step 
-*Description of when to use each parameter 
+\pagebreak
+
+```{r protein_infer_default_table, fig.show='hold'}
+# example statistics of protein abundance:
+kable(prot_inf[1:5, c("ProteinName", "mean_intensity_A", "cv_intensity_A", 
+                      "numNA_intensity_A"), with = FALSE])
+```
+
+
+DETAILS:
+- Illustrate different results depending on different parameters?
+- Description of when to use each parameter?
+- Visualization (through plots) on protein abundance?
+
+\pagebreak
 
 # Train linear discriminant analysis (LDA) model 
-In this part, we demonstrate how to train a LDA model using own dataset to be used for the protein inference step. Here, we utilized the quantitative golden standard dataset which contained different ratios of *E.coli* proteins and the equal amount of human proteins between different samples. 
-(Any requirement on the dataset to be utilized as training data?)
+In this part, we demonstrate how to train a LDA model using own standard dataset. Note that unless dataset that is significantly affected by intrument-specific factors, we recommend users to employ the default models in this package, which have been trained by the quantitative golden standard (QGS).  
 
-## Feature calculation 
+Here, we utilize the QGS dataset to demontrate how to train a LDA model, which contains different ratios of *E.coli* proteins but equal amount of human proteins between different samples. 
+
+## Compute feature statistics of QGS data
 To prepare for a training dataset, follow the data analysis steps in Part 2 up to feature calculation. Following `normalize_data()` and `calc_features()`, the dataset contains sample- and peptide-oriented features such as average sample intensity, sample CV, average peptide intensity, peptide CV, average peptide scores and etc. 
 
-From the feature dataset, extract average intensity of each sample: 
-```{r protein_infer_weight, fig.show='hold'}
-index_mean_int <- which(grepl("^mean_intensity", names(cons_peptideIons_features)))
+The workflow is shown below: 
+```{r mean_intensity_from_feature, fig.show='hold', eval = FALSE}
+
+# prepare data matrix 
+peptideIons <- import_openswath(search_results= "D:/SWATH-guidance/feature_alignment.csv", 
+                                sample_annotation="D:/SWATH-guidance/sample_annotation", 
+                                level="PeptideIon") 
+all_peptideIons <- long2wide(peptideIons)
+
+# normalize and merge replicates
+all_peptideIons_normalized <- normalize_data(all_peptideIons, replaceNA="keep", normalization="none")
+cons_peptideIons <- merge_replicates(all_peptideIons_normalized, anno)
+
+# calculate features
+cons_peptideIons <- cons_peptideIons[which(grepl("^1/", cons_peptideIons$ProteinName)), ]
+cons_peptideIons_features <- calc_features(cons_peptideIons)
 ```
 
-In particular, we have known ratio of *E.coli* proteins, and subset peptides that correspond to *E.coli* proteins: 
-```{r protein_infer_weight, fig.show='hold'}
+## Label as good (RAREs) vs. bad peptides based on feature statistics
+Previously, we observed that the feature describing intensity correlation, or the relationship between peptides generated from the same protein, demonstrated different behaviors for E.coli proteins (those with different expression) and Human proteins (with expected equal expression). Thus, the intensity correlation has been the key feature for identifying the RAREs. 
+
+&nbsp;
+To train for E.coli model, denote known ratio of *E.coli* proteins in each sample and subset peptides that correspond to *E.coli* proteins: 
+```{r ecoli_train_subset, fig.show='hold'}
 ecoli_std <- c(2,3,4,6,8)
 ecoli <- cons_peptideIons_features[grepl("ECOL", cons_peptideIons_features$ProteinName), ]
 ```
 
-“The LDA models describe relationship between peptides generated from the same protein i.e. intensity correlation. The feature describing the intensity correlation demonstrated completely different behaviors in *E.coli* proteins with different expression and in Human proteins with equal expression. Therefore, we took into consideration its inability to identify RAREs in datasets with unpredicted protein abundances and built two distinct LDA models: DE model and EE model without the feature.” We have shown that the intensity correlation plays an important role in discriminating RAREs. 
+&nbsp;
+Compute correlation between the true standard quantity and average intensity on the measurement. Then, if the number of overlapping intensity is less than 4, the correlation is denoted as NA. Alternatively, compute the error (or diffrence) in true and measured abudance: 
+```{r ecoli_train, fig.show='hold'}
+# average intensity of differnet sample for each peptide:
+index_mean_int <- which(grepl("^mean_intensity", names(cons_peptideIons_features)))
 
-Compute correlation between the true standard quantity and average intensity on the measurement. Then, if the number of overlapping intensity is less than 4, the correlation is denoted as NA: 
-```{r protein_infer_weight, fig.show='hold'}
+# compute correlation between known and measured amount:
 ecoli[, cor_std := 0]
-ecoli$cor_std <- apply(ecoli[, index_mean_int, with=F], 1, function(x) cor(x, ecoli_std, use="p"))
-ecoli$cor_std[apply(ecoli[, index_mean_int, with=F], 1, function(x) count_pairwise_number(x, ecoli_std)) < 4] <- NA
+ecoli$cor_std <- apply(ecoli[, index_mean_int, with=F], 1, 
+                       function(x) cor(x, ecoli_std, use="p"))
+ecoli$cor_std[apply(ecoli[, index_mean_int, with=F], 1, 
+                    function(x) count_pairwise_number(x, ecoli_std)) < 4] <- NA
 
-```
-
-Compute error in intensity measurements for each sample by comparing with true ratios for each sample: 
-```{r protein_infer_weight, fig.show='hold'}
+# Compute error in intensity measurements for each sample by comparing with true ratios 
+# for each sample: 
 ecoli[, error := 0]
-ecoli$error <- apply( cbind(abs(log2(ecoli$mean_intensity_A) - log2(ecoli$mean_intensity_B) - log2(2/3)), 
-                            abs(log2(ecoli$mean_intensity_B) - log2(ecoli$mean_intensity_C) - log2(3/4)),
-                            abs(log2(ecoli$mean_intensity_C) - log2(ecoli$mean_intensity_D) - log2(4/6)),
-                            abs(log2(ecoli$mean_intensity_D) - log2(ecoli$mean_intensity_E) - log2(6/8)),
-                            abs(log2(ecoli$mean_intensity_E) - log2(ecoli$mean_intensity_A) - log2(8/2)) ), 
-                      1,mean_na)
-
+ecoli$error <- apply( cbind(
+  abs(log2(ecoli$mean_intensity_A) - log2(ecoli$mean_intensity_B) - log2(2/3)), 
+  abs(log2(ecoli$mean_intensity_B) - log2(ecoli$mean_intensity_C) - log2(3/4)),
+  abs(log2(ecoli$mean_intensity_C) - log2(ecoli$mean_intensity_D) - log2(4/6)),
+  abs(log2(ecoli$mean_intensity_D) - log2(ecoli$mean_intensity_E) - log2(6/8)),
+  abs(log2(ecoli$mean_intensity_E) - log2(ecoli$mean_intensity_A) - log2(8/2)) ), 
+  1,mean_na)
 ```
 
-
+&nbsp;
 Then, based on the values of intensity correlation or deviation from true measurement, the peptide is classified as good or bad peptide that reliably represent intensity of corresponding protein. 
-```{r protein_infer_weight, fig.show='hold'}
+```{r ecoli_classify, fig.show='hold', fig.align='center', fig.width=3, fig.height=2}
 ecoli[, label := "bad"]
 
-# Threshold by intensity correlation 
+# Identify "good" peptides (RAREs) by error or correlation threhols: 
 #ecoli[ cor_std > 0.95, ]$label <- "good"
-
-# Threshold by error 
 ecoli[ error < 0.28, ]$label <- "good"
 ecoli$label <- as.factor(ecoli$label)
 ```
 
+&nbsp;
+The difference in feature statistics of "good" and "bad" peptides can be visualized using `ggplot2`:
+```{r good_bad_visualize, fig.show='hold', fig.align='center', fig.width=3, fig.height=2}
+# Density plot of average intensity of good and bad peptides:
+ggplot(ecoli, aes(x=log2(feature_mean_intensity_all), fill=label)) + 
+  geom_density(alpha=0.8)  + theme(
+    axis.text=element_text(size=12), 
+    axis.title=element_text(size=12),    
+    legend.position="none",
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.border = element_blank(),
+    panel.background = element_blank()
+    ) + labs(fill="") + 
+  theme(axis.line.x = element_line(color="black"), 
+        axis.line.y = element_line(color="black")) +
+  ggtitle("ecoli_intensity_mean")
+
+```
+
+\pagebreak
+
 ## Establish LDA model 
-After feature calculation and classification to good or bad peptides, the LDA model can be established based on selected features: 
-```{r protein_infer_weight, fig.show='hold'}
+After feature calculation and classification into good or bad peptides, the LDA model can be established based on these features: 
+```{r model_train, fig.show='hold'}
 index_feature_selected <- c("scaled_mean_intensity_all", "scaled_cv_intensity_all", 
                             "scaled_numNA_intensity_all", "scaled_averaged_score_all", 
                             "scaled_median_PCC", "scaled_sd_width_all", "label")
 
 model_lda_ecoli <- get_lda_model(ecoli[numPerProt > 4 , ], index_feature_selected)
 ```
+
+This model is now ready to use for `perform_selection()` as a part of protein inference step. 
 
 
 # SessionInfo
@@ -262,7 +379,7 @@ sessionInfo()
 # Citation
 
 To cite this package, please use:
-```{r citation}
+```{r citation, eval = FALSE}
 citation('SWATH-guidance')
 ```
 

@@ -201,11 +201,63 @@ test <- perform_selection(cons_peptideIons_features)
 
 prot_list <- c("1/O75976", "1/Q9UJX3", "1/Q13501", "1/P25391")
 
+prot_list <- c("1/sp|P37108|SRP14_HUMAN",  "1/sp|P36578|RL4_HUMAN" ,   "1/sp|P00959|SYM_ECOLI",    "1/tr|C8ZBI7|C8ZBI7_YEAS8")
 pdf("example_protein_profiles_paper.pdf", width=7.5*3, height=4.1*2)
 
 for(i in 1:length(prot_list)) {
+  i = 1
   case <- test[test$ProteinName==prot_list[i], ]
   plot_a_heatmap_include_prob_update(case)
 }
+
+dev.off()
+
+
+
+########### try figures 
+ggplot(cons_peptideIons_features, aes(x=log2(feature_mean_intensity_all))) + 
+  geom_density(alpha=0.8)  + theme(
+    axis.text=element_text(size=24), 
+    axis.title=element_text(size=24),    
+    legend.position="none",
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.border = element_blank(),
+    panel.background = element_blank()
+  ) + labs(fill="") + 
+  theme(axis.line.x = element_line(color="black"), axis.line.y = element_line(color="black")) +
+  ggtitle("ecoli_intensity_mean")
+
+
+ggplot(cons_peptideIons_features, aes(x=feature_sd_width_all)) + geom_density(alpha=0.8)  + theme(
+  axis.text=element_text(size=24), 
+  axis.title=element_text(size=24),    
+  legend.position="none",
+  panel.grid.major = element_blank(),
+  panel.grid.minor = element_blank(),
+  panel.border = element_blank(),
+  panel.background = element_blank()
+) + labs(fill="") + theme(axis.line.x = element_line(color="black"), axis.line.y = element_line(color="black"))
+
+
+
+ggplot(cons_peptideIons_features, aes(x=feature_cv_intensity_all)) + geom_density(alpha=0.8)  + theme(
+  axis.text=element_text(size=24), 
+  axis.title=element_text(size=24),    
+  legend.position="none",
+  panel.grid.major = element_blank(),
+  panel.grid.minor = element_blank(),
+  panel.border = element_blank(),
+  panel.background = element_blank()
+) + labs(fill="") + theme(axis.line.x = element_line(color="black"), axis.line.y = element_line(color="black"))
+
+
+prot_name <- "1/sp|P37108|SRP14_HUMAN" 
+
+# In practice  for high-qulity illustrations, we recommend following command to save figure in pdf:
+pdf("example_protein_profiles.pdf", width=7.5*2, height=4.1*2)
+
+test_prot <- test[test$ProteinName==prot_name, ]
+plot_a_heatmap_include_prob_update(test_prot)
 
 dev.off()
