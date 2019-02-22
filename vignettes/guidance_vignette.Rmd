@@ -1,7 +1,7 @@
 ---
 title: "SWATH-guidance"
 author: | 
-  | Wenguang Shao
+  | Wenguang Shao, Chloe Lee
   | Institute of Molecular Systems Biology, Department of Biology, ETH Zurich, Switzerland
 date: "`r Sys.Date()`"
 output: pdf_document
@@ -11,7 +11,7 @@ vignette: >
   %\VignetteEncoding{UTF-8}
   %\usepackage[utf8]{inputenc}
 abstract: |
-  This vignette describes how to apply `SWATH-guidance` package to infer protein abundance from DIA/SWATH-MS peptide measurements. The SWATH-guidance employs an automated machine learning approach to integrate information from multiple dimensions of DIA dataset and select peptides that accurately reflect abundance of their corresponding proteins, and have shown improved quantitative accuracy, consistency and reproducibility. 
+  This vignette describes how to apply `SWATH-guidance` package to estimate protein abundances from DIA/SWATH-MS measurements. The SWATH-guidance employs an automated machine learning approach to integrate information from multiple dimensions of DIA dataset and select peptides that accurately reflect abundance of their corresponding proteins, and have shown improved quantitative accuracy, consistency and reproducibility for targeted mass spectrometry. 
   
   The workflow of SWATH-guidance consists of three major steps – intensity normalization, peptide/fragment selection and statistical analysis – in interface with widely used upstream and downstream statistical tools in DIA community. This package was programmed and intended for researchers in proteomics without extensive programming skills but with basic R knowledge. 
 
