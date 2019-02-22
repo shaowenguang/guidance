@@ -345,3 +345,27 @@ plot_bar_intensity_prob <- function(case, cutoff_prob=0.3, plot_intensity = T,
   return(p_plot)
   
 }
+
+
+
+plot_density <- function(data, feature = "feature_mean_intensity_all",
+                         font.size = 12, title = feature){
+  
+  if(feature == "feature_mean_intensity_all"){
+    data[[feature]] <- log2(data[[feature]])
+  }
+  
+  ggplot(data, aes_string(x=feature, fill="label")) + 
+    geom_density(alpha=0.8)  + theme(
+      axis.text=element_text(size=font.size), 
+      axis.title=element_text(size=font.size),    
+      legend.position="none",
+      panel.grid.major = element_blank(),
+      panel.grid.minor = element_blank(),
+      panel.border = element_blank(),
+      panel.background = element_blank()
+    ) + labs(fill="") + 
+    theme(axis.line.x = element_line(color="black"), 
+          axis.line.y = element_line(color="black")) +
+    ggtitle(title)
+}
