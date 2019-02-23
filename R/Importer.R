@@ -1,6 +1,5 @@
 #' @importFrom data.table fread data.table
-
-
+#' 
 #' @export
 import_openswath <- function(search_results, bool.removeDecoy = T, level = "PeptideIon", sample_annotation = NULL, remove_prefixInFileName = FALSE) {
   

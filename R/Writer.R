@@ -1,4 +1,3 @@
-#' @importFrom data.table
 #' 
 #' export protein table to tsv or csv file 
 write_protein_table <- function(table, name = "protein_table", format = "tsv"){

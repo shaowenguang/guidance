@@ -1,6 +1,7 @@
 #' Visualization of protein abundance 
 #' 
 #' 
+#' @export
 plot_a_heatmap_include_prob_update <- function(case, cutoff_prob=0.3) {
   
   if("aggr_Fragment_Annotation" %in% names(case)) {
@@ -132,7 +133,7 @@ plot_a_heatmap_include_prob_update <- function(case, cutoff_prob=0.3) {
 
 
 
-
+#' @export
 plot_peptide_trend <- function(case, cutoff_prob=0.3) {
   
   if("aggr_Fragment_Annotation" %in% names(case)) {
@@ -217,7 +218,7 @@ plot_peptide_trend <- function(case, cutoff_prob=0.3) {
   
 }
 
-
+#' @export
 plot_heatmap <- function(case, cutoff_prob=0.3) {
   
   if("aggr_Fragment_Annotation" %in% names(case)) {
@@ -260,6 +261,7 @@ plot_heatmap <- function(case, cutoff_prob=0.3) {
   
 }
 
+#' @export
 plot_bar_intensity_prob <- function(case, cutoff_prob=0.3, plot_intensity = T, 
                                                plot_prob = T) {
   
@@ -347,7 +349,10 @@ plot_bar_intensity_prob <- function(case, cutoff_prob=0.3, plot_intensity = T,
 }
 
 
-
+#' Plot density distribution of feature
+#' 
+#' 
+#' @export
 plot_density <- function(data, feature = "feature_mean_intensity_all", fill = NULL,
                          font.size = 12, title = feature){
   
