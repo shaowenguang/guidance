@@ -3,14 +3,21 @@ Type: Package
 Title: Proteomic Map
 Version: 0.99.1
 Authors@R: person("Wenguang", "Shao", email = "shaowenguang@gmail.com", role = c("aut", "cre"))
-Maintainer: 
 Description: Proteomic map.
 Depends: R (>= 3.3.1) 
+Imports:
+  data.table,
+  MASS,
+  ggplot2,
+  grid,
+  gplots,
+  plyr,
+  GGally,
+  ggfortify,
+  gridExtra
 License: What license is it under? (GPL-3)
 Encoding: UTF-8
 LazyData: true
-Imports:
-    
 Suggests: knitr,
     rmarkdown
 VignetteBuilder: knitr
