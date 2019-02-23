@@ -86,7 +86,7 @@ install.packages("devtools")
 devtools::install_github("shaowenguang/guidance ", build_vignettes = TRUE)
 ```
 
-```{r dependencies}
+```{r dependencies, echo= FALSE}
 # dependencies for now, before package well established 
 library(data.table)
 library(MASS)
@@ -181,11 +181,11 @@ kable(cons_peptideIons_features[1:5,] %>%
         select(c("PeptideIon", "feature_mean_intensity_all" , "feature_cv_intensity_all")))
 ```
 
-The feature-level statistics can be visualized using `ggplot2` into barplots, correlation matrix, trend lines and etc. In addiiton, we provide `plot_density()`, `plot_heatmap()`, `plot_bar_intensity_prob()` and `plot_a_heatmap_include_prob_update()` to visualize quantitative pattern of a feature (refer to Part 5: Visualization for details). Here is example demonstration of visualzing density distribution of average score using `plot_density()`. 
+The feature-level statistics can be visualized using `ggplot2` into barplots, correlation matrix, trend lines and etc. In addiiton, we provide `plot_density()`, `plot_heatmap()`, `plot_bar_intensity_prob()` and `plot_a_heatmap_include_prob_update()` to visualize quantitative pattern of a feature (refer to Part 5: Visualization for details). Here is an example demonstration of visualzing density distribution of average intensity using `plot_density()`. 
 
 ```{r calculate_feature_plot, fig.show='hold', fig.align='center', fig.height=3, fig.width=4.5}
-# visualize CV of peptide intensities through density plot:
-plot_density(cons_peptideIons_features, feature = "feature_averaged_score_all")
+# visualize average peptide intensities through density plot:
+plot_density(cons_peptideIons_features, feature = "feature_mean_intensity_all")
 ```
 
 \pagebreak
@@ -246,7 +246,7 @@ kable(prot_inf[1:5, c("ProteinName", "mean_intensity_A", "cv_intensity_A",
 
 \pagebreak
 
-# Visulizations
+# Visualization
 After feature selection, users can visualize pattern of peptides corresponding to the same protein by `plot_a_heatmap_include_prob_update()`. This function visualizes correlation coefficient, average intensity and posterior probability of each peptides and also denote which peptides have been kept or removed through LDA classification. 
 
 ```{r feature_plots, fig.show='hold', eval=FALSE}
@@ -265,6 +265,8 @@ dev.off()
 ```{r feature_plot, include = TRUE, fig.align = "center", echo=FALSE, out.width = '150%'}
 knitr::include_graphics("feature_selection_plot.PNG")
 ```
+
+\pagebreak
 
 # Train linear discriminant analysis (LDA) model 
 In this part, we demonstrate how to train a LDA model using own standard dataset. Note that unless dataset that is significantly affected by intrument-specific factors, we recommend users to employ the default models in this package, which have been trained by the quantitative golden standard (QGS).  
@@ -372,7 +374,7 @@ ggplot(data=means_long, aes(x=feature, y=value, fill=peptide)) +
   ggtitle("Group means")
 ```
 
-```{r plot_coefficients_model, fig.show='hold'}
+```{r plot_coefficients_model, fig.show='hold', fig.align='center', fig.width=5, fig.height=5}
 # Coefficients of linear disciminants in pie chart:
 scales <- melt(model_lda_ecoli$scaling); 
 colnames(scales) <- c("feature", "var", "value")
@@ -387,7 +389,8 @@ for(row in rows){
 ggplot(scales, aes(x="", y=value, fill=feature))+
   geom_bar(width = 1, stat = "identity") +
   coord_polar("y", start=0, direction = -1)+
-  theme_void()
+  theme_void()+
+  scale_fill_brewer(palette="Dark2")
 ```
 
 This model is now ready to use for `perform_selection()` as a part of protein inference step. 
