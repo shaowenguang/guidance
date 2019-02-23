@@ -1,7 +1,7 @@
 ---
 title: "DIA-guidance"
 author: | 
-  | Wenguang Shao
+  | Wenguang Shao, Chloe Lee
   | Institute of Molecular Systems Biology, Department of Biology, ETH Zurich, Switzerland
 date: "`r Sys.Date()`"
 output: pdf_document
@@ -11,9 +11,10 @@ vignette: >
   %\VignetteEncoding{UTF-8}
   %\usepackage[utf8]{inputenc}
 abstract: |
-  This vignette describes how to apply `DIA-guidance` package to infer protein abundance from DIA/SWATH-MS peptide measurements. The DIA-guidance employs an automated machine learning approach to integrate information from multiple dimensions of DIA dataset and select peptides that accurately reflect abundance of their corresponding proteins, and have shown improved quantitative accuracy, consistency and reproducibility. 
+  This vignette describes how to apply `SWATH-guidance` package to estimate protein abundances from DIA/SWATH-MS measurements. The SWATH-guidance employs an automated machine learning based approach to extract and integrate information from multiple dimensions of DIA dataset and select peptides (or transitions) that reliably and accurately reflect abundances of their corresponding proteins. It have shown improved quantitative accuracy, consistency and reproducibility for targeted mass spectrometry. 
   
-  The workflow of DIA-guidance consists of three major steps – intensity normalization, peptide/fragment selection and statistical analysis – in interface with widely used upstream and downstream statistical tools in DIA community. This package was programmed and intended for researchers in proteomics without extensive programming skills but with basic R knowledge. 
+  The workflow overall consists of three major steps – data import, peptide/fragment ion selection and abundance summarization. After that, it interfaces seamlessly with several widely used downstream statistical tools in the research community. This package was designed and programmed in a way that allows an easy and friendly use for researchers without extensive programming skills but with very basic R knowledge. 
+
 
 toc: yes
 toc_depth: 1  
@@ -71,7 +72,7 @@ If users have own standard measurements and with to train own LDA models, refer 
 
 \pagebreak
 
-# Package installation and data loading 
+# Package installation and data importing 
 
 ## Installing DIA-guidance
 To install the DIA-guidance package, the following commands can be executed in R:
@@ -104,10 +105,8 @@ The example data is a reduced SWATH output file generated from the ... dataset. 
 
 (I think we need a reduced SWTAH data that can be deposited in the package, but not QGS dataset)
 
-## Loading the data 
-The package provides several options to import data table:
-
-The package provides `import_openswath()` function to import SWATH data and sample annotation:
+## Importing the data 
+The package provides `import_openswath()` function to import DIA/SWATH-MS data and the associated sample annotation table:
 ```{r load_data, fig.show='hold'}
 library(Prom)
 peptideIons <- import_openswath(search_results= "E:/DIA-guidance/feature_alignment.csv", 
@@ -115,7 +114,7 @@ peptideIons <- import_openswath(search_results= "E:/DIA-guidance/feature_alignme
                                 level="PeptideIon") 
 ```
 
-The users can import SWATH data of different peptide/fragment levels by denoting `level` to `"PeptideIon"`,`"Transition"`, `"Peptide"`or `"PeptideWithMod"`. Note that downstream analysis may be different depending on peptide/fragment level of imported data. 
+The users can import DIA/SWATH-MS data of different levels by denoting `level` to `"PeptideIon"` (by default),`"Transition"`, `"Peptide"`or `"PeptideWithMod"`. Note that downstream analysis may be different depending on peptide/fragment level of imported data. 
 
 Alternatively, users can import directly from Euler portal using `import_openswath_matrix_fromEulerPortal`
 ```{r load_data_euler, fig.show='hold'}
@@ -123,8 +122,8 @@ Alternatively, users can import directly from Euler portal using `import_openswa
 # import_openswath_matrix_fromEulerPortal(search_results, sample_annotation = NULL) 
 ```
 
-## Prepare data
-The SWATH data is in long format i.e. each row is one variable per peptide. But to facilitate downstream analysis to normalize, compute features and infer protein abundances, we provide a helpful utility function `long2wide()` to convert from long to wide format data, i.e. one peptide's variables in a single row.  
+## Preparing the data
+The original DIA/SWATH-MS data (e.g. search results from OpenSWATH) is presented in long format i.e. each row is one variable per peptide. To facilitate downstream analysis to normalize, compute features and select peptides/transitions, we provide a simple utility function `long2wide()` to convert from long to wide format data i.e. one peptide's variables in a single row.  
 
 ```{r long2wide, fig.show='hold'}
 all_peptideIons <- long2wide(peptideIons)
