@@ -348,14 +348,14 @@ plot_bar_intensity_prob <- function(case, cutoff_prob=0.3, plot_intensity = T,
 
 
 
-plot_density <- function(data, feature = "feature_mean_intensity_all",
+plot_density <- function(data, feature = "feature_mean_intensity_all", fill = NULL,
                          font.size = 12, title = feature){
   
   if(feature == "feature_mean_intensity_all"){
     data[[feature]] <- log2(data[[feature]])
   }
   
-  ggplot(data, aes_string(x=feature, fill="label")) + 
+  ggplot(data, aes_string(x=feature, fill=fill)) + 
     geom_density(alpha=0.8)  + theme(
       axis.text=element_text(size=font.size), 
       axis.title=element_text(size=font.size),    
