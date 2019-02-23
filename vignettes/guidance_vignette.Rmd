@@ -1,7 +1,7 @@
 ---
 title: "DIA-guidance"
 author: | 
-  | Wenguang Shao, Chloe Lee
+  | Wenguang Shao, Chloe H. Lee
   | Institute of Molecular Systems Biology, Department of Biology, ETH Zurich, Switzerland
 date: "`r Sys.Date()`"
 output: pdf_document
@@ -11,7 +11,7 @@ vignette: >
   %\VignetteEncoding{UTF-8}
   %\usepackage[utf8]{inputenc}
 abstract: |
-  This vignette describes how to apply `SWATH-guidance` package to estimate protein abundances from DIA/SWATH-MS measurements. The SWATH-guidance employs an automated machine learning based approach to extract and integrate information from multiple dimensions of DIA dataset and select peptides (or transitions) that reliably and accurately reflect abundances of their corresponding proteins. It have shown improved quantitative accuracy, consistency and reproducibility for targeted mass spectrometry. 
+  This vignette describes how to apply `DIA-guidance` package to estimate protein abundances from DIA/SWATH-MS measurements. The DIA-guidance employs an automated machine learning based approach to extract and integrate information from multiple dimensions of DIA dataset and select peptides (or transitions) that reliably and accurately reflect abundances of their corresponding proteins. It have shown improved quantitative accuracy, consistency and reproducibility for targeted mass spectrometry. 
   
   The workflow overall consists of three major steps – data import, peptide/fragment ion selection and abundance summarization. After that, it interfaces seamlessly with several widely used downstream statistical tools in the research community. This package was designed and programmed in a way that allows an easy and friendly use for researchers without extensive programming skills but with very basic R knowledge. 
 
@@ -109,8 +109,8 @@ The example data is a reduced SWATH output file generated from the ... dataset. 
 The package provides `import_openswath()` function to import DIA/SWATH-MS data and the associated sample annotation table:
 ```{r load_data, fig.show='hold'}
 library(Prom)
-peptideIons <- import_openswath(search_results= "E:/DIA-guidance/feature_alignment.csv", 
-                                sample_annotation="E:/DIA-guidance/sample_annotation", 
+peptideIons <- import_openswath(search_results= "S:/SWATH-guidance/feature_alignment.csv", 
+                                sample_annotation="S:/SWATH-guidance/sample_annotation", 
                                 level="PeptideIon") 
 ```
 
@@ -278,8 +278,8 @@ The workflow is shown below:
 ```{r mean_intensity_from_feature, fig.show='hold', eval = FALSE}
 
 # prepare data matrix 
-peptideIons <- import_openswath(search_results= "D:/SWATH-guidance/feature_alignment.csv", 
-                                sample_annotation="D:/SWATH-guidance/sample_annotation", 
+peptideIons <- import_openswath(search_results= "S:/SWATH-guidance/feature_alignment.csv", 
+                                sample_annotation="S:/SWATH-guidance/sample_annotation", 
                                 level="PeptideIon") 
 all_peptideIons <- long2wide(peptideIons)
 
@@ -391,7 +391,6 @@ ggplot(scales, aes(x="", y=value, fill=feature))+
 ```
 
 This model is now ready to use for `perform_selection()` as a part of protein inference step. 
-
 
 # SessionInfo
 
