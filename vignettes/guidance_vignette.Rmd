@@ -101,12 +101,13 @@ library(gridExtra)
 
 
 ## Example data
-The example data is a reduced SWATH output file generated from the ... dataset. Details on which dataset to include in the package for demonstration purpose.  
+The example data is a subset of the OpenSWATH search results generated from the ... dataset [ref]. Details on which dataset to include in the package for demonstration purpose.  
 
 (I think we need a reduced SWTAH data that can be deposited in the package, but not QGS dataset)
+(Wenguang: can we use the subset, e.g., ~10 E coli. proteins from QGS datasets?)
 
 ## Importing the data 
-The package provides `import_openswath()` function to import DIA/SWATH-MS data and the associated sample annotation table:
+The package provides `import_openswath()` function to import DIA/SWATH-MS search results and the associated sample annotation table:
 ```{r load_data, fig.show='hold'}
 library(Prom)
 peptideIons <- import_openswath(search_results= "S:/SWATH-guidance/feature_alignment.csv", 
@@ -114,16 +115,17 @@ peptideIons <- import_openswath(search_results= "S:/SWATH-guidance/feature_align
                                 level="PeptideIon") 
 ```
 
-The users can import DIA/SWATH-MS data of different levels by denoting `level` to `"PeptideIon"` (by default),`"Transition"`, `"Peptide"`or `"PeptideWithMod"`. Note that downstream analysis may be different depending on peptide/fragment level of imported data. 
+The user can import DIA/SWATH-MS results of different levels by specifically denoting `level` to `"PeptideIon"` (by default),`"Transition"`, `"Peptide"`or `"PeptideWithMod"`. Note that downstream analysis may be different depending on peptide/fragment level of imported data. 
 
-Alternatively, users can import directly from Euler portal using `import_openswath_matrix_fromEulerPortal`
+Alternatively, to import directly DIA/SWATH-MS results processed via Euler portal [ref], the user can use the function `import_openswath_matrix_fromEulerPortal`
 ```{r load_data_euler, fig.show='hold'}
 # import Yansheng's data this way: 
 # import_openswath_matrix_fromEulerPortal(search_results, sample_annotation = NULL) 
+(wenguang: sample_annotation is NULL? we need to check...)
 ```
 
 ## Preparing the data
-The original DIA/SWATH-MS data (e.g. search results from OpenSWATH) is presented in long format i.e. each row is one variable per peptide. To facilitate downstream analysis to normalize, compute features and select peptides/transitions, we provide a simple utility function `long2wide()` to convert from long to wide format data i.e. one peptide's variables in a single row.  
+The original DIA/SWATH-MS data (e.g. search results from OpenSWATH) is presented in long format, i.e., each row is one variable per peptide. To facilitate downstream analysis to normalize, compute features and select peptides/transitions, we provide a simple utility function `long2wide()` to convert from long to wide format data i.e. one peptide's variables in a single row.  
 
 ```{r long2wide, fig.show='hold'}
 all_peptideIons <- long2wide(peptideIons)
@@ -136,11 +138,14 @@ all_peptideIons <- long2wide(peptideIons)
 We hereby show a step-by-step demonstration to normalize peptide/fragment-level intensities, calculate and select features and conduct statistical tests to accurately infer protein abundance from DIA/SWATH-MS data. 
 
 ## Normalize data
-The `normalize_data()` provides options to normalize intensities across different samples by `"mediancenter"`,`"quantile"`, `"TIC"` or`"iRT"`. If there is no need to normalize intensities, can denote `normalization = "none”`. 
+The `normalize_data()` provides options to normalize intensities across different samples by `"mediancenter"` (by default),`"quantile"`, `"TIC"` or`"iRT"`. If there is no need to normalize intensities, can denote `normalization = "none”`. 
 
-Quantile normalization and median-centering are two commonly used methods for normalizing proteomics data. The TIC normalization is based on total ion count (TIC), where all mass spectra are divided by their TIC, resulting in the same integrated area under the spectrum. TIC normalization is useful across samples containing similar cell types, but when comparing widely different tissues types, TIC-corrected expression levels may not be applicable. For samples with injected iRT (indexed retention time) standards, the data can also be normalized against the measurements of iRT peptides. 
+Quantile normalization and median-centering are two commonly used methods for normalizing proteomics data. The TIC normalization is based on total ion current (TIC), where all mass spectra are divided by their TIC, resulting in the same integrated area under the spectrum. TIC normalization is useful across samples containing similar cell types, but when comparing widely different tissues types, TIC-corrected expression levels may not be applicable. For samples with injected iRT (indexed retention time) standards, the data can also be normalized against the measurements of iRT peptides. 
+(Wenguang: Chloe, I think the basic assumption for the usage of TIC is to assume that the same amount of proteins was injected for each MS run. That's why we can sum all the peptides identified to a certain number.)
 
-For implementation, users can also specify how to treat missing values via `replaceNA =` either to `"remove"` or `"keep"` them, alternatively to replace them by `"zero"` or `“min_intensity"`. 
+
+For missing values (NAs), users can also specify how to treat those via `replaceNA =` either to `"remove"` or `"keep"` (by default), alternatively users have the options to replace NAs by `"zero"` or `“min_intensity"`. 
+(Wenguang: shall we have some explanations for each parameters?)
 
 ```{r normalize_data, fig.show='hold'}
 all_peptideIons_normalized <- normalize_data(all_peptideIons, replaceNA="keep", 
@@ -149,6 +154,7 @@ all_peptideIons_normalized <- normalize_data(all_peptideIons, replaceNA="keep",
 
 ## Filter proteotypic peptides
 The `merge_replicate()` merges biological replicates under column name `“SampleName”` and computes average intensity, coefficient of variation (CV) and number of missing values for each sample. 
+(Wengunag: I think we may need to have more description for the function, merge_replicate... Actually, this function works with both "peptides" (as we used here) and "proteins" (as we will use after protein abundance estimation).)
 
 From a list of detected peptides, we recommend filtering proteotypic peptides for protein inference. For any given protein, only a few proteotypic peptides are uniquely and consistently identified [5], thus these peptides represent those most confidently observed current MS-based proteomics methods. 
 
@@ -158,9 +164,10 @@ cons_peptideIons <- cons_peptideIons[which(grepl("^1/", cons_peptideIons$Protein
 ```
 
 [5] Ting Huang, Jingjing Wang, Weichuan Yu, Zengyou He; Protein inference: a review, Briefings in Bioinformatics, Volume 13, Issue 5, 1 September 2012, Pages 586–614, 
+(Wenguang: chloe, this is a very nice review. And the classic one is https://www.ncbi.nlm.nih.gov/pubmed/16009968. Sorry that I forget to send you in time. I will write the function for proteotyptic filtering.)
 
 ## Calculate features
-In addition to sample-oriented features, `calc_feature()` computes statistics among peptides corresponding to the same protein. These features include average intensity, coefficient of variation (CV), number of missing values, average score, standard deviation, median Pearson correlation coefficient (PCC), median spearman correlation coefficient (SCC) and median absolute deviation (MAD). We also display scaled statistics where the numeric values are centered by subtracting the mean and scaled by dividing their standard deviation. 
+In addition to the features that describes the resprobudility, `calc_feature()` computes the metric that describes the relationship among peptides corresponding to the same protein. These features include average intensity, coefficient of variation (CV), number of missing values, average score, standard deviation, median Pearson correlation coefficient (PCC), median spearman correlation coefficient (SCC) and median absolute deviation (MAD). We also display scaled statistics after normalization, where the numeric values are centered by subtracting the mean and scaled by dividing their standard deviation. In this way, the weights of each feature can be directly compared each other, which indicate their relatively discriminative power to diffenticiate good and bad features.
 
 From the full list of computed statistics, we utilize selected features to establish LDA models.
 
@@ -169,6 +176,7 @@ cons_peptideIons_features <- calc_features(cons_peptideIons)
 
 # following statistics are computed for each peptide: 
 setdiff(colnames(cons_peptideIons_features), colnames(cons_peptideIons))
+(Wenguang: something may be wrong above?)
 ```
 
 Demonstration of a few features in table:
@@ -193,35 +201,41 @@ plot_density(cons_peptideIons_features, feature = "feature_mean_intensity_all")
 ## Perform selection on features 
 After calculating feature statistics, we implemented linear discriminant analysis (LDA) model to combine sub-scores describing various features into a poster probability of being a RARE (reproducible abundance representative entities). These RAREs are subset of peptides that accurately and reliably reflects the abundance of their corresponding proteins. 
 
-In this analysis, we assume that users are using the QGS-trained LDA models (see Part 4 on how to train models with own datasets). 
+In this package, we trained the LDA models from the QGS datasets and set them as default to facilitate for future use.
+For more details about training user-specific models if necessary, please see Part 4). 
 
 The function `perform_selection()` calculates the posterior probability using trained LDA model deposited in `DIA-guidance/data`:
 ```{r perform_selection, fig.show='hold',fig.align='center', fig.height=3, fig.width=4.5}
 test <- perform_selection(cons_peptideIons_features) 
 
 # histogram of posterior probaility
-hist(test$prob, main = "Histogram of posterior probability", xlab="posterior probability")
+hist(test$prob, main = "Histogram of posterior probability", xlab="Posterior probability")
+(Wenguang: shall we descibe the histogram, e.g. the binomial dist. that indicates the sucess of the seperation of two groups of feature)
 ```
 
 \pagebreak
 
 ## Estimate protein abundance 
 
-### Filtering & imputation on missing values
-First, to obtain an optimal peptide to protein inference, users can pre-process dataset prior to protein inference step. 
+### selecting 
+(Wenguang: this is the core of the algorithm. so i think it is good to keep it as an indepedent section)
 
-+ Filter peptides by posterior probability threshold: users can filter peptides with a decent posterior probability e.g. probability > 0.2 
+To estimate robust protein abundances, the user can use the posterior probability predicted (0.2 by default), to perform an optimal selection of peptide features that accurately and reliably represent their respective protein concentrations.
+
++ Filter peptides by posterior probability: users can increase this threshold to increase their confidence for peptide selection, e.g., probability > 0.4.
 ```{r protein_infer_filter, fig.show='hold'}
 test_yesFiltered <- test[prob > 0.2, ]
 ```
+(Wenguang: this is not urgent. but as discussed, maybe we can have an algorithm to automatically detect this threshold. It is not very diffcult to implement, which requires some knowledge of parametric fitting. I also expect this currently hard-coded threshold would be sth that the reviewers may attack...)
 
+### imputation on missing values
 + Impute missing values: in the case of missing values, we provide `imputate_missing_values()` to impute a value following uniform distribution between minimum $0.1 \times CV$ and minimum $1.1 \times CV$
 ```{r protein_infer_impute, fig.show='hold'}
 test_yesFiltered_yesImputated <- imputate_missing_values(test_yesFiltered, c(3:17))
 ```
 
 ### Parameter adjustment for protein abundance inference 
-Once the data is ready to proceed with protein inference step, we provide `pept2prot()` to infer protein abundance from peptide/fragment-level intensities. We provide a number of parameters that users can denote for an optimal estimation of protein abundance. 
+Once the data is ready to proceed with protein inference step, we provide `pept2prot()` to summerize protein abundance from peptide/fragment-level intensities. We provide a number of parameters that users can denote for an optimal estimation of protein abundance. 
 
 + Number of peptides to be utilized for protein inference by denoting a numeric value at `topN`
 + Method to aggregate peptide/fragment intensities by `aggfun = “mean”` or `“sum”` 
