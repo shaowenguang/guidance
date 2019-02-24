@@ -220,7 +220,7 @@ hist(test$prob, main = "Histogram of posterior probability", xlab="Posterior pro
 ### selecting 
 (Wenguang: this is the core of the algorithm. so i think it is good to keep it as an indepedent section)
 
-To estimate robust protein abundances, the user can use the posterior probability predicted (0.2 by default), to perform an optimal selection of peptide features that accurately and reliably represent their respective protein concentrations.
+To estimate robust protein abundances, the user can use the posterior probability predicted, to perform an optimal selection (0.2 by default) of peptide features that accurately and reliably represent their respective protein concentrations.
 
 + Filter peptides by posterior probability: users can increase this threshold to increase their confidence for peptide selection, e.g., probability > 0.4.
 ```{r protein_infer_filter, fig.show='hold'}
@@ -229,19 +229,21 @@ test_yesFiltered <- test[prob > 0.2, ]
 (Wenguang: this is not urgent. but as discussed, maybe we can have an algorithm to automatically detect this threshold. It is not very diffcult to implement, which requires some knowledge of parametric fitting. I also expect this currently hard-coded threshold would be sth that the reviewers may attack...)
 
 ### imputation on missing values
-+ Impute missing values: in the case of missing values, we provide `imputate_missing_values()` to impute a value following uniform distribution between minimum $0.1 \times CV$ and minimum $1.1 \times CV$
++ Impute missing values: in targeted mass spectrometry, it is rational and important to generate a quantitative protein matrix that contains a least number of missing values. Thus, we provide `imputate_missing_values()` to impute values following a uniform distribution between minimum $0.1 \times CV$ and minimum $1.1 \times CV$
 ```{r protein_infer_impute, fig.show='hold'}
 test_yesFiltered_yesImputated <- imputate_missing_values(test_yesFiltered, c(3:17))
 ```
 
 ### Parameter adjustment for protein abundance inference 
-Once the data is ready to proceed with protein inference step, we provide `pept2prot()` to summerize protein abundance from peptide/fragment-level intensities. We provide a number of parameters that users can denote for an optimal estimation of protein abundance. 
+After selecting, the user can apply the funcation `pept2prot()` to summerize protein abundance using peptide/fragment-level intensities. We provide a number of parameters that allows the user to choose under different conditions. 
 
 + Number of peptides to be utilized for protein inference by denoting a numeric value at `topN`
 + Method to aggregate peptide/fragment intensities by `aggfun = “mean”` or `“sum”` 
-+ Weight intensity of each peptide by their posterior probability by boolean model in estimating protein abundance by denoting `bool_weighted_by_prob = TRUE` 
++ Weight intensity of each peptide by their posterior probability in estimating protein abundance by denoting `bool_weighted_by_prob = TRUE` 
 
-The default paramets for protein inference step are as follows. They have consistently shown good performance over a wide range of datasets.
+(Wenguang: chloe, bool is the indicator for the variable, which means it is a binary; not the model is boolean...)
+
+The default parameters for protein abundance summerization step are as follows. They have consistently shown good performance over our QGS datasets.
 ```{r protein_infer_default, fig.show='hold'}
 prot_inf <- merge_replicates(pept2prot(
   test_yesFiltered_yesImputated, "prob", 3, aggfun="sum", bool_weighted_by_prob=T), anno)
@@ -261,7 +263,7 @@ kable(prot_inf[1:5, c("ProteinName", "mean_intensity_A", "cv_intensity_A",
 \pagebreak
 
 # Visualization
-After feature selection, users can visualize pattern of peptides corresponding to the same protein by `plot_a_heatmap_include_prob_update()`. This function visualizes correlation coefficient, average intensity and posterior probability of each peptides and also denote which peptides have been kept or removed through LDA classification. 
+After feature selection, users can visualize protein profiles, together with its generated peptides, across multiple conditions by `plot_a_heatmap_include_prob_update()`. This function visualizes features, such as metrics of reproducibility, correlation coefficient, averaged intensity, as well as posterior probabilities of each peptide with the indicator (dash or solid line) of which peptides have been kept or removed through the selection. 
 
 ```{r feature_plots, fig.show='hold', eval=FALSE}
 # peptides corresponding to the protein of interest  
@@ -282,10 +284,10 @@ knitr::include_graphics("feature_selection_plot.PNG")
 
 \pagebreak
 
-# Train linear discriminant analysis (LDA) model 
-In this part, we demonstrate how to train a LDA model using own standard dataset. Note that unless dataset that is significantly affected by intrument-specific factors, we recommend users to employ the default models in this package, which have been trained by the quantitative golden standard (QGS).  
+# Train linear discriminant analysis (LDA) models 
+In this part, we demonstrate how to train the LDA model that is used as a default model in the package. This model was trained by the QGS dataset. In addition, the user can, if necessary, also train their own model by using these commands. 
 
-Here, we utilize the QGS dataset to demontrate how to train a LDA model, which contains different ratios of *E.coli* proteins but equal amount of human proteins between different samples. 
+Here, we utilize the QGS dataset to demontrate how to train LDA models, consisting of a DE model using *E.coli* proteins with known and perturbed expressions, and a EE model using *Human* proteins with equal expression. 
 
 ## Compute feature statistics of QGS data
 To prepare for a training dataset, follow the data analysis steps in Part 2 up to feature calculation. Following `normalize_data()` and `calc_features()`, the dataset contains sample- and peptide-oriented features such as average sample intensity, sample CV, average peptide intensity, peptide CV, average peptide scores and etc. 
@@ -366,7 +368,7 @@ plot_density(ecoli, feature = "cor_std" , fill = "label",  title = "correlation"
 
 \pagebreak
 
-## Establish LDA model 
+## Train a LDA model 
 After feature calculation and classification into good or bad peptides, the LDA model can be established based on these features: 
 ```{r model_train, fig.show='hold'}
 index_feature_selected <- c("scaled_mean_intensity_all", "scaled_cv_intensity_all", 
