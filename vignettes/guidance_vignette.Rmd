@@ -191,7 +191,7 @@ kable(cons_peptideIons_features[1:5,] %>%
 
 The feature-level statistics can be visualized using `ggplot2` into barplots, correlation matrix, trend lines and etc. In addiiton, we provide `plot_density()`, `plot_heatmap()`, `plot_bar_intensity_prob()` and `plot_a_heatmap_include_prob_update()` to visualize quantitative pattern of a feature (refer to Part 5: Visualization for details). Here is an example demonstration of visualzing density distribution of average intensity using `plot_density()`. 
 
-```{r calculate_feature_plot, fig.show='hold', fig.align='center', fig.height=3, fig.width=4.5}
+```{r calculate_feature_plot, fig.show='hold', fig.align='center', fig.height=2.5, fig.width=4}
 # visualize average peptide intensities through density plot:
 plot_density(cons_peptideIons_features, feature = "feature_mean_intensity_all")
 ```
