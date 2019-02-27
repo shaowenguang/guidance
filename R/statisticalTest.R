@@ -38,12 +38,6 @@ perform_peca_tests <- function(input_file, anno, input_test="modt", input_bool_p
 
 
 
-#' @param input_dt 
-#'
-#' @param anno 
-#' @param input_bool_paired 
-#' @param input_mtc_method 
-#'
 #' @export
 perform_t_tests <- function(input_dt, anno, input_bool_paired=FALSE, input_mtc_method="bonferroni") {
   
@@ -63,7 +57,8 @@ perform_t_tests <- function(input_dt, anno, input_bool_paired=FALSE, input_mtc_m
         g2 <- paste0("Intensity_", anno[anno$SampleName==unique(anno$SampleName)[j], ]$Injection)
         
         one_comp <- rowttests( as.matrix(cbind(log2(input_dt[, g1, with=F]+1), log2(input_dt[, g2, with=F]+1))), 
-                   fac=factor(c(rep(unique(anno$SampleName)[i], length(g1)), rep(unique(anno$SampleName)[j], length(g2)))) )
+                   fac=factor(c(rep(unique(anno$SampleName)[i], length(g1)),
+                                rep(unique(anno$SampleName)[j], length(g2)))) )
         
         one_comp["ProteinName"] <- input_dt$ProteinName
         one_comp["Label"] <- paste0(unique(anno$SampleName)[i], "/", unique(anno$SampleName)[j])
