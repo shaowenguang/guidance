@@ -1,5 +1,5 @@
 #' @export
-perform_peca_tests <- function(input_file, input_test="modt", input_bool_paired=FALSE) {
+perform_peca_tests <- function(input_file, anno, input_test="modt", input_bool_paired=FALSE) {
   
   numSamples <- length(unique(anno$SampleName)) 
   
@@ -38,8 +38,14 @@ perform_peca_tests <- function(input_file, input_test="modt", input_bool_paired=
 
 
 
+#' @param input_dt 
+#'
+#' @param anno 
+#' @param input_bool_paired 
+#' @param input_mtc_method 
+#'
 #' @export
-perform_t_tests <- function(input_dt, input_bool_paired=FALSE, input_mtc_method="bonferroni") {
+perform_t_tests <- function(input_dt, anno, input_bool_paired=FALSE, input_mtc_method="bonferroni") {
   
   numSamples <- length(unique(anno$SampleName)) 
   
@@ -81,7 +87,7 @@ perform_t_tests <- function(input_dt, input_bool_paired=FALSE, input_mtc_method=
 
 
 #' @export
-perform_modt_tests <- function(input_dt, input_bool_paired=FALSE, input_mtc_method="BH") {
+perform_modt_tests <- function(input_dt, anno, input_bool_paired=FALSE, input_mtc_method="BH") {
   
   numSamples <- length(unique(anno$SampleName)) 
   
@@ -93,7 +99,8 @@ perform_modt_tests <- function(input_dt, input_bool_paired=FALSE, input_mtc_meth
       
       if(i > j) {
         
-        message("Now performing modt tests using limma package: ", unique(anno$SampleName)[i], " vs ", unique(anno$SampleName)[j])
+        message("Now performing modt tests using limma package: ", 
+                unique(anno$SampleName)[i], " vs ", unique(anno$SampleName)[j])
         
         g1 <- paste0("Intensity_", anno[anno$SampleName==unique(anno$SampleName)[i], ]$Injection)
         g2 <- paste0("Intensity_", anno[anno$SampleName==unique(anno$SampleName)[j], ]$Injection)
@@ -104,12 +111,14 @@ perform_modt_tests <- function(input_dt, input_bool_paired=FALSE, input_mtc_meth
         #one_comp <- rowttests( as.matrix(cbind(log2(input_dt[, g1, with=F]+1), log2(input_dt[, g2, with=F]+1))), 
         #                       fac=factor(c(rep(unique(anno$SampleName)[i], length(g1)), rep(unique(anno$SampleName)[j], length(g2)))) )
         
-        one_comp <- data.frame(         ProteinName = input_dt$ProteinName,
-                                        Label = paste0(unique(anno$SampleName)[i], "/", unique(anno$SampleName)[j]),
-                                        numPerProt = input_dt$numPerProt,
-                                        protQuantProb = input_dt$protQuantProb )
+        one_comp <- data.frame(ProteinName = input_dt$ProteinName,
+                               Label = paste0(unique(anno$SampleName)[i], 
+                                              "/", unique(anno$SampleName)[j]),
+                               numPerProt = input_dt$numPerProt,
+                               protQuantProb = input_dt$protQuantProb )
         
-        limma_input <- as.matrix(cbind(log2(input_dt[, g1, with=F]+1), log2(input_dt[, g2, with=F]+1)))
+        limma_input <- as.matrix(cbind(log2(input_dt[, g1, with=F]+1), 
+                                       log2(input_dt[, g2, with=F]+1)))
         fit <- lmFit(limma_input, design)
         efit <- eBayes(fit)
         
@@ -139,4 +148,5 @@ perform_modt_tests <- function(input_dt, input_bool_paired=FALSE, input_mtc_meth
   return(output_df)
   
 }
-  
+
+
