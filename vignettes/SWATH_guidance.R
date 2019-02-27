@@ -1,9 +1,31 @@
 
+
+# load library for all functions included
+library(Prom)
+library(data.table)
+library(MASS)
+
+library(SWATH2stats) #if PECA cannot be loaded, alternative method 
+library(PECA) #error in devel-version
+library(genefilter) 
+library(ggplot2)
+library(grid)
+library(gplots)
+library(plyr)
+library(GGally)
+library(ggfortify)
+library(gridExtra)
+library(qvalue) # not available for R-devel nor R 3.5.1 
+# Error: Bioconductor version '3.8' requires R version '3.5'; see https://bioconductor.org/install
+
+
+
 # load library 
 library(Prom)
 library(data.table)
 library(MASS)
 
+library(genefilter)
 library(ggplot2)
 library(grid)
 library(gplots)
@@ -21,8 +43,8 @@ BiocManager::install("qvalue", version = "3.8")
 
 #wenguang: it will creat a global variable anno for sample_annotation table...
 #peptideIons <- import_openswath(search_results="feature_alignment.csv", sample_annotation="sample_annotation", level="PeptideIon") 
-peptideIons <- import_openswath(search_results= "D:/SWATH-guidance/feature_alignment.csv", 
-                                sample_annotation="D:/SWATH-guidance/sample_annotation", level="PeptideIon") 
+peptideIons <- import_openswath(search_results= "S:/SWATH-guidance/feature_alignment.csv", 
+                                sample_annotation="S:/SWATH-guidance/sample_annotation", level="PeptideIon") 
 
 
 all_peptideIons <- long2wide(peptideIons)
