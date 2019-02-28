@@ -159,6 +159,20 @@ plot_peptide_intensity <- function(case, cutoff_prob=0.3) {
     colnames(a) <- case$aggr_Fragment_Annotation
   }
   
+  a <- round(cor(t(case[, index_intensity, with=F]), use="p", method="p"), 2)
+  
+  if(bool_isPeptideIon == TRUE) {
+    rownames(a) <- case$PeptideIon
+    colnames(a) <- case$PeptideIon
+  } else {
+    rownames(a) <- case$aggr_Fragment_Annotation
+    colnames(a) <- case$aggr_Fragment_Annotation
+  }
+  
+  a[is.na(a)] <- 0
+  
+  
+  a_reorder <- reorder_cormat(a)
   
   if(bool_isPeptideIon == TRUE) {
     
@@ -288,6 +302,20 @@ plot_bar_intensity_prob <- function(case, cutoff_prob=0.3, plot_intensity = T,
     colnames(a) <- case$aggr_Fragment_Annotation
   }
 
+  a <- round(cor(t(case[, index_intensity, with=F]), use="p", method="p"), 2)
+  
+  if(bool_isPeptideIon == TRUE) {
+    rownames(a) <- case$PeptideIon
+    colnames(a) <- case$PeptideIon
+  } else {
+    rownames(a) <- case$aggr_Fragment_Annotation
+    colnames(a) <- case$aggr_Fragment_Annotation
+  }
+  
+  a[is.na(a)] <- 0
+  
+  
+  a_reorder <- reorder_cormat(a)
   
   if(bool_isPeptideIon == TRUE) {
     
