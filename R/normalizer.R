@@ -223,3 +223,18 @@ merge_replicates <- function(wide, sample_annotation = NULL, bool_NA_means_requa
   return(cons_dt)
   
 }
+
+
+
+
+
+#' @export
+keep_proteotypic_only <- function(input_dt) {
+
+  output_dt <- copy(input_dt)
+
+  output_dt <- output_dt[which(grepl("^1/", output_dt$ProteinName)), ]
+  
+  return(output_dt)
+
+}
