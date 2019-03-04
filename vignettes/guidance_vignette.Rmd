@@ -97,6 +97,7 @@ library(plyr)
 library(GGally)
 library(ggfortify)
 library(gridExtra)
+library(Prom)
 ```
 
 
@@ -109,7 +110,7 @@ The example data is a subset of the OpenSWATH search results generated from the 
 ## Importing the data 
 The package provides `import_openswath()` function to import DIA/SWATH-MS search results and the associated sample annotation table:
 ```{r load_data, fig.show='hold'}
-library(Prom)
+# load data from directory 
 peptideIons <- import_openswath(search_results= "S:/SWATH-guidance/feature_alignment.csv", 
                                 sample_annotation="S:/SWATH-guidance/sample_annotation", 
                                 level="PeptideIon") 
@@ -183,7 +184,7 @@ kable(cons_peptideIons_features[1:5,] %>%
         select(c("PeptideIon", "feature_mean_intensity_all" , "feature_cv_intensity_all")))
 ```
 
-The feature-level statistics can be visualized using `ggplot2` into barplots, correlation matrix, trend lines and etc. In addiiton, we provide `plot_density()`, `plot_heatmap()`, `plot_bar_intensity_prob()` and `plot_a_heatmap_include_prob_update()` to visualize quantitative pattern of a feature (refer to Part 5: [Visualization for details](#visualization)). Here is an example demonstration of visualzing density distribution of average intensity using `plot_density()`. 
+The feature-level statistics can be visualized using `ggplot2` into barplots, correlation matrix, trend lines and etc. In addiiton, we provide `plot_density()`, `plot_heatmap()`, `plot_bar_intensity_n_probability()` and `plot_protein_profile()` to visualize quantitative pattern of a feature (refer to Part 5: [Visualization for details](#visualization)). Here is an example demonstration of visualzing density distribution of average intensity using `plot_density()`. 
 
 ```{r calculate_feature_plot, fig.show='hold', fig.align='center', fig.height=2.5, fig.width=4}
 # visualize average peptide intensities through density plot:
@@ -221,9 +222,9 @@ test_yesFiltered <- test[prob > 0.2, ]
 ```
 
 ### impute missing values
-In targeted mass spectrometry, it is rational and important to generate a quantitative protein matrix that contains a least number of missing values. Thus, we provide `imputate_missing_values()` to impute values following a uniform distribution between minimum $0.1 \times CV$ and minimum $1.1 \times CV$
+In targeted mass spectrometry, it is rational and important to generate a quantitative protein matrix that contains a least number of missing values. Thus, we provide `impute_missing_values()` to impute values following a uniform distribution between minimum $0.1 \times CV$ and minimum $1.1 \times CV$
 ```{r protein_infer_impute, fig.show='hold'}
-test_yesFiltered_yesImputated <- imputate_missing_values(test_yesFiltered, c(3:17))
+test_yesFiltered_yesImputated <- impute_missing_values(test_yesFiltered, c(3:17))
 ```
 
 ### Parameter adjustment for protein abundance inference {#protein_inference}
@@ -235,26 +236,56 @@ After selecting, the user can apply the funcation `pept2prot()` to summerize pro
 
 The default parameters for protein abundance summerization step are as follows. They have consistently shown good performance over our QGS datasets.
 ```{r protein_infer_default, fig.show='hold'}
-prot_inf <- merge_replicates(pept2prot(
+prot_inf_table <- merge_replicates(pept2prot(
   test_yesFiltered_yesImputated, "prob", 3, aggfun="sum", bool_weighted_by_prob=T), anno)
 
 # the protein table contains following variables:
-colnames(prot_inf)
+colnames(prot_inf_table)
 ```
 
 \pagebreak
 
 ```{r protein_infer_default_table, fig.show='hold'}
 # example statistics of protein abundance:
-kable(prot_inf[1:5, c("ProteinName", "mean_intensity_A", "cv_intensity_A", 
+kable(prot_inf_table[1:5, c("ProteinName", "mean_intensity_A", "cv_intensity_A", 
                       "numNA_intensity_A"), with = FALSE])
 ```
+
+## Statistical tests
+
+After the estimation of protein abundance, we provide statistical tools to analyze differential expression pattern from proteomic datasets. These tools include Student’s t-test, ANOVA, bayesian extension of t- and F-statistics and PECA. 
+
++ `perform_t_test()` calculates differential protein expression by Student’s test using `rowttests()` in `genefilter` package. The significance of an expression change is determined based on adjusted p-values of the t-statistics. 
+
++ `perform_anova()` calculates differential expression pattern between and within groups of the same sample.  [more description based on how the function is built]
+fit <- lm(sr ~ ., data = LifeCycleSavings)
+anova(fit)
+
++ `perform_modt_test()` calculates empirical bayes statistics for differential expression between sample groups based on `lmFit()` and `eBayes()`.  
+   + `lmFit()` fits a linear model to the expression data for each protein. The coefficients of the fitted models describe differences between the two compared sample groups. 
+   + Given the linear model fit, the `eBayes()` function computes moderated t-statistics, moderated F-statistics and log-odds of differential expression by empirical Bayes moderation of standard errors. This extension is analogous to relationship between t-tests and F-statistics in conventional anova except that the residual mean squares and residual degree of freedom have been moderated between rows. 
+
++ `perform_peca()` conducts probe-level expression change averaging (PECA) using `PECA_tsv()` to identify expression change between two groups of samples for each protein. 
+   + PECA calculates the probe-level expression changes using the ordinary or modified t-statistics, the ordinary using `rowttests()` in genefilter package and modified t-statistics using linear modeling approach in limma package. The significance of an expression change is determined by the analytical p-value 
+
+
+```{r statistical_tests, fig.show='hold', echo= FALSE, eval = FALSE}
+# t-test 
+t_test_result <- perform_t_tests(prot_inf_table, anno)
+
+# empirical bayes statistics
+modt_result <- perform_modt_tests(prot_inf_table, anno)
+
+# PECA
+peca_result <- perform_peca_tests(prot_inf_table, anno)
+```
+
 
 \pagebreak
 
 # Visualization {#visualization}
 
-After feature selection, users can visualize protein profiles, together with its generated peptides, across multiple conditions by `plot_a_heatmap_include_prob_update()`. This function visualizes features, such as metrics of reproducibility, correlation coefficient, averaged intensity, as well as posterior probabilities of each peptide with the indicator (dash or solid line) of which peptides have been kept or removed through the selection. 
+After feature selection, users can visualize protein profiles, together with its generated peptides, across multiple conditions by `plot_protein_profile()`. This function visualizes features, such as metrics of reproducibility, correlation coefficient, averaged intensity, as well as posterior probabilities of each peptide with the indicator (dash or solid line) of which peptides have been kept or removed through the selection. 
 
 ```{r all_feature_plots, fig.show='hold', eval=FALSE}
 # peptides corresponding to the protein of interest  
@@ -264,12 +295,12 @@ prot_name <- "1/sp|P37108|SRP14_HUMAN"
 pdf("example_protein_profiles.pdf", width=7.5*3, height=4.1*2)
 
 test_prot <- test[test$ProteinName==prot_name, ]
-plot_a_heatmap_include_prob_update(test_prot)
+plot_protein_profile(test_prot)
 
 dev.off()
 ```
 
-These features can be plotted separately by `plot_bar_intensity_prob()`, `plot_cor_heatmap()` and `plot_peptide_intensity()`.
+These features can be plotted separately by `plot_bar_intensity_n_probability()`, `plot_cor_heatmap()` and `plot_peptide_intensity()`.
 
 ```{r feature_plots, fig.show='hold', fig.align='center', fig.height=4, fig.width=8}
 # peptides corresponding to the protein of interest 
@@ -277,16 +308,19 @@ prot_name <- "1/sp|P37108|SRP14_HUMAN"
 test_prot <- test[test$ProteinName==prot_name, ]
 
 # Barplot of average intensity and posterior probability of individual peptides
-plot_bar_intensity_prob(test_prot)
+plot_bar_intensity_n_probability(test_prot)
+```
+\pagebreak
 
+```{r heatmap, fig.show='hold', fig.align='center', fig.height=3, fig.width=6}
 # Heatmap demonstrating correlation between peptides: 
 plot_cor_heatmap(test_prot)
-
-# Plot peptide intensities for each sample: 
-plot_peptide_intensity(test_prot)
-
 ```
 
+```{r intensity, fig.show='hold', fig.align='center', fig.height=4, fig.width=8}
+# Plot peptide intensities for each sample: 
+plot_peptide_intensity(test_prot)
+```
 
 \pagebreak
 
@@ -396,7 +430,9 @@ ggplot(data=means_long, aes(x=feature, y=value, fill=peptide)) +
   ggtitle("Group means")
 ```
 
-```{r plot_coefficients_model, fig.show='hold', fig.align='center', fig.width=5, fig.height=4}
+\pagebreak
+
+```{r plot_coefficients_model, fig.show='hold', fig.align='center', fig.width=5, fig.height=3}
 # Coefficients of linear disciminants in pie chart:
 scales <- melt(model_lda_ecoli$scaling); 
 colnames(scales) <- c("feature", "var", "value")
@@ -417,6 +453,8 @@ ggplot(scales, aes(x="", y=value, fill=feature))+
 
 This model is now ready to use for `perform_selection()` as a part of protein inference step. 
 
+\pagebreak
+
 # SessionInfo
 
 ```{r sessionInfo, eval=TRUE}
@@ -433,6 +471,6 @@ citation('DIA-guidance')
 # References
 
 [5] Ting Huang, Jingjing Wang, Weichuan Yu, Zengyou He; Protein inference: a review, Briefings in Bioinformatics, Volume 13, Issue 5, 1 September 2012, Pages 586–614.{#ref_5}
-
+ 
 (Wenguang: chloe, this is a very nice review. And the classic one is https://www.ncbi.nlm.nih.gov/pubmed/16009968. Sorry that I forget to send you in time. I will write the function for proteotyptic filtering.)
 
