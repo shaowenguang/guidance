@@ -2,7 +2,7 @@
 #' 
 #' 
 #' @export
-plot_a_heatmap_include_prob_update <- function(case, cutoff_prob=0.3) {
+plot_protein_profile <- function(case, cutoff_prob=0.3) {
   
   if("aggr_Fragment_Annotation" %in% names(case)) {
     # the input is transition level data
@@ -276,7 +276,7 @@ plot_cor_heatmap <- function(case, cutoff_prob=0.3) {
 }
 
 #' @export
-plot_bar_intensity_prob <- function(case, cutoff_prob=0.3, plot_intensity = T, 
+plot_bar_intensity_n_probability <- function(case, cutoff_prob=0.3, plot_intensity = T, 
                                                plot_prob = T) {
   
   if("aggr_Fragment_Annotation" %in% names(case)) {

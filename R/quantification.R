@@ -9,7 +9,7 @@ generate_protein_table <- function(input_dt, input_rank_index = "prob", topN = 3
     
     index_intensity <- which(grepl("^Intensity", names(test)))
     
-    test_filtered_imputated <- imputate_missing_values(test_filtered, index_intensity)
+    test_filtered_imputated <- impute_missing_values(test_filtered, index_intensity)
     
     cons_prot_table <- merge_replicates(pept2prot(test_filtered_imputated, input_rank_index, topN, aggfun, bool_weighted_by_prob), anno)
     
@@ -27,7 +27,7 @@ generate_protein_table <- function(input_dt, input_rank_index = "prob", topN = 3
     
     if(bool_imputation == TRUE) {
       
-      lowSignal_imputated <- imputate_missing_values(lowSignal, index_intensity)
+      lowSignal_imputated <- impute_missing_values(lowSignal, index_intensity)
       cons_prot_table_lowSignal <- merge_replicates(pept2prot(lowSignal_imputated, input_rank_index, topN, aggfun, bool_weighted_by_prob), anno)
       
     } else{
@@ -140,7 +140,7 @@ pept2prot_log2 <- function(input_dt, input_index, topN) {
 
 
 #' @export
-imputate_missing_values <- function(input_dt, input_index) {
+impute_missing_values <- function(input_dt, input_index) {
   
   message("start to imputate missing values...")
   

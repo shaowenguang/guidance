@@ -2,18 +2,16 @@
 % Please edit documentation in R/wrapper.R
 \name{dia_guidance}
 \alias{dia_guidance}
-\title{wrapper function
-example
- dia_guidance(data= "S:/SWATH-guidance/feature_alignment.csv", 
-                sample_annotation="S:/SWATH-guidance/sample_annotation", 
-                level="PeptideIon")}
+\title{wrapper function}
 \usage{
-dia_guidance(data, sample_annotation, level)
+dia_guidance(data = NULL, data_fromEuler = NULL,
+  sample_annotation = NULL, level = "PeptideIon", replaceNA = "keep",
+  bool_NA_means_requant = FALSE, averageFun = "mean",
+  normalization = "mediancenter", filter_prob = 0.2,
+  input_rank_index = "prob", topN = 3, aggfun = "sum",
+  bool_weighted_by_prob = TRUE, bool.removeDecoy = T,
+  remove_prefixInFileName = FALSE)
 }
 \description{
 wrapper function
-example
- dia_guidance(data= "S:/SWATH-guidance/feature_alignment.csv", 
-                sample_annotation="S:/SWATH-guidance/sample_annotation", 
-                level="PeptideIon")
 }
