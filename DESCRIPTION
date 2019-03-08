@@ -18,9 +18,9 @@ Imports:
 License: What license is it under? (GPL-3)
 Encoding: UTF-8
 LazyData: true
-Suggests: knitr,
-    rmarkdown
+Suggests: 
+    knitr,
+    rmarkdown,
+    testthat
 VignetteBuilder: knitr
 RoxygenNote: 6.1.1
-
-
