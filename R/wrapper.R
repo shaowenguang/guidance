@@ -1,5 +1,21 @@
 #' wrapper function
 #' 
+#' @param data 
+#' @param data_fromEuler 
+#' @param sample_annotation 
+#' @param level 
+#' @param replaceNA 
+#' @param bool_NA_means_requant 
+#' @param averageFun 
+#' @param normalization 
+#' @param filter_prob 
+#' @param input_rank_index 
+#' @param topN 
+#' @param aggfun 
+#' @param bool_weighted_by_prob 
+#' @param bool.removeDecoy 
+#' @param remove_prefixInFileName 
+#'
 #' @example
 #'  prot_table <- dia_guidance(data= "S:/SWATH-guidance/feature_alignment.csv", 
 #'                 sample_annotation="S:/SWATH-guidance/sample_annotation", 

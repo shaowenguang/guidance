@@ -1,5 +1,7 @@
 #' @importFrom data.table as.data.table
 
+#' @param input_dt 
+#'
 #' @export
 replace_inf <- function(input_dt) {
   
@@ -15,16 +17,22 @@ replace_inf <- function(input_dt) {
 }
 
 
+#' @param x 
+#'
 #' @export
 u_count <- function(x) {
   return( length(unique(x)) )
 }
 
+#' @param x 
+#'
 #' @export
 l_count <- function(x) {
   return( length(which(x)))
 }
 
+#' @param x 
+#'
 #' @export
 mean_na <- function(x) {
   

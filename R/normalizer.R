@@ -1,5 +1,7 @@
 #' @importFrom data.table dcast copy
 
+#' @param input_dt 
+#'
 #' @export
 long2wide <- function(input_dt) {
 
@@ -36,6 +38,8 @@ long2wide <- function(input_dt) {
   
 }
 
+#' @param input_dt 
+#'
 #' @export
 summarize_data <- function(input_dt) {
   
@@ -45,6 +49,11 @@ summarize_data <- function(input_dt) {
   
 }
 
+#' @param input_dt 
+#'
+#' @param replaceNA 
+#' @param normalization 
+#'
 #' @export
 normalize_data <- function(input_dt, replaceNA="keep", normalization="mediancenter") {
   
@@ -137,6 +146,12 @@ normalize_data <- function(input_dt, replaceNA="keep", normalization="mediancent
 }
 
 
+#' @param wide 
+#'
+#' @param sample_annotation 
+#' @param bool_NA_means_requant 
+#' @param averageFun 
+#'
 #' @export
 merge_replicates <- function(wide, sample_annotation = NULL, bool_NA_means_requant = FALSE, averageFun = "mean") {
   
@@ -228,6 +243,8 @@ merge_replicates <- function(wide, sample_annotation = NULL, bool_NA_means_requa
 
 
 
+#' @param input_dt 
+#'
 #' @export
 keep_proteotypic_only <- function(input_dt) {
 

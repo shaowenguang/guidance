@@ -1,3 +1,9 @@
+#' @param input_file 
+#'
+#' @param anno 
+#' @param input_test 
+#' @param input_bool_paired 
+#'
 #' @export
 perform_peca_tests <- function(input_file, anno, input_test="modt", input_bool_paired=FALSE) {
   
@@ -38,6 +44,12 @@ perform_peca_tests <- function(input_file, anno, input_test="modt", input_bool_p
 
 
 
+#' @param input_dt 
+#'
+#' @param anno 
+#' @param input_bool_paired 
+#' @param input_mtc_method 
+#'
 #' @export
 perform_t_tests <- function(input_dt, anno, input_bool_paired=FALSE, input_mtc_method="bonferroni") {
   
@@ -81,6 +93,12 @@ perform_t_tests <- function(input_dt, anno, input_bool_paired=FALSE, input_mtc_m
 }
 
 
+#' @param input_dt 
+#'
+#' @param anno 
+#' @param input_bool_paired 
+#' @param input_mtc_method 
+#'
 #' @export
 perform_modt_tests <- function(input_dt, anno, input_bool_paired=FALSE, input_mtc_method="BH") {
   
@@ -143,5 +161,12 @@ perform_modt_tests <- function(input_dt, anno, input_bool_paired=FALSE, input_mt
   return(output_df)
   
 }
+
+
+perform_anova <- function(
+  
+  
+)
+
 
 

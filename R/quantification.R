@@ -1,3 +1,13 @@
+#' @param input_dt 
+#'
+#' @param input_rank_index 
+#' @param topN 
+#' @param aggfun 
+#' @param bool_weighted_by_prob 
+#' @param bool_imputation 
+#' @param prob_threshold 
+#' @param bool_keep_low_confident_prot 
+#'
 #' @export
 generate_protein_table <- function(input_dt, input_rank_index = "prob", topN = 3, aggfun = "sum", bool_weighted_by_prob = TRUE, bool_imputation = TRUE,
                                    prob_threshold = 0.2, bool_keep_low_confident_prot = FALSE) {
@@ -54,6 +64,13 @@ generate_protein_table <- function(input_dt, input_rank_index = "prob", topN = 3
 
 
 
+#' @param input_dt 
+#'
+#' @param input_rank_index 
+#' @param topN 
+#' @param aggfun 
+#' @param bool_weighted_by_prob 
+#'
 #' @export
 pept2prot <- function(input_dt, input_rank_index = "prob", topN = 3, aggfun = "sum", bool_weighted_by_prob = TRUE) {
   
@@ -110,6 +127,16 @@ pept2prot <- function(input_dt, input_rank_index = "prob", topN = 3, aggfun = "s
 
 
 
+#' Title
+#'
+#' @param input_dt 
+#' @param input_index 
+#' @param topN 
+#'
+#' @return
+#' @export
+#'
+#' @examples
 pept2prot_log2 <- function(input_dt, input_index, topN) {
   
   select <- copy(input_dt)
@@ -139,6 +166,10 @@ pept2prot_log2 <- function(input_dt, input_index, topN) {
 
 
 
+#' @param input_dt 
+#'
+#' @param input_index 
+#'
 #' @export
 impute_missing_values <- function(input_dt, input_index) {
   

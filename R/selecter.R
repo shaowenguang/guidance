@@ -1,6 +1,15 @@
 #' @importFrom MASS lda
 
 #Wenguang: the loop in this function is slow, the results of which, however, were well validated. An updated/faster version to calculate features was implemented below...
+#' Title
+#'
+#' @param input_dt 
+#' @param level 
+#'
+#' @return
+#' @export
+#'
+#' @examples
 calc_features_old_just_backup <- function(input_dt, level="PeptideIon") {
   
   message("start to calculate features per proteins...")
@@ -82,6 +91,8 @@ calc_features_old_just_backup <- function(input_dt, level="PeptideIon") {
 
 
 
+#' @param input_dt 
+#'
 #' @export
 calc_features <- function(input_dt) {
   
@@ -205,6 +216,10 @@ calc_features <- function(input_dt) {
 
 
 
+#' @param input_dt 
+#'
+#' @param input_features 
+#'
 #' @export
 get_lda_model <- function(input_dt, input_features) {
   
@@ -214,6 +229,8 @@ get_lda_model <- function(input_dt, input_features) {
 }
 
 
+#' @param input_dt 
+#'
 #' @export
 perform_selection <- function(input_dt) {
   

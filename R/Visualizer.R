@@ -1,6 +1,9 @@
 #' Visualization of protein abundance 
 #' 
 #' 
+#' @param case 
+#' @param cutoff_prob 
+#'
 #' @export
 plot_protein_profile <- function(case, cutoff_prob=0.3) {
   
@@ -133,6 +136,10 @@ plot_protein_profile <- function(case, cutoff_prob=0.3) {
 
 
 
+#' @param case 
+#'
+#' @param cutoff_prob 
+#'
 #' @export
 plot_peptide_intensity <- function(case, cutoff_prob=0.3) {
   
@@ -232,6 +239,10 @@ plot_peptide_intensity <- function(case, cutoff_prob=0.3) {
   
 }
 
+#' @param case 
+#'
+#' @param cutoff_prob 
+#'
 #' @export
 plot_cor_heatmap <- function(case, cutoff_prob=0.3) {
   
@@ -275,6 +286,12 @@ plot_cor_heatmap <- function(case, cutoff_prob=0.3) {
   
 }
 
+#' @param case 
+#'
+#' @param cutoff_prob 
+#' @param plot_intensity 
+#' @param plot_prob 
+#'
 #' @export
 plot_bar_intensity_n_probability <- function(case, cutoff_prob=0.3, plot_intensity = T, 
                                                plot_prob = T) {
@@ -380,6 +397,12 @@ plot_bar_intensity_n_probability <- function(case, cutoff_prob=0.3, plot_intensi
 #' Plot density distribution of feature
 #' 
 #' 
+#' @param data 
+#' @param feature 
+#' @param fill 
+#' @param font.size 
+#' @param title 
+#'
 #' @export
 plot_density <- function(data, feature = "feature_mean_intensity_all", fill = NULL,
                          font.size = 12, title = feature){

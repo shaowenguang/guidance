@@ -1,3 +1,10 @@
+#' @param search_results 
+#'
+#' @param bool.removeDecoy 
+#' @param level 
+#' @param sample_annotation 
+#' @param remove_prefixInFileName 
+#'
 #' @importFrom data.table fread data.table
 #' 
 #' @export
@@ -80,6 +87,10 @@ import_openswath <- function(search_results, bool.removeDecoy = T, level = "Pept
 
 
 
+#' @param search_results 
+#'
+#' @param sample_annotation 
+#'
 #' @export
 import_openswath_matrix_fromEulerPortal <- function(search_results, sample_annotation = NULL) {
   
@@ -113,6 +124,10 @@ import_openswath_matrix_fromEulerPortal <- function(search_results, sample_annot
 
 
 
+#' @param search_results 
+#'
+#' @param sample_annotation 
+#'
 #' @export
 import_spectronaut_matrix <- function(search_results, sample_annotation = NULL) {
 
@@ -157,6 +172,8 @@ if(length(which(grepl(".EG.Qvalue$", names(raw)))) > 0) {
 
 
 
+#' @param input_file 
+#'
 #' @export
 read_sample_annotation <- function(input_file="sample_annotation") {
 
@@ -172,6 +189,10 @@ read_sample_annotation <- function(input_file="sample_annotation") {
 
 
 
+#' @param search_result 
+#'
+#' @param sample_annotation 
+#'
 #' @export
 annotate_sample <- function(search_result, sample_annotation) {
   
@@ -198,6 +219,8 @@ annotate_sample <- function(search_result, sample_annotation) {
 }
 
 
+#' @param input_dt 
+#'
 #' @export
 remove_prefix <- function(input_dt) {
   
