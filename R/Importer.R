@@ -113,7 +113,46 @@ import_openswath_matrix_fromEulerPortal <- function(search_results, sample_annot
 
 
 
+#' @export
+import_spectronaut_matrix <- function(search_results, sample_annotation = NULL) {
 
+  message("Message: It starts reading the search result matrix of Spectronaut...")
+  
+  global_level <<- "PeptideIon"
+  
+  raw <- fread(input=search_results, head=T)
+  
+  names(raw)[1:2] <- c("PeptideIon", "ProteinName")
+  
+  if(is.null(sample_annotation)) {
+    
+    message("no sample annotation table was provided. each injection will be treated independently")
+    
+  } else {
+    
+    read_sample_annotation(input_file = sample_annotation)
+
+  }
+
+# modify the column name accordingly...
+if(length(which(grepl(".PEP.Quantity$", names(raw)))) > 0) {
+  names(raw)[grepl(".PEP.Quantity$", names(raw))] <- paste0("Intensity_", gsub(".PEP.Quantity", "", names(raw)[grepl(".PEP.Quantity$", names(raw))]))
+} 
+
+if(length(which(grepl(".EG.Qvalue$", names(raw)))) > 0) {
+  names(raw)[grepl(".EG.Qvalue$", names(raw))] <- paste0("Score_", gsub(".EG.Qvalue", "", names(raw)[grepl(".EG.Qvalue$", names(raw))]))
+} 
+
+  #wenguang: change "_Intensity" from suffix to prefix...
+  names(raw)[grepl("Intensity$", names(raw))] <- paste0("Intensity_", gsub("_Intensity", "", names(raw)[grepl("Intensity$", names(raw))]))
+  names(raw)[grepl("Score$", names(raw))] <- paste0("Score_", gsub("_Score", "", names(raw)[grepl("Score$", names(raw))]))
+  names(raw)[grepl("RT$", names(raw))] <- paste0("RT_", gsub("_RT", "", names(raw)[grepl("RT$", names(raw))]))
+  names(raw)[grepl("Width$", names(raw))] <- paste0("Width_", gsub("_Width", "", names(raw)[grepl("Width$", names(raw))]))
+  
+  return(raw)
+
+
+}
 
 
 
