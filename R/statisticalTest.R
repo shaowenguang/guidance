@@ -162,11 +162,3 @@ perform_modt_tests <- function(input_dt, anno, input_bool_paired=FALSE, input_mt
   
 }
 
-
-perform_anova <- function(
-  
-  
-)
-
-
-

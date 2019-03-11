@@ -1,7 +1,8 @@
-#' @importFrom data.table as.data.table
-
-#' @param input_dt 
+#' replace infinity with NA 
+#' 
+#' @param input_dt data.table or data frame with numeric values 
 #'
+#' @return data.table 
 #' @export
 replace_inf <- function(input_dt) {
   
@@ -17,21 +18,27 @@ replace_inf <- function(input_dt) {
 }
 
 
-#' @param x 
-#'
+#' Count number of unique values 
+#' 
+#' @param x a vector (atomic or list) or an `expression` object. 
+#' 
 #' @export
 u_count <- function(x) {
   return( length(unique(x)) )
 }
 
-#' @param x 
+#' Count number of values in a vector 
+#' 
+#' @param x a vector (atomic or list) or an `expression` object. 
 #'
 #' @export
 l_count <- function(x) {
   return( length(which(x)))
 }
 
-#' @param x 
+#' Computes average excluding missing values 
+#' 
+#' @param x a vector (atomic or list) or an `expression` object. 
 #'
 #' @export
 mean_na <- function(x) {
@@ -44,6 +51,10 @@ mean_na <- function(x) {
   
 }
 
+#' Computes standard deviation excluding missing values 
+#' 
+#' @param x a vector (atomic or list) or an `expression` object.
+#'
 #' @export
 sd_na <- function(x) {
   
@@ -55,16 +66,28 @@ sd_na <- function(x) {
 
 }
 
+#' Computes coefficient of variation (CV) excluding missing values
+#' 
+#' @param x a vector (atomic or list) or an `expression` object.
+#'
 #' @export
 cv_na <- function(x) {
   return(sd(x, na.rm = T)/mean(x, na.rm = T))
 }
 
+#' Computes median excluding missing values 
+#' 
+#' @param x a vector (atomic or list) or an `expression` object.
+#'
 #' @export
 median_na <- function(x) {
   return(median(x, na.rm = T))
 }
 
+#' Computes sum excluding missing values 
+#' 
+#' @param x a vector (atomic or list) or an `expression` object.
+#'
 #' @export
 sum_na <- function(x) {
   
@@ -83,6 +106,14 @@ sum_na <- function(x) {
   
 }
 
+#' Number of intersection between two groups
+#' 
+#' @param input_a vectors, data frames, or ps objects
+#'  containing a sequence of elements (conceptually).
+#'
+#' @param input_b vectors, data frames, or ps objects
+#'  containing a sequence of elements (conceptually).
+#'
 #' @export
 pairwise_length_vector <- function(input_a, input_b) {
   
@@ -91,6 +122,8 @@ pairwise_length_vector <- function(input_a, input_b) {
 }
 
 
+
+#' @export
 pairwise_length_matrix <- function(input_matrix) {
   
   output_matrix <- matrix(0, dim(input_matrix)[1], dim(input_matrix)[1])
@@ -105,6 +138,12 @@ pairwise_length_matrix <- function(input_matrix) {
 }
 
 
+#' Number of intersection betwen numeric groups 
+#' 
+#' @param input_vector_a vectors containing a sequence of numbers
+#'
+#' @param input_vector_b vectors containing a sequence of numbers  
+#'
 #' @export
 count_pairwise_number <- function(input_vector_a, input_vector_b) {
   
@@ -115,6 +154,8 @@ count_pairwise_number <- function(input_vector_a, input_vector_b) {
 
 
 
+#' @param input_matrix 
+#'
 #' @export
 count_pairwise_number_matrix <- function(input_matrix) {
   
