@@ -2,17 +2,21 @@
 % Please edit documentation in R/Writer.R
 \name{write_protein_table}
 \alias{write_protein_table}
-\title{export protein table to tsv or csv file}
+\title{Export protein table to tsv or csv file}
 \usage{
-write_protein_table(table, name = "protein_table", format = "tsv")
+write_protein_table(input_dt, file_name = "protein_table",
+  format = "tsv", ...)
 }
 \arguments{
-\item{table}{}
+\item{input_dt}{the object to be written, preferably data frame, data table or matrix}
 
-\item{name}{}
+\item{file_name}{name of exported file}
 
-\item{format}{}
+\item{format}{format the object to be exported. Options include \code{"tsv"} and 
+\code{"csv"}.}
+
+\item{...}{other parameters of \code{write.table} function}
 }
 \description{
-export protein table to tsv or csv file
+Export protein table to tsv or csv file
 }
