@@ -96,9 +96,6 @@ import_openswath <- function(search_results, bool.removeDecoy = T, level = "Pept
 } 
 
 
-
-
-
 #' Import data matrix from Eular portal 
 #' 
 #' @param search_results  A data frame containing the SWATH-MS data. This data typically
@@ -141,8 +138,6 @@ import_openswath_matrix_fromEulerPortal <- function(search_results, sample_annot
   return(raw)
     
 }
-
-
 
 #' Import data matrix output from Spectronaut
 #' 
@@ -196,7 +191,6 @@ if(length(which(grepl(".EG.Qvalue$", names(raw)))) > 0) {
 }
 
 
-
 read_sample_annotation <- function(input_file="sample_annotation") {
 
 #  sample_annotation <- as.data.frame(read.table(file=input_file, fill=T, header=T, stringsAsFactors=F))
@@ -208,7 +202,6 @@ read_sample_annotation <- function(input_file="sample_annotation") {
   anno <<- as.data.frame(read.table(file=input_file, fill=T, header=T, stringsAsFactors=F))
     
 }
-
 
 
 annotate_sample <- function(search_result, sample_annotation) {
