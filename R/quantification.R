@@ -1,5 +1,4 @@
 #' @param input_dt 
-#'
 #' @param input_rank_index 
 #' @param topN 
 #' @param aggfun 
@@ -9,8 +8,10 @@
 #' @param bool_keep_low_confident_prot 
 #'
 #' @export
-generate_protein_table <- function(input_dt, input_rank_index = "prob", topN = 3, aggfun = "sum", bool_weighted_by_prob = TRUE, bool_imputation = TRUE,
-                                   prob_threshold = 0.2, bool_keep_low_confident_prot = FALSE) {
+generate_protein_table <- function(input_dt, input_rank_index = "prob", topN = 3, 
+                                   aggfun = "sum", bool_weighted_by_prob = TRUE, 
+                                   bool_imputation = TRUE,prob_threshold = 0.2, 
+                                   bool_keep_low_confident_prot = FALSE) {
   
   
   test_filtered <- input_dt[prob > prob_threshold, ]
@@ -61,9 +62,6 @@ generate_protein_table <- function(input_dt, input_rank_index = "prob", topN = 3
 
 
 
-
-
-
 #' @param input_dt 
 #'
 #' @param input_rank_index 
@@ -72,7 +70,8 @@ generate_protein_table <- function(input_dt, input_rank_index = "prob", topN = 3
 #' @param bool_weighted_by_prob 
 #'
 #' @export
-pept2prot <- function(input_dt, input_rank_index = "prob", topN = 3, aggfun = "sum", bool_weighted_by_prob = TRUE) {
+pept2prot <- function(input_dt, input_rank_index = "prob", 
+                      topN = 3, aggfun = "sum", bool_weighted_by_prob = TRUE) {
   
   select <- copy(input_dt)
   

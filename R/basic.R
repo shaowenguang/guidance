@@ -110,7 +110,6 @@ sum_na <- function(x) {
 #' 
 #' @param input_a vectors, data frames, or ps objects
 #'  containing a sequence of elements (conceptually).
-#'
 #' @param input_b vectors, data frames, or ps objects
 #'  containing a sequence of elements (conceptually).
 #'
@@ -120,7 +119,6 @@ pairwise_length_vector <- function(input_a, input_b) {
   return( length(intersect(which(!is.na(input_a)),  which(!is.na(input_b)) )) )
   
 }
-
 
 
 #' @export
@@ -141,7 +139,6 @@ pairwise_length_matrix <- function(input_matrix) {
 #' Number of intersection betwen numeric groups 
 #' 
 #' @param input_vector_a vectors containing a sequence of numbers
-#'
 #' @param input_vector_b vectors containing a sequence of numbers  
 #'
 #' @export
@@ -151,7 +148,6 @@ count_pairwise_number <- function(input_vector_a, input_vector_b) {
                             which(input_vector_b > -99999999999 & input_vector_b < 99999999999) )) )
   
 }
-
 
 
 #' @param input_matrix 
