@@ -1,9 +1,20 @@
-#' @importFrom data.table dcast copy
-
-#' @param input_dt 
-#'
+#' Convert from long to wide representation
+#' 
+#' @param input_dt a data table or data frame in a long format. The data typically 
+#' contains peptide ID (e.g. \code{PeptideIon}), sample ID (e.g. \code{SampleName}) and 
+#' measurements (e.g. \code{Intensity}, \code{RT} and \code{Score}). 
+#' 
+#' @param global_level the protein-level of imported data. The options include 
+#' \code{"PeptideIon"} (by default), \code{"Transition"}, \code{"Peptide"} or 
+#' \code{"PeptideWithMod"}. The \code{global_value} specifies format of input data
+#' and thus selects suitable columns for conversion into wide format. 
+#' 
+#' @return data.table data.frame in a wide format representation containing 
+#' \code{"PeptideIon"}, \code{"ProteinName"} and sample names in columns and 
+#' measurements of each peptide or precursor ions in rows. 
+#' 
 #' @export
-long2wide <- function(input_dt) {
+long2wide <- function(input_dt, global_level = "PeptideIon") {
 
   if (!global_level %in% c("PeptideIon","Transition", "Peptide", "PeptideWithMod")) {
     stop("Please select a valid type for imported data to be kept in Prom. Options:  \"Transition\", \"PeptideIon(default)\", \"PeptideWithMod\", \"Peptide\"")
@@ -38,9 +49,7 @@ long2wide <- function(input_dt) {
   
 }
 
-#' @param input_dt 
-#'
-#' @export
+
 summarize_data <- function(input_dt) {
   
   message("This table contains ", length(unique(input_dt$PeptideIon)), " peptide ions; " 
@@ -49,10 +58,20 @@ summarize_data <- function(input_dt) {
   
 }
 
-#' @param input_dt 
-#'
-#' @param replaceNA 
-#' @param normalization 
+#' Normalize data 
+#' 
+#' @param input_dt data table or data frame in wide representation. The data typically 
+#' contains \code{"PeptideIon"}, \code{"ProteinName"} and sample names in columns and 
+#' measurements of each peptide or precursor ions in rows. 
+#' @param replaceNA whether to treat missing values. The options include to \code{"remove"}, 
+#' \code{"keep"}, replace them with \code{"zero"}, or minimum intensity (\code{"min_intensity"})
+#' @param normalization different methods of normalization. The options include 
+#' median-centering (\code{"mediancenter"}), quantile normalization (\code{"quantile"},
+#' and normalized based on total ion current (\code{"TIC"}) and indexed retention 
+#' time (iRT) standards \code{"iRT"}. The default is \code{"mediancenter"} and denote 
+#' \code{"none"} if normalization is not necessary.
+#' 
+#' @return data.table data.frame containing normalized measurement data  
 #'
 #' @export
 normalize_data <- function(input_dt, replaceNA="keep", normalization="mediancenter") {
@@ -146,14 +165,25 @@ normalize_data <- function(input_dt, replaceNA="keep", normalization="mediancent
 }
 
 
-#' @param wide 
-#'
-#' @param sample_annotation 
-#' @param bool_NA_means_requant 
-#' @param averageFun 
+#' Merge biological replicates 
+#' 
+#' @param wide data table or data frame in wide representation. The data typically 
+#' contains \code{PeptideIon}, \code{ProteinName} and sample names in columns and 
+#' measurements of each peptide or precursor ions in rows. 
+#' @param sample_annotation data matrix with \code{SampleName}, biological covariates 
+#' (biological replicates) and technical covariates (technical replicates, batches, etc)
+#' @param bool_NA_means_requant boolean value (\code{TRUE} or \code{FALSE}) determining if 
+#' the missing values correspond to requants. \code{bool_NA_means_requant = TRUE} will 
+#' use the number of requant values (m_score = 2) as the number of NAs.
+#' @param averageFun method to compute mean peptide or precursor ion intensity 
+#' of biological replicates. Options include \code{"mean"} and \code{"median"}. 
+#' 
+#' @return data.table data.frame containing statistics of biological replicates, such 
+#' as \code{mean_intensity_A}, \code{cv_intensity_A} and \code{numNA_intensity_A}. 
 #'
 #' @export
-merge_replicates <- function(wide, sample_annotation = NULL, bool_NA_means_requant = FALSE, averageFun = "mean") {
+merge_replicates <- function(wide, sample_annotation = NULL, 
+                             bool_NA_means_requant = FALSE, averageFun = "mean") {
   
   #annotated_long <- annotate_sample(search_result, sample_annotation)
   #annotated_wide <- long2wide(annotated_long)
@@ -175,7 +205,8 @@ merge_replicates <- function(wide, sample_annotation = NULL, bool_NA_means_requa
       if(averageFun=="mean") {
         
         #wenguang: some short comments for using "mean" as the default function of averaging. 
-        #Using HEM benchmarking datasets on the protein level, it seems that mean performs consistently better median, possible because median is good for outliers, which have already been removed at this stage.
+        #Using HEM benchmarking datasets on the protein level, it seems that mean performs 
+        # consistently better median, possible because median is good for outliers, which have already been removed at this stage.
         
         cons_dt[, paste0("mean_intensity_", list_samples[i]) := apply(.SD, 1, mean_na), 
               .SDcols = paste0("Intensity_", sample_annotation[sample_annotation$SampleName %in% list_samples[i], ]$InjectionName) ]
@@ -243,7 +274,18 @@ merge_replicates <- function(wide, sample_annotation = NULL, bool_NA_means_requa
 
 
 
-#' @param input_dt 
+#' Filter for proteotypic peptides 
+#' 
+#' @param input_dt data table or data frame in wide representation. The data typically 
+#' contains \code{"PeptideIon"}, \code{"ProteinName"} and sample names in columns and 
+#' measurements of each peptide or precursor ions in rows. 
+#' 
+#' The input data should contain \code{ProteinName} column which denotes an 
+#' unique identifier for protein or proteingroup that the peptide maps to. 
+#' Proteotypic peptides should be indicated by 1/ to be recognized 
+#' by \code{keep_proteotypic_only()}
+#' 
+#' @return data.table data.frame containing only proteotypic peptides 
 #'
 #' @export
 keep_proteotypic_only <- function(input_dt) {
