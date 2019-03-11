@@ -1,6 +1,6 @@
 #' replace infinity with NA 
 #' 
-#' @param input_dt data.table or data frame with numeric values 
+#' @param input_dt a data table, data frame or matrix with numeric values 
 #'
 #' @return data.table 
 #' @export

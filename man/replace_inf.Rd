@@ -7,7 +7,7 @@
 replace_inf(input_dt)
 }
 \arguments{
-\item{input_dt}{data.table or data frame with numeric values}
+\item{input_dt}{a data table, data frame or matrix with numeric values}
 }
 \value{
 data.table
