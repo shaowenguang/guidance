@@ -4,12 +4,44 @@
 \alias{dia_guidance}
 \title{wrapper function}
 \usage{
-dia_guidance(data = NULL, data_fromEuler = NULL, sample_annotation = NULL,
-  level = "PeptideIon", replaceNA = "keep", bool_NA_means_requant = FALSE,
-  averageFun = "mean", normalization = "mediancenter", filter_prob = 0.2,
+dia_guidance(data = NULL, data_fromEuler = NULL,
+  sample_annotation = NULL, level = "PeptideIon", replaceNA = "keep",
+  bool_NA_means_requant = FALSE, averageFun = "mean",
+  normalization = "mediancenter", filter_prob = 0.2,
   input_rank_index = "prob", topN = 3, aggfun = "sum",
   bool_weighted_by_prob = TRUE, bool.removeDecoy = T,
   remove_prefixInFileName = FALSE)
+}
+\arguments{
+\item{data}{}
+
+\item{data_fromEuler}{}
+
+\item{sample_annotation}{}
+
+\item{level}{}
+
+\item{replaceNA}{}
+
+\item{bool_NA_means_requant}{}
+
+\item{averageFun}{}
+
+\item{normalization}{}
+
+\item{filter_prob}{}
+
+\item{input_rank_index}{}
+
+\item{topN}{}
+
+\item{aggfun}{}
+
+\item{bool_weighted_by_prob}{}
+
+\item{bool.removeDecoy}{}
+
+\item{remove_prefixInFileName}{}
 }
 \description{
 wrapper function

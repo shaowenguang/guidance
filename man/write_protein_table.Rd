@@ -6,6 +6,13 @@
 \usage{
 write_protein_table(table, name = "protein_table", format = "tsv")
 }
+\arguments{
+\item{table}{}
+
+\item{name}{}
+
+\item{format}{}
+}
 \description{
 export protein table to tsv or csv file
 }

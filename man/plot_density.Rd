@@ -7,6 +7,17 @@
 plot_density(data, feature = "feature_mean_intensity_all", fill = NULL,
   font.size = 12, title = feature)
 }
+\arguments{
+\item{data}{}
+
+\item{feature}{}
+
+\item{fill}{}
+
+\item{font.size}{}
+
+\item{title}{}
+}
 \description{
 Plot density distribution of feature
 }

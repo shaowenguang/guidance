@@ -6,6 +6,11 @@
 \usage{
 plot_protein_profile(case, cutoff_prob = 0.3)
 }
+\arguments{
+\item{case}{}
+
+\item{cutoff_prob}{}
+}
 \description{
 Visualization of protein abundance
 }
