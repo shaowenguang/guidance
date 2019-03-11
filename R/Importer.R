@@ -1,14 +1,26 @@
-#' @param search_results 
-#'
-#' @param bool.removeDecoy 
-#' @param level 
-#' @param sample_annotation 
-#' @param remove_prefixInFileName 
-#'
-#' @importFrom data.table fread data.table
+#' import openSWATH output data with sample annotation
+#' 
+#' @param search_results A data frame containing the SWATH-MS data. This data typically
+#' contains peptide precursors in each row with corresponding \code{ProteinName}, 
+#' \code{Intensity}, \code{RT}, \code{Score} and etc in columns. The data can be loaded
+#' from local directory.
+#' @param bool.removeDecoy boolean value (\code{TRUE} or \code{FALSE}) determining 
+#' if the decoy peptides should be removed from the imported data 
+#' @param level the protein-level of imported data. The options include 
+#' \code{"PeptideIon"} (by default), \code{"Transition"}, \code{"Peptide"} or 
+#' \code{"PeptideWithMod"}
+#' @param sample_annotation data matrix with \code{SampleName}, biological covariates 
+#' (biological replicates) and technical covariates (technical replicates, batches, etc)
+#' @param remove_prefixInFileName boolean value (\code{TRUE} or \code{FALSE}) whether to 
+#' remove unnecessary prefix from euler portal file name. For example, a typical 
+#' filename will look like \code{"/scratch/71239421.tmpdir/xuep_J180621_SW_3.mzXML.gz"} 
+#' and \code{remove_prefixInFileName = TRUE} will result in \code{"xuep_J180621_SW_3.mzXML.gz"}
+#' 
+#' @return data.table data.frame containing SWATH-MS data and sample annotation
 #' 
 #' @export
-import_openswath <- function(search_results, bool.removeDecoy = T, level = "PeptideIon", sample_annotation = NULL, remove_prefixInFileName = FALSE) {
+import_openswath <- function(search_results, bool.removeDecoy = T, level = "PeptideIon", 
+                             sample_annotation = NULL, remove_prefixInFileName = FALSE) {
   
   if (!level %in% c("PeptideIon","Transition", "Peptide", "PeptideWithMod")) {
     stop("Please select a valid type for imported data to be kept in Prom. Options:  \"Transition\", \"PeptideIon(default)\", \"PeptideWithMod\", \"Peptide\"")
@@ -87,10 +99,18 @@ import_openswath <- function(search_results, bool.removeDecoy = T, level = "Pept
 
 
 
-#' @param search_results 
+#' Import data matrix from Eular portal 
+#' 
+#' @param search_results  A data frame containing the SWATH-MS data. This data typically
+#' contains peptide ions in each row with corresponding \code{ProteinName}, 
+#' \code{Intensity}, \code{RT}, \code{Score} and etc in columns. The data can be loaded
+#' from local directory.
 #'
-#' @param sample_annotation 
+#' @param sample_annotation data matrix with \code{SampleName}, biological covariates 
+#' (biological replicates) and technical covariates (technical replicates, batches, etc)
 #'
+#' @return data.table data containing raw openSWATH matrix 
+#' 
 #' @export
 import_openswath_matrix_fromEulerPortal <- function(search_results, sample_annotation = NULL) {
   
@@ -124,9 +144,15 @@ import_openswath_matrix_fromEulerPortal <- function(search_results, sample_annot
 
 
 
-#' @param search_results 
+#' Import data matrix output from Spectronaut
+#' 
+#' @param search_results A data frame containing the SWATH-MS data. This data typically
+#' contains peptide ions in each row with corresponding \code{ProteinName}, 
+#' \code{Intensity}, \code{RT}, \code{Score} and etc in columns. The data can be loaded
+#' from local directory.
 #'
-#' @param sample_annotation 
+#' @param sample_annotation data matrix with \code{SampleName}, biological covariates 
+#' (biological replicates) and technical covariates (technical replicates, batches, etc)
 #'
 #' @export
 import_spectronaut_matrix <- function(search_results, sample_annotation = NULL) {
@@ -171,10 +197,6 @@ if(length(which(grepl(".EG.Qvalue$", names(raw)))) > 0) {
 
 
 
-
-#' @param input_file 
-#'
-#' @export
 read_sample_annotation <- function(input_file="sample_annotation") {
 
 #  sample_annotation <- as.data.frame(read.table(file=input_file, fill=T, header=T, stringsAsFactors=F))
@@ -189,11 +211,6 @@ read_sample_annotation <- function(input_file="sample_annotation") {
 
 
 
-#' @param search_result 
-#'
-#' @param sample_annotation 
-#'
-#' @export
 annotate_sample <- function(search_result, sample_annotation) {
   
   if( !all(unique(search_result$filename) %in% unique(sample_annotation$filename)) ) {
@@ -219,9 +236,6 @@ annotate_sample <- function(search_result, sample_annotation) {
 }
 
 
-#' @param input_dt 
-#'
-#' @export
 remove_prefix <- function(input_dt) {
   
   input_dt$PeptideIon <- paste(sapply(strsplit(input_dt$PeptideIon, "_"), "[[", 2), "_", sapply(strsplit(input_dt$PeptideIon, "_"), "[[", 3), sep="")

@@ -2,74 +2,36 @@
 % Please edit documentation in R/Importer.R
 \name{import_openswath}
 \alias{import_openswath}
-\title{cluster the data matrix to visually inspect which confounder dominates}
+\title{import openSWATH output data with sample annotation}
 \usage{
 import_openswath(search_results, bool.removeDecoy = T,
   level = "PeptideIon", sample_annotation = NULL,
   remove_prefixInFileName = FALSE)
 }
 \arguments{
-\item{search_results}{}
+\item{search_results}{A data frame containing the SWATH-MS data. This data typically
+contains peptide precursors in each row with corresponding \code{ProteinName}, 
+\code{Intensity}, \code{RT}, \code{Score} and etc in columns. The data can be loaded
+from local directory.}
 
-\item{bool.removeDecoy}{whether to remove docoy peptides in importing data}
+\item{bool.removeDecoy}{boolean value (\code{TRUE} or \code{FALSE}) determining 
+if the decoy peptides should be removed from the imported data}
 
-\item{level}{}
+\item{level}{the protein-level of imported data. The options include 
+\code{"PeptideIon"} (by default), \code{"Transition"}, \code{"Peptide"} or 
+\code{"PeptideWithMod"}}
 
-\item{sample_annotation}{data matrix with: \enumerate{ \item \code{sample_id_col}
-(this can be repeated as row names) \item biological covariates \item
-technical covariates (batches etc) }}
+\item{sample_annotation}{data matrix with \code{SampleName}, biological covariates 
+(biological replicates) and technical covariates (technical replicates, batches, etc)}
 
-\item{remove_prefixInFileName}{}
-
-\item{data_matrix}{features (in rows) vs samples (in columns) matrix, with
-feature IDs in rownames and file/sample names as colnames. in most
-function, it is assumed that this is the log transformed version of the
-original data}
-
-\item{color_df}{data frame of colors, as created by \code{sample_annotation_to_colors}}
-
-\item{data_matrix}{features (in rows) vs samples (in columns) matrix, with
-feature IDs in rownames and file/sample names as colnames. Usually the log
-transformed version of the original data}
-
-\item{distance}{distance metric used for clustering}
-
-\item{agglomeration}{agglomeration methods as used by \code{hclust}}
-
-\item{label_samples}{if \code{TRUE} sample IDs (column names of 
-\code{data_matrix}) will be printed}
-
-\item{label_font}{size of the font. Is active if \code{label_samples} is 
-\code{TRUE}, ignored otherwise}
-
-\item{plot_title}{Title of the plot (usually, processing step + representation
-level (fragments, transitions, proteins))}
-
-\item{...}{other parameters of \code{plotDendroAndColors} from \code{WGCNA} package}
-
-\item{sample_annotation}{}
+\item{remove_prefixInFileName}{boolean value (\code{TRUE} or \code{FALSE}) whether to 
+remove unnecessary prefix from euler portal file name. For example, a typical 
+filename will look like \code{"/scratch/71239421.tmpdir/xuep_J180621_SW_3.mzXML.gz"} 
+and \code{remove_prefixInFileName = TRUE} will result in \code{"xuep_J180621_SW_3.mzXML.gz"}}
 }
 \value{
-No return
+data.table data.frame containing SWATH-MS data and sample annotation
 }
 \description{
-cluster the data matrix to visually inspect which confounder dominates
-}
-\examples{
-color_scheme <- sample_annotation_to_colors (example_sample_annotation, 
-factor_columns = c('MS_batch','EarTag', "Strain", "Diet", "digestion_batch", "Sex"),
-not_factor_columns = 'DateTime',
-numeric_columns = c('order'))
-
-color_annotation <- color_scheme$color_df
-
-plot_hierarchical_clustering(example_proteome_matrix, color_annotation,  
-distance = "euclidean", agglomeration = 'complete',
-label_samples = FALSE)
-
-}
-\seealso{
-\code{\link[stats]{hclust}}, \code{\link{sample_annotation_to_colors}},
-  \code{\link[WGCNA]{plotDendroAndColors}}
 import openSWATH output data with sample annotation
 }
