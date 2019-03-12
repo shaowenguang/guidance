@@ -1,3 +1,9 @@
+#' @importFrom data.table, as.data.table
+#' @importFrom data.table, fread
+#' @importFrom data.table, dcast
+#' @importFrom data.table, copy
+#' @importFrom MASS lda
+#' 
 #' replace infinity with NA 
 #' 
 #' @param input_dt a data table, data frame or matrix with numeric values 
