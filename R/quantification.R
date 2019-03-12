@@ -62,12 +62,18 @@ generate_protein_table <- function(input_dt, input_rank_index = "prob", topN = 3
 
 
 
-#' @param input_dt 
-#'
+#' Infer protein abudnace from peptide measurements  
+#' 
+#' @param input_dt data table or data frame in wide representation. The data typically 
+#' contains \code{PeptideIon}, \code{ProteinName} and sample names in columns and 
+#' measurements of each peptide or precursor ions in rows
 #' @param input_rank_index 
-#' @param topN 
-#' @param aggfun 
-#' @param bool_weighted_by_prob 
+#' @param topN number of peptides utilized to infer protein abundance for each protein 
+#' @param aggfun method to aggregate peptide measurements to estimate protein abundance.
+#' Options include \code{"mean"} and \code{"sum"}
+#' @param bool_weighted_by_prob boolean value (\code{TRUE} or \code{FALSE}) determining 
+#' whether to weight the intensity by the posterior probability of being a representative 
+#' peptide
 #'
 #' @export
 pept2prot <- function(input_dt, input_rank_index = "prob", 
@@ -128,9 +134,11 @@ pept2prot <- function(input_dt, input_rank_index = "prob",
 
 #' Title
 #'
-#' @param input_dt 
+#' @param input_dt data table or data frame in wide representation. The data typically 
+#' contains \code{PeptideIon}, \code{ProteinName} and sample names in columns and 
+#' measurements of each peptide or precursor ions in rows
 #' @param input_index 
-#' @param topN 
+#' @param topN number of peptides utilized to infer protein abundance for each protein 
 #'
 #' @return
 #' @export
@@ -165,14 +173,19 @@ pept2prot_log2 <- function(input_dt, input_index, topN) {
 
 
 
-#' @param input_dt 
+#' Impute missing values 
+#' 
+#' @param input_dt data table or data frame in wide representation. The data typically 
+#' contains \code{PeptideIon}, \code{ProteinName} and sample names in columns and 
+#' measurements of each peptide or precursor ions in rows. 
+#' @param input_index a integer vector denoting numeric columns to apply imputation
 #'
-#' @param input_index 
-#'
+#' @return  data.table data.frame  
+#' 
 #' @export
 impute_missing_values <- function(input_dt, input_index) {
   
-  message("start to imputate missing values...")
+  message("start to impute missing values...")
   
   output_dt <- copy(input_dt)
   
@@ -181,7 +194,7 @@ impute_missing_values <- function(input_dt, input_index) {
     #wenguang: this is a very slow way to imputate, needs to be improved using data.table functions.
     
     if( (i %% 1000) == 0 ) {
-      message("imputating missing values for ",  (i %/% 1000), "000 out of ", dim(output_dt)[1], " peptide ions...")
+      message("imputing missing values for ",  (i %/% 1000), "000 out of ", dim(output_dt)[1], " peptide ions...")
     }
     
     index_na <- which(is.na(output_dt[i, input_index, with=F]))

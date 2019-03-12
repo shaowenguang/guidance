@@ -1,8 +1,4 @@
-#' @importFrom MASS lda
-
 #Wenguang: the loop in this function is slow, the results of which, however, were well validated. An updated/faster version to calculate features was implemented below...
-
-#' @export
 calc_features_old_just_backup <- function(input_dt, level="PeptideIon") {
   
   message("start to calculate features per proteins...")
@@ -84,8 +80,13 @@ calc_features_old_just_backup <- function(input_dt, level="PeptideIon") {
 
 
 
-#' @param input_dt 
+#' Compute metrics describing relationship among peptides of the same protein
+#' 
+#' @param input_dt data table or data frame in wide representation. The data typically 
+#' contains \code{"PeptideIon"}, \code{"ProteinName"} and sample names in columns and 
+#' measurements of each peptide or precursor ions in rows. 
 #'
+#' @return  data.table data.frame containing feature statistics 
 #' @export
 calc_features <- function(input_dt) {
   
@@ -209,10 +210,15 @@ calc_features <- function(input_dt) {
 
 
 
-#' @param input_dt 
+#' @param input_dt data table or data frame in wide representation. The data typically 
+#' contains \code{"PeptideIon"}, \code{"ProteinName"} and sample names in columns and 
+#' measurements of each peptide or precursor ions in rows. 
 #'
-#' @param input_features 
-#'
+#' @param input_features a vector of features to be used for training. The examples 
+#' include \code{scaled_mean_intensity_all}, \code{scaled_cv_intensity_all}, 
+#' \code{scaled_numNA_intensity_all}, \code{scaled_averaged_score_all}, 
+#' \code{scaled_median_PCC}, \code{scaled_sd_width_all} and \code{label}. 
+#' 
 #' @export
 get_lda_model <- function(input_dt, input_features) {
   
@@ -222,8 +228,19 @@ get_lda_model <- function(input_dt, input_features) {
 }
 
 
-#' @param input_dt 
+#' Compute posterior probability of being representative petpide 
+#' 
+#' @param input_dt data table or data frame in wide representation. The data typically 
+#' contains \code{"PeptideIon"}, \code{"ProteinName"} and sample names in columns and 
+#' measurements of each peptide or precursor ions in rows. 
+#' 
+#' Additionally, the data table includes metrics computed from \code{calc_features()} 
+#' such as \code{scaled_mean_intensity_all}, \code{scaled_cv_intensity_all} 
+#' \code{scaled_numNA_intensity_all} and etc which are utilized to compute 
+#' a posterior probability of being the representative peptides.  
 #'
+#' @return  data.table data.frame containing posterior probability. 
+#' 
 #' @export
 perform_selection <- function(input_dt) {
   

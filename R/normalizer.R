@@ -272,8 +272,6 @@ merge_replicates <- function(wide, sample_annotation = NULL,
 
 
 
-
-
 #' Filter for proteotypic peptides 
 #' 
 #' @param input_dt data table or data frame in wide representation. The data typically 

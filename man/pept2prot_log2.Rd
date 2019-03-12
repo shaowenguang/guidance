@@ -7,11 +7,13 @@
 pept2prot_log2(input_dt, input_index, topN)
 }
 \arguments{
-\item{input_dt}{}
+\item{input_dt}{data table or data frame in wide representation. The data typically 
+contains \code{PeptideIon}, \code{ProteinName} and sample names in columns and 
+measurements of each peptide or precursor ions in rows}
 
 \item{input_index}{}
 
-\item{topN}{}
+\item{topN}{number of peptides utilized to infer protein abundance for each protein}
 }
 \description{
 Title
