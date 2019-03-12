@@ -77,7 +77,7 @@ generate_protein_table <- function(input_dt, input_rank_index = "prob", topN = 3
 #'
 #' @export
 pept2prot <- function(input_dt, input_rank_index = "prob", 
-                      topN = 3, aggfun = "sum", bool_weighted_by_prob = TRUE) {
+                      topN = 3, aggfun = "mean", bool_weighted_by_prob = TRUE) {
   
   select <- copy(input_dt)
   
@@ -103,7 +103,7 @@ pept2prot <- function(input_dt, input_rank_index = "prob",
   if(aggfun=="mean") {
   #wenguang: here, as.numeric is necessary, otherwise errors will occur "Column 1 of result for group 2 is type 'logical' but expecting type 'double'. Column types must be consistent for each group." This is because mean_na will return a number or NA, and they belong to two different classes...
     if(bool_weighted_by_prob == TRUE) {
-      long_combined <- long[, .(Quant = as.numeric(sum_na(Intensity * prob) / sum_na(prob))), by=.(ProteinName, numPerProt, protQuantProb, run_id)]
+      long_combined <- long[, .(Quant = as.numeric(sum_na(Intensity * prob) / sum_na( sign(Intensity) * prob) )), by=.(ProteinName, numPerProt, protQuantProb, run_id)]
     } else {
       long_combined <- long[, .(Quant = as.numeric(mean_na(Intensity))), by=.(ProteinName, numPerProt, protQuantProb, run_id)] 
     }
