@@ -62,12 +62,12 @@ generate_protein_table <- function(input_dt, input_rank_index = "prob", topN = 3
 
 
 
+
 #' Infer protein abudnace from peptide measurements  
 #' 
 #' @param input_dt data table or data frame in wide representation. The data typically 
 #' contains \code{PeptideIon}, \code{ProteinName} and sample names in columns and 
 #' measurements of each peptide or precursor ions in rows
-#' @param input_rank_index 
 #' @param topN number of peptides utilized to infer protein abundance for each protein 
 #' @param aggfun method to aggregate peptide measurements to estimate protein abundance.
 #' Options include \code{"mean"} and \code{"sum"}
