@@ -4,15 +4,13 @@
 \alias{pept2prot}
 \title{Infer protein abudnace from peptide measurements}
 \usage{
-pept2prot(input_dt, input_rank_index = "prob", topN = 3,
-  aggfun = "sum", bool_weighted_by_prob = TRUE)
+pept2prot(input_dt, input_rank_index = "prob", topN = 3, aggfun = "mean",
+  bool_weighted_by_prob = TRUE)
 }
 \arguments{
 \item{input_dt}{data table or data frame in wide representation. The data typically 
 contains \code{PeptideIon}, \code{ProteinName} and sample names in columns and 
 measurements of each peptide or precursor ions in rows}
-
-\item{input_rank_index}{}
 
 \item{topN}{number of peptides utilized to infer protein abundance for each protein}
 
