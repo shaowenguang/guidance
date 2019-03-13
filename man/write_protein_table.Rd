@@ -4,8 +4,8 @@
 \alias{write_protein_table}
 \title{Export protein table to tsv or csv file}
 \usage{
-write_protein_table(input_dt, file_name = "protein_table", format = "tsv",
-  ...)
+write_protein_table(input_dt, file_name = "protein_table",
+  format = "tsv", ...)
 }
 \arguments{
 \item{input_dt}{the object to be written, preferably data frame, data table or matrix}

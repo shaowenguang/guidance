@@ -1,5 +1,4 @@
-#' Visualization of protein abundance 
-#' 
+#' Visualization of peptides 
 #' 
 #' @param case 
 #' @param cutoff_prob 
