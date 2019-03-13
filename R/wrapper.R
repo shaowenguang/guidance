@@ -1,20 +1,45 @@
-#' wrapper function
+#' Wrapper function from importing peptide data to infering protein abundance
 #' 
-#' @param data 
-#' @param data_fromEuler 
-#' @param sample_annotation 
-#' @param level 
-#' @param replaceNA 
-#' @param bool_NA_means_requant 
-#' @param averageFun 
-#' @param normalization 
-#' @param filter_prob 
+#' @param data A data frame containing the SWATH-MS data. This data typically
+#' contains peptide precursors in each row with corresponding \code{ProteinName}, 
+#' \code{Intensity}, \code{RT}, \code{Score} and etc in columns. The data can be loaded
+#' from local directory.
+#' @param data_fromEuler A data frame containing the SWATH-MS data. This data typically
+#' contains peptide ions in each row with corresponding \code{ProteinName}, 
+#' \code{Intensity}, \code{RT}, \code{Score} and etc in columns. The data can be loaded
+#' from local directory.
+#' @param sample_annotation data matrix with \code{SampleName}, biological covariates 
+#' (biological replicates) and technical covariates (technical replicates, batches, etc)
+#' @param level the protein-level of imported data. The options include 
+#' \code{"PeptideIon"} (by default), \code{"Transition"}, \code{"Peptide"} or 
+#' \code{"PeptideWithMod"}
+#' @param replaceNA whether to treat missing values. The options include to \code{"remove"}, 
+#' \code{"keep"}, replace them with \code{"zero"}, or minimum intensity (\code{"min_intensity"})
+#' @param bool_NA_means_requant boolean value (\code{TRUE} or \code{FALSE}) determining if 
+#' the missing values correspond to requants. \code{bool_NA_means_requant = TRUE} will 
+#' use the number of requant values (m_score = 2) as the number of NAs.
+#' @param averageFun method to compute mean peptide or precursor ion intensity 
+#' of biological replicates. Options include \code{"mean"} and \code{"median"}. 
+#' @param normalization different methods of normalization. The options include 
+#' median-centering (\code{"mediancenter"}), quantile normalization (\code{"quantile"},
+#' and normalized based on total ion current (\code{"TIC"}) and indexed retention 
+#' time (iRT) standards \code{"iRT"}. The default is \code{"mediancenter"} and denote 
+#' \code{"none"} if normalization is not necessary.
+#' @param filter_prob a numeric value in range of 0 to 1 denoting posterior 
+#' probability threshold to filter peptides by.
 #' @param input_rank_index 
-#' @param topN 
-#' @param aggfun 
-#' @param bool_weighted_by_prob 
-#' @param bool.removeDecoy 
-#' @param remove_prefixInFileName 
+#' @param topN number of peptides utilized to infer protein abundance for each protein 
+#' @param aggfun method to aggregate peptide measurements to estimate protein abundance.
+#' Options include \code{"mean"} and \code{"sum"}
+#' @param bool_weighted_by_prob boolean value (\code{TRUE} or \code{FALSE}) determining 
+#' whether to weight the intensity by the posterior probability of being a representative 
+#' peptide
+#' @param bool.removeDecoy boolean value (\code{TRUE} or \code{FALSE}) determining 
+#' if the decoy peptides should be removed from the imported data 
+#' @param remove_prefixInFileName boolean value (\code{TRUE} or \code{FALSE}) whether to 
+#' remove unnecessary prefix from euler portal file name. For example, a typical 
+#' filename will look like \code{"/scratch/71239421.tmpdir/xuep_J180621_SW_3.mzXML.gz"} 
+#' and \code{remove_prefixInFileName = TRUE} will result in \code{"xuep_J180621_SW_3.mzXML.gz"}
 #'
 #' @example
 #'  prot_table <- dia_guidance(data= "S:/SWATH-guidance/feature_alignment.csv", 
