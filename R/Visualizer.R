@@ -292,7 +292,8 @@ plot_cor_heatmap <- function(case, cutoff_prob=0.3) {
 #' @param plot_prob 
 #'
 #' @export
-plot_bar_intensity_n_probability <- function(case, cutoff_prob=0.3, plot_intensity = T, 
+plot_bar_intensity_n_probability <- function(case, cutoff_prob=0.3, 
+                                             plot_intensity = T, 
                                                plot_prob = T) {
   
   if("aggr_Fragment_Annotation" %in% names(case)) {
@@ -403,7 +404,8 @@ plot_bar_intensity_n_probability <- function(case, cutoff_prob=0.3, plot_intensi
 #' @param title 
 #'
 #' @export
-plot_density <- function(data, feature = "feature_mean_intensity_all", fill = NULL,
+plot_density <- function(data, feature = "feature_mean_intensity_all", 
+                         fill = NULL,
                          font.size = 12, title = feature){
   
   if(feature == "feature_mean_intensity_all"){

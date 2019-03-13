@@ -1,11 +1,18 @@
-#' @param input_file 
-#'
-#' @param anno 
-#' @param input_test 
-#' @param input_bool_paired 
+#' Perform PECA test
+#' 
+#' @param input_file data table or data frame in wide representation. The data typically 
+#' contains \code{"PeptideIon"}, \code{"ProteinName"} and sample names in columns and 
+#' protein measurements in rows. The input data is usually an output from 
+#' \code{pept2prot()} and \code{merge_replicates()}
+#' @param sample_annotation data matrix with \code{SampleName}, biological covariates 
+#' (biological replicates) and technical covariates (technical replicates, batches, etc)
+#' @param input_test the type of t-test to be conducted either ordinary 
+#' \code{"t"} or modified \code{"modt"} t-test
+#' @param input_bool_paired a logical indicating whether a paired test is performed
 #'
 #' @export
-perform_peca_tests <- function(input_file, anno, input_test="modt", input_bool_paired=FALSE) {
+perform_peca_tests <- function(input_file, sample_annotation, input_test="modt",
+                               input_bool_paired=FALSE) {
   
   numSamples <- length(unique(anno$SampleName)) 
   
@@ -44,14 +51,24 @@ perform_peca_tests <- function(input_file, anno, input_test="modt", input_bool_p
 
 
 
-#' @param input_dt 
+#' Perform t.test 
+#' 
+#' @param input_dt data table or data frame in wide representation. The data typically 
+#' contains \code{"PeptideIon"}, \code{"ProteinName"} and sample names in columns and 
+#' protein measurements in rows. The input data is usually an output from 
+#' \code{pept2prot()} and \code{merge_replicates()}
 #'
-#' @param anno 
-#' @param input_bool_paired 
-#' @param input_mtc_method 
+#' @param sample_annotation data matrix with \code{SampleName}, biological covariates 
+#' (biological replicates) and technical covariates (technical replicates, batches, etc)
+#' @param input_bool_paired a logical indicating whether a paired test is performed
+#' @param input_mtc_method multiple testing correction method. Options include
+#' \code{"holm"}, \code{"hochberg"}, \code{"hommel"}, \code{"bonferroni"}, 
+#' \code{"BH"}, \code{"BY"}, \code{"fdr"} and \code{"none"}. Refer to 
+#' \code{p.adjust()} for details. 
 #'
 #' @export
-perform_t_tests <- function(input_dt, anno, input_bool_paired=FALSE, input_mtc_method="bonferroni") {
+perform_t_tests <- function(input_dt, sample_annotation, input_bool_paired=FALSE, 
+                            input_mtc_method="bonferroni") {
   
   numSamples <- length(unique(anno$SampleName)) 
   
@@ -93,14 +110,23 @@ perform_t_tests <- function(input_dt, anno, input_bool_paired=FALSE, input_mtc_m
 }
 
 
-#' @param input_dt 
+#' Performed modified t.test
+#' 
+#' @param input_dt data table or data frame in wide representation. The data typically 
+#' contains \code{"PeptideIon"}, \code{"ProteinName"} and sample names in columns and 
+#' protein measurements in rows. The input data is usually an output from 
+#' \code{pept2prot()} and \code{merge_replicates()}
 #'
-#' @param anno 
-#' @param input_bool_paired 
-#' @param input_mtc_method 
+#' @param sample_annotation data matrix with \code{SampleName}, biological covariates 
+#' (biological replicates) and technical covariates (technical replicates, batches, etc)
+#' @param input_bool_paired a logical indicating whether a paired test is performed
+#' @param input_mtc_method multiple testing correction method. Options include
+#' \code{"holm"}, \code{"hochberg"}, \code{"hommel"}, \code{"bonferroni"}, 
+#' \code{"BH"}, \code{"BY"}, \code{"fdr"} and \code{"none"}. Refer to 
+#' \code{p.adjust()} for details. 
 #'
 #' @export
-perform_modt_tests <- function(input_dt, anno, input_bool_paired=FALSE, input_mtc_method="BH") {
+perform_modt_tests <- function(input_dt, sample_annotation, input_bool_paired=FALSE, input_mtc_method="BH") {
   
   numSamples <- length(unique(anno$SampleName)) 
   
