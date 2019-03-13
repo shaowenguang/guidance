@@ -3,13 +3,15 @@
 #' @importFrom data.table dcast
 #' @importFrom data.table copy
 #' @importFrom MASS lda
-#' 
-#' replace infinity with NA 
+
+
 #' 
 #' @param input_dt a data table, data frame or matrix with numeric values 
 #'
 #' @return data.table 
 #' @export
+
+#replace infinity with NA
 replace_inf <- function(input_dt) {
   
   temp <- lapply(input_dt, function(x) {
