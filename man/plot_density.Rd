@@ -2,22 +2,28 @@
 % Please edit documentation in R/Visualizer.R
 \name{plot_density}
 \alias{plot_density}
-\title{Plot density distribution of feature}
+\title{Plot density distribution of peptide features}
 \usage{
 plot_density(data, feature = "feature_mean_intensity_all", fill = NULL,
   font.size = 12, title = feature)
 }
 \arguments{
-\item{data}{}
+\item{data}{data table or data frame in wide representation. The data typically 
+contains \code{PeptideIon}, \code{ProteinName} and sample names in columns and 
+measurements of each peptide or precursor ions in rows. The function is 
+particularly useful after \code{calc_features()} step to visualize distribution of 
+computed feature statistics.}
 
-\item{feature}{}
+\item{feature}{a character vector denoting a peptide feature for density 
+plots. Examples include \code{"feature_mean_intensity_all"}, 
+\code{"feature_cv_intensity_all"}, \code{"scaled_median_PCC"} and etc.}
 
-\item{fill}{}
+\item{fill}{a character vector denoting a column name to color by}
 
-\item{font.size}{}
+\item{font.size}{font size of x and y labels}
 
-\item{title}{}
+\item{title}{title of density plot}
 }
 \description{
-Plot density distribution of feature
+Plot density distribution of peptide features
 }

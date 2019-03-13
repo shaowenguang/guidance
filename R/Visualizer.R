@@ -1,7 +1,15 @@
-#' Visualization of peptides 
+#' Visualize peptide profiles 
 #' 
-#' @param case 
-#' @param cutoff_prob 
+#' @param case data table or data frame in wide representation. The data typically 
+#' contains \code{"PeptideIon"}, \code{"ProteinName"} and sample names in columns and 
+#' measurements of each peptide or precursor ions in rows. 
+#' 
+#' For a clear visualization of peptide profile, recommend to prepare a 
+#' data table pre-filter 
+#' peptides corresponding to a single protein  
+#' 
+#' @param cutoff_prob a numeric value denoting posterior probability threshold
+#' to keep or remove peptides. 
 #'
 #' @export
 plot_protein_profile <- function(case, cutoff_prob=0.3) {
@@ -135,9 +143,18 @@ plot_protein_profile <- function(case, cutoff_prob=0.3) {
 
 
 
-#' @param case 
+#' Visualize peptide intensity 
+#' 
+#' @param case data table or data frame in wide representation. The data typically 
+#' contains \code{"PeptideIon"}, \code{"ProteinName"} and sample names in columns and 
+#' measurements of each peptide or precursor ions in rows. 
+#' 
+#' To visualize profile of peptides corresponding to the same protein, 
+#' peptides corresponding to one protein are pre-filtered for clearer 
+#' visualizations. 
 #'
-#' @param cutoff_prob 
+#' @param cutoff_prob a numeric value denoting posterior probability threshold
+#' to keep or remove peptides. 
 #'
 #' @export
 plot_peptide_intensity <- function(case, cutoff_prob=0.3) {
@@ -238,9 +255,18 @@ plot_peptide_intensity <- function(case, cutoff_prob=0.3) {
   
 }
 
-#' @param case 
+#' Visualize correlation heatmap 
+#' 
+#' @param case data table or data frame in wide representation. The data typically 
+#' contains \code{"PeptideIon"}, \code{"ProteinName"} and sample names in columns and 
+#' measurements of each peptide or precursor ions in rows. 
+#' 
+#' To visualize profile of peptides corresponding to the same protein, 
+#' peptides corresponding to one protein are pre-filtered for clearer 
+#' visualizations. 
 #'
-#' @param cutoff_prob 
+#' @param cutoff_prob a numeric value denoting posterior probability threshold
+#' to keep or remove peptides. 
 #'
 #' @export
 plot_cor_heatmap <- function(case, cutoff_prob=0.3) {
@@ -285,11 +311,21 @@ plot_cor_heatmap <- function(case, cutoff_prob=0.3) {
   
 }
 
-#' @param case 
+#' Visualize intensity and posterior probability in barplots 
+#' 
+#' @param case data table or data frame in wide representation. The data typically 
+#' contains \code{"PeptideIon"}, \code{"ProteinName"} and sample names in columns and 
+#' measurements of each peptide or precursor ions in rows. 
+#' 
+#' To visualize profile of peptides corresponding to the same protein, 
+#' peptides corresponding to one protein are pre-filtered for clearer 
+#' visualizations. 
 #'
-#' @param cutoff_prob 
-#' @param plot_intensity 
-#' @param plot_prob 
+#' @param cutoff_prob a numeric value denoting posterior probability threshold
+#' to keep or remove peptides. 
+#' @param plot_intensity a logical indicating whether to plot intensity barplots
+#' @param plot_prob a logical indicating whether to plot posterior probability
+#' barplots 
 #'
 #' @export
 plot_bar_intensity_n_probability <- function(case, cutoff_prob=0.3, 
@@ -394,14 +430,20 @@ plot_bar_intensity_n_probability <- function(case, cutoff_prob=0.3,
 }
 
 
-#' Plot density distribution of feature
+#' Plot density distribution of peptide features
 #' 
+#' @param data data table or data frame in wide representation. The data typically 
+#' contains \code{PeptideIon}, \code{ProteinName} and sample names in columns and 
+#' measurements of each peptide or precursor ions in rows. The function is 
+#' particularly useful after \code{calc_features()} step to visualize distribution of 
+#' computed feature statistics. 
 #' 
-#' @param data 
-#' @param feature 
-#' @param fill 
-#' @param font.size 
-#' @param title 
+#' @param feature a character vector denoting a peptide feature for density 
+#' plots. Examples include \code{"feature_mean_intensity_all"}, 
+#' \code{"feature_cv_intensity_all"}, \code{"scaled_median_PCC"} and etc. 
+#' @param fill a character vector denoting a column name to color by
+#' @param font.size font size of x and y labels 
+#' @param title title of density plot 
 #'
 #' @export
 plot_density <- function(data, feature = "feature_mean_intensity_all", 
