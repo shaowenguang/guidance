@@ -2,7 +2,7 @@
 % Please edit documentation in R/Visualizer.R
 \name{plot_protein_profile}
 \alias{plot_protein_profile}
-\title{Visualization of protein abundance}
+\title{Visualization of peptides}
 \usage{
 plot_protein_profile(case, cutoff_prob = 0.3)
 }
@@ -12,5 +12,5 @@ plot_protein_profile(case, cutoff_prob = 0.3)
 \item{cutoff_prob}{}
 }
 \description{
-Visualization of protein abundance
+Visualization of peptides
 }

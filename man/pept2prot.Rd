@@ -4,8 +4,8 @@
 \alias{pept2prot}
 \title{Infer protein abudnace from peptide measurements}
 \usage{
-pept2prot(input_dt, input_rank_index = "prob", topN = 3, aggfun = "mean",
-  bool_weighted_by_prob = TRUE)
+pept2prot(input_dt, input_rank_index = "prob", topN = 3,
+  aggfun = "mean", bool_weighted_by_prob = TRUE)
 }
 \arguments{
 \item{input_dt}{data table or data frame in wide representation. The data typically 

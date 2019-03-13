@@ -4,7 +4,8 @@
 \alias{normalize_data}
 \title{Normalize data}
 \usage{
-normalize_data(input_dt, replaceNA = "keep", normalization = "mediancenter")
+normalize_data(input_dt, replaceNA = "keep",
+  normalization = "mediancenter")
 }
 \arguments{
 \item{input_dt}{data table or data frame in wide representation. The data typically 

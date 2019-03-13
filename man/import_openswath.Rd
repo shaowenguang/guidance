@@ -4,8 +4,9 @@
 \alias{import_openswath}
 \title{import openSWATH output data with sample annotation}
 \usage{
-import_openswath(search_results, bool.removeDecoy = T, level = "PeptideIon",
-  sample_annotation = NULL, remove_prefixInFileName = FALSE)
+import_openswath(search_results, bool.removeDecoy = T,
+  level = "PeptideIon", sample_annotation = NULL,
+  remove_prefixInFileName = FALSE)
 }
 \arguments{
 \item{search_results}{A data frame containing the SWATH-MS data. This data typically
