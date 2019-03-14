@@ -188,3 +188,58 @@ perform_modt_tests <- function(input_dt, sample_annotation, input_bool_paired=FA
   
 }
 
+
+#' Perform ANOVA
+#'
+#' @param input_dt @param input_dt data table or data frame in wide representation. The data typically 
+#' contains \code{"PeptideIon"}, \code{"ProteinName"} and sample names in columns and 
+#' protein measurements in rows. The input data is usually an output from 
+#' \code{pept2prot()} and \code{merge_replicates()}
+#'
+#' @param sample_annotation data matrix with \code{SampleName}, biological covariates 
+#' (biological replicates) and technical covariates (technical replicates, batches, etc)
+#'
+#' @return data.table data.frame containing statistics of parametric and 
+#' non-parametric anova results
+#' 
+#' @export 
+#'
+perform_anova <- function(input_dt, sample_annotation) {
+  
+  proteinName <- input_dt$ProteinName
+  sampleName <- sample_annotation$SampleName
+  
+  cols <- which(grepl("^Intensity_", names(input_dt)))
+  data_t <- cbind(data.frame(sampleName), data.frame(t(data.frame(input_dt)[,cols])))
+  
+  baseformula <- " ~ sampleName"
+  output <- matrix(nrow = ncol(data_t)-1, ncol = 4, 
+                   dimnames = list(proteinName, c("parametric_Fvalue", "parametric_pvalue", 
+                                                  "KruskalWallis_chiSquared", "KruskalWallis_pvalue")))
+  
+  message("start to compute anova...")
+  for (i in 2:ncol(data_t)){
+    
+    formula <- paste(colnames(data_t)[i], baseformula, sep="")
+    
+    protein_row <- i - 1
+    if( (protein_row %% 1000) == 0 ) {
+      message("computing anova for ",  (protein_row %/% 1000),
+              "000 out of ", dim(input_dt)[1], " peptide ions...")
+    }
+    
+    aov_summary <- summary(aov(as.formula(formula), data=data_t))[[1]]
+    output[protein_row,"parametric_Fvalue"] <- signif(aov_summary[["F value"]][1], 4)
+    output[protein_row,"parametric_pvalue"] <- signif(aov_summary[["Pr(>F)"]][1], 4)
+    
+    kruskal_summary <- kruskal.test(as.formula(formula), data=data_t)
+    output[protein_row,"KruskalWallis_chiSquared"] <- signif(kruskal_summary$statistic, 4)
+    output[protein_row,"KruskalWallis_pvalue"] <- signif(kruskal_summary$p.value, 4)
+  }
+  
+  output_df <- cbind(input_dt, data.frame(output))
+  return(output_df)
+  
+}
+
+
