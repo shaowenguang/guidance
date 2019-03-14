@@ -5,13 +5,12 @@
 #' @importFrom MASS lda
 
 
-#' 
 #' @param input_dt a data table, data frame or matrix with numeric values 
-#'
+#' 
 #' @return data.table 
 #' @export
-
-#replace infinity with NA
+#'
+# replace infinity values by NA
 replace_inf <- function(input_dt) {
   
   temp <- lapply(input_dt, function(x) {
@@ -21,7 +20,7 @@ replace_inf <- function(input_dt) {
     return(x)
   })
   
-  return(as.data.table(temp))
+  return(as.data.table(temp)) 
   
 }
 
@@ -158,6 +157,8 @@ count_pairwise_number <- function(input_vector_a, input_vector_b) {
 }
 
 
+#' Title 
+#' 
 #' @param input_matrix 
 #'
 #' @export
@@ -171,3 +172,4 @@ count_pairwise_number_matrix <- function(input_matrix) {
   
   return(out_m)
 }
+
