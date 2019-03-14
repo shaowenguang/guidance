@@ -42,7 +42,7 @@
 #' and \code{remove_prefixInFileName = TRUE} will result in \code{"xuep_J180621_SW_3.mzXML.gz"}
 #'
 #' @example
-#'  prot_table <- dia_guidance(data= "S:/SWATH-guidance/feature_alignment.csv", 
+#' prot_table <- dia_guidance(data= "S:/SWATH-guidance/feature_alignment.csv", 
 #'                 sample_annotation="S:/SWATH-guidance/sample_annotation", 
 #'                 level="PeptideIon") 
 #'                 
@@ -102,8 +102,4 @@ dia_guidance <- function(data = NULL, data_fromEuler = NULL, sample_annotation =
   
   return(prot_inf_table)
 }
-
-
-
-
 

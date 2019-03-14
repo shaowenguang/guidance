@@ -140,10 +140,9 @@ pept2prot <- function(input_dt, input_rank_index = "prob",
 #' @param input_index 
 #' @param topN number of peptides utilized to infer protein abundance for each protein 
 #'
-#' @return
-#' @export
-#'
-#' @examples
+#' @return data.table data.frame 
+#' @export 
+#' 
 pept2prot_log2 <- function(input_dt, input_index, topN) {
   
   select <- copy(input_dt)

@@ -210,6 +210,8 @@ calc_features <- function(input_dt) {
 
 
 
+#' Generate linear discriminant analysis (LDA) model 
+#' 
 #' @param input_dt data table or data frame in wide representation. The data typically 
 #' contains \code{"PeptideIon"}, \code{"ProteinName"} and sample names in columns and 
 #' measurements of each peptide or precursor ions in rows. 

@@ -15,6 +15,9 @@ measurements of each peptide or precursor ions in rows}
 
 \item{topN}{number of peptides utilized to infer protein abundance for each protein}
 }
+\value{
+data.table data.frame
+}
 \description{
 Title
 }
