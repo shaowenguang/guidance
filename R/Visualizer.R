@@ -13,34 +13,9 @@
 #'
 #' @export
 plot_protein_profile <- function(case, cutoff_prob=0.3) {
+
+  a_reorder <- compute_cor(case = case, cutoff_prob=cutoff_prob)
   
-  if("aggr_Fragment_Annotation" %in% names(case)) {
-    # the input is transition level data
-    bool_isPeptideIon <- 0 
-    index_intensity <- which(grepl("^aggr_Peak_Area_", names(case)))
-  } else {
-    # the input is peptide level data
-    bool_isPeptideIon <- 1
-    index_intensity <- which(grepl("^Intensity_", names(case)))
-  }
-  
-  case[, Selection := "Removed"]
-  case[case$prob > cutoff_prob, ]$Selection <- "Kept"
-  
-  a <- round(cor(t(case[, index_intensity, with=F]), use="p", method="p"), 2)
-  
-  if(bool_isPeptideIon == TRUE) {
-    rownames(a) <- case$PeptideIon
-    colnames(a) <- case$PeptideIon
-  } else {
-    rownames(a) <- case$aggr_Fragment_Annotation
-    colnames(a) <- case$aggr_Fragment_Annotation
-  }
-  
-  a[is.na(a)] <- 0
-  
-  
-  a_reorder <- reorder_cormat(a)
   p_heatmap <- ggplot(melt(a_reorder, value.name = "Correlation", 
                            varnames=c("peptideIon", "PeptideIon")), 
                       aes(x=peptideIon , y=PeptideIon, fill=Correlation)) + 
@@ -159,43 +134,7 @@ plot_protein_profile <- function(case, cutoff_prob=0.3) {
 #' @export
 plot_peptide_intensity <- function(case, cutoff_prob=0.3) {
   
-  if("aggr_Fragment_Annotation" %in% names(case)) {
-    # the input is transition level data
-    bool_isPeptideIon <- 0 
-    index_intensity <- which(grepl("^aggr_Peak_Area_", names(case)))
-  } else {
-    # the input is peptide level data
-    bool_isPeptideIon <- 1
-    index_intensity <- which(grepl("^Intensity_", names(case)))
-  }
-  
-  case[, Selection := "Removed"]
-  case[case$prob > cutoff_prob, ]$Selection <- "Kept"
-  
-  a <- round(cor(t(case[, index_intensity, with=F]), use="p", method="p"), 2)
-  
-  if(bool_isPeptideIon == TRUE) {
-    rownames(a) <- case$PeptideIon
-    colnames(a) <- case$PeptideIon
-  } else {
-    rownames(a) <- case$aggr_Fragment_Annotation
-    colnames(a) <- case$aggr_Fragment_Annotation
-  }
-  
-  a <- round(cor(t(case[, index_intensity, with=F]), use="p", method="p"), 2)
-  
-  if(bool_isPeptideIon == TRUE) {
-    rownames(a) <- case$PeptideIon
-    colnames(a) <- case$PeptideIon
-  } else {
-    rownames(a) <- case$aggr_Fragment_Annotation
-    colnames(a) <- case$aggr_Fragment_Annotation
-  }
-  
-  a[is.na(a)] <- 0
-  
-  
-  a_reorder <- reorder_cormat(a)
+  a_reorder <- compute_cor(case = case, cutoff_prob=cutoff_prob)
   
   if(bool_isPeptideIon == TRUE) {
     
@@ -271,33 +210,8 @@ plot_peptide_intensity <- function(case, cutoff_prob=0.3) {
 #' @export
 plot_cor_heatmap <- function(case, cutoff_prob=0.3) {
   
-  if("aggr_Fragment_Annotation" %in% names(case)) {
-    # the input is transition level data
-    bool_isPeptideIon <- 0 
-    index_intensity <- which(grepl("^aggr_Peak_Area_", names(case)))
-  } else {
-    # the input is peptide level data
-    bool_isPeptideIon <- 1
-    index_intensity <- which(grepl("^Intensity_", names(case)))
-  }
+  a_reorder <- compute_cor(case = case, cutoff_prob=cutoff_prob)
   
-  case[, Selection := "Removed"]
-  case[case$prob > cutoff_prob, ]$Selection <- "Kept"
-  
-  a <- round(cor(t(case[, index_intensity, with=F]), use="p", method="p"), 2)
-  
-  if(bool_isPeptideIon == TRUE) {
-    rownames(a) <- case$PeptideIon
-    colnames(a) <- case$PeptideIon
-  } else {
-    rownames(a) <- case$aggr_Fragment_Annotation
-    colnames(a) <- case$aggr_Fragment_Annotation
-  }
-  
-  a[is.na(a)] <- 0
-  
-  
-  a_reorder <- reorder_cormat(a)
   p_heatmap <- ggplot(melt(a_reorder, value.name = "Correlation", 
                            varnames=c("peptideIon", "PeptideIon")), 
                       aes(x=peptideIon , y=PeptideIon, fill=Correlation)) + 
@@ -332,43 +246,7 @@ plot_bar_intensity_n_probability <- function(case, cutoff_prob=0.3,
                                              plot_intensity = T, 
                                                plot_prob = T) {
   
-  if("aggr_Fragment_Annotation" %in% names(case)) {
-    # the input is transition level data
-    bool_isPeptideIon <- 0 
-    index_intensity <- which(grepl("^aggr_Peak_Area_", names(case)))
-  } else {
-    # the input is peptide level data
-    bool_isPeptideIon <- 1
-    index_intensity <- which(grepl("^Intensity_", names(case)))
-  }
-  
-  case[, Selection := "Removed"]
-  case[case$prob > cutoff_prob, ]$Selection <- "Kept"
-  
-  a <- round(cor(t(case[, index_intensity, with=F]), use="p", method="p"), 2)
-  
-  if(bool_isPeptideIon == TRUE) {
-    rownames(a) <- case$PeptideIon
-    colnames(a) <- case$PeptideIon
-  } else {
-    rownames(a) <- case$aggr_Fragment_Annotation
-    colnames(a) <- case$aggr_Fragment_Annotation
-  }
-
-  a <- round(cor(t(case[, index_intensity, with=F]), use="p", method="p"), 2)
-  
-  if(bool_isPeptideIon == TRUE) {
-    rownames(a) <- case$PeptideIon
-    colnames(a) <- case$PeptideIon
-  } else {
-    rownames(a) <- case$aggr_Fragment_Annotation
-    colnames(a) <- case$aggr_Fragment_Annotation
-  }
-  
-  a[is.na(a)] <- 0
-  
-  
-  a_reorder <- reorder_cormat(a)
+  a_reorder <- compute_cor(case = case, cutoff_prob=cutoff_prob)
   
   if(bool_isPeptideIon == TRUE) {
     
@@ -467,4 +345,36 @@ plot_density <- function(data, feature = "feature_mean_intensity_all",
     theme(axis.line.x = element_line(color="black"), 
           axis.line.y = element_line(color="black")) +
     ggtitle(title)
+}
+
+
+compute_cor <- function(case, cutoff_prob=0.3){
+  
+  if("aggr_Fragment_Annotation" %in% names(case)) {
+    # the input is transition level data
+    bool_isPeptideIon <- 0 
+    index_intensity <- which(grepl("^aggr_Peak_Area_", names(case)))
+  } else {
+    # the input is peptide level data
+    bool_isPeptideIon <- 1
+    index_intensity <- which(grepl("^Intensity_", names(case)))
+  }
+  
+  case[, Selection := "Removed"]
+  case[case$prob > cutoff_prob, ]$Selection <- "Kept"
+  
+  a <- round(cor(t(case[, index_intensity, with=F]), use="p", method="p"), 2)
+  
+  if(bool_isPeptideIon == TRUE) {
+    rownames(a) <- case$PeptideIon
+    colnames(a) <- case$PeptideIon
+  } else {
+    rownames(a) <- case$aggr_Fragment_Annotation
+    colnames(a) <- case$aggr_Fragment_Annotation
+  }
+  
+  a[is.na(a)] <- 0
+  a_reorder <- reorder_cormat(a)
+  
+  return(a_reorder)
 }
