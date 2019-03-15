@@ -68,11 +68,20 @@ We provide LDA models trained with quantitative golden standard (QGS) dataset. T
 knitr::include_graphics("QGS_design.png")
 ```
 
-If users have own standard measurements and with to train own LDA models, refer to Part 4 for step-by-step demonstration on how to train an LDA model with own dataset. 
+If users have own standard measurements and with to train own LDA models, refer to [Part 5](#section_train_LDA) for step-by-step demonstration on how to train an LDA model with own dataset. 
+
+## Organization of this vignette
+
+This vignette is organized into 4 sections:
+
+1.	[Package installation and data import](#section_package_install): This section demonstrates how to load DIA/SWATH data and sample annotation for analysis using DIA-guidance workflow. We also provide a brief description about the example datasets in DIA-guidance/data. 
+2.	[Analyze data](#section_analyze_data): This section is the most essential part of this vignette demonstrating a step-by-step workflow to normalize dataset, filter for proteolytic peptides, calculate feature statistics, estimate protein abundance and perform statistical tests on protein matrix. 
+3.	[Visualization](#visualization): The novelty of this package is the use of LDA models to discriminate RARE (representative peptides) vs. non-RAREs. The characteristic of selected vs. non-selected peptides can be visualized using plotting tools provided in our package. 
+4.	[Train linear discriminant analysis (LDA) models](#section_train_LDA): This sections demonstrates how to train a LDA model using a standard dataset using our QGS (quantitative golden standard) dataset as an example. 
 
 \pagebreak
 
-# Package installation and data importing 
+# Package installation and data import {#section_package_install}
 
 ## Installing DIA-guidance
 To install the DIA-guidance package, the following commands can be executed in R:
@@ -98,6 +107,7 @@ library(GGally)
 library(ggfortify)
 library(gridExtra)
 library(Prom)
+require(plotrix)
 ```
 
 
@@ -119,11 +129,6 @@ peptideIons <- import_openswath(search_results= "S:/SWATH-guidance/feature_align
 The user can import DIA/SWATH-MS results of different levels by specifically denoting `level` to `"PeptideIon"` (by default),`"Transition"`, `"Peptide"`or `"PeptideWithMod"`. Note that downstream analysis may be different depending on peptide/fragment level of imported data. 
 
 Alternatively, to import directly DIA/SWATH-MS results processed via Euler portal [ref], the user can use the function `import_openswath_matrix_fromEulerPortal`
-```{r load_data_euler, fig.show='hold'}
-# import Yansheng's data this way: 
-# all_peptideIons <- import_openswath_matrix_fromEulerPortal(search_results="E1702271600_matrix_requant",
-# sample_annotation="sample_annotation")
-```
 
 ## Preparing the data
 The original DIA/SWATH-MS data (e.g. search results from OpenSWATH) is presented in long format, i.e., each row is one variable per peptide. To facilitate downstream analysis to normalize, compute features and select peptides/transitions, we provide a simple utility function `long2wide()` to convert from long to wide format data i.e. one peptide's variables in a single row.  
@@ -132,10 +137,9 @@ The original DIA/SWATH-MS data (e.g. search results from OpenSWATH) is presented
 all_peptideIons <- long2wide(peptideIons)
 ```
 
-
 \pagebreak
 
-# Analyze data 
+# Analyze data {#section_analyze_data}
 We hereby show a step-by-step demonstration to normalize peptide/fragment-level intensities, calculate and select features and conduct statistical tests to accurately infer protein abundance from DIA/SWATH-MS data. 
 
 ## Normalize data
@@ -184,7 +188,7 @@ kable(cons_peptideIons_features[1:5,] %>%
         select(c("PeptideIon", "feature_mean_intensity_all" , "feature_cv_intensity_all")))
 ```
 
-The feature-level statistics can be visualized using `ggplot2` into barplots, correlation matrix, trend lines and etc. In addiiton, we provide `plot_density()`, `plot_heatmap()`, `plot_bar_intensity_n_probability()` and `plot_protein_profile()` to visualize quantitative pattern of a feature (refer to Part 5: [Visualization for details](#visualization)). Here is an example demonstration of visualzing density distribution of average intensity using `plot_density()`. 
+The feature-level statistics can be visualized using `ggplot2` into barplots, correlation matrix, trend lines and etc. In addiiton, we provide `plot_density()`, `plot_heatmap()`, `plot_bar_intensity_n_probability()` and `plot_protein_profile()` to visualize quantitative pattern of a feature (refer to [Part 4: Visualization for details](#visualization)). Here is an example demonstration of visualizing density distribution of average intensity using `plot_density()`. 
 
 ```{r calculate_feature_plot, fig.show='hold', fig.align='center', fig.height=2.5, fig.width=4}
 # visualize average peptide intensities through density plot:
@@ -194,13 +198,14 @@ plot_density(cons_peptideIons_features, feature = "feature_mean_intensity_all")
 \pagebreak
 
 ## Perform selection on features 
-After calculating feature statistics, we implemented linear discriminant analysis (LDA) model to combine sub-scores describing various features into a poster probability of being a RARE (reproducible abundance representative entities). These RAREs are subset of peptides that accurately and reliably reflects the abundance of their corresponding proteins. 
+After calculating feature statistics, we implemented linear discriminant analysis (LDA) model to combine sub-scores describing various features into a posterior probability of being a RARE (reproducible abundance representative entities). These RAREs are subset of peptides that accurately and reliably reflects the abundance of their corresponding proteins. 
 
 In this package, we trained the LDA models from the QGS datasets and set them as default to facilitate for future use.
-For more details about training user-specific models if necessary, please see Part 4). 
+For more details about training user-specific models if necessary, please see [Part 5](#section_train_LDA)). 
 
 The function `perform_selection()` calculates the posterior probability using trained LDA model deposited in `DIA-guidance/data`:
 ```{r perform_selection, fig.show='hold',fig.align='center', fig.height=3, fig.width=4.5}
+# calculate posterior probability
 test <- perform_selection(cons_peptideIons_features) 
 
 # histogram of posterior probaility
@@ -213,15 +218,15 @@ The histogram shows probability of the peptide being a RARE, evaluated by sub-sc
 
 ## Estimate protein abundance 
 
-### select peptides by probability threshold
+### Select peptides by probability threshold
 To estimate protein abundances in a robust manner, the users can use the predicted posterior probability (0.2 by default) to perform an optimal selection of peptide features that accurately and reliably represent their respective protein concentrations.
 
-Filter peptides by posterior probability: users can increase this threshold to increase their confidence for peptide selection, e.g., probability > 0.4.
+Filter peptides by posterior probability: users can increase this threshold to increase their confidence for peptide selection, e.g., probability > 0.2.
 ```{r protein_infer_filter, fig.show='hold'}
 test_yesFiltered <- test[prob > 0.2, ]
 ```
 
-### impute missing values
+### Impute missing values
 In targeted mass spectrometry, it is rational and important to generate a quantitative protein matrix that contains a least number of missing values. Thus, we provide `impute_missing_values()` to impute values following a uniform distribution between minimum $0.1 \times CV$ and minimum $1.1 \times CV$
 ```{r protein_infer_impute, fig.show='hold'}
 test_yesFiltered_yesImputated <- impute_missing_values(test_yesFiltered, c(3:17))
@@ -257,25 +262,41 @@ After the estimation of protein abundance, we provide statistical tools to analy
 
 + `perform_t_test()` calculates differential protein expression by Student’s test using `rowttests()` in `genefilter` package. The significance of an expression change is determined based on adjusted p-values of the t-statistics. 
 
-+ `perform_anova()` calculates differential expression pattern between and within groups of the same sample.  [more description based on how the function is built]
-fit <- lm(sr ~ ., data = LifeCycleSavings)
-anova(fit)
-
-+ `perform_modt_test()` calculates empirical bayes statistics for differential expression between sample groups based on `lmFit()` and `eBayes()`.  
-   + `lmFit()` fits a linear model to the expression data for each protein. The coefficients of the fitted models describe differences between the two compared sample groups. 
-   + Given the linear model fit, the `eBayes()` function computes moderated t-statistics, moderated F-statistics and log-odds of differential expression by empirical Bayes moderation of standard errors. This extension is analogous to relationship between t-tests and F-statistics in conventional anova except that the residual mean squares and residual degree of freedom have been moderated between rows. 
-
-+ `perform_peca()` conducts probe-level expression change averaging (PECA) using `PECA_tsv()` to identify expression change between two groups of samples for each protein. 
-   + PECA calculates the probe-level expression changes using the ordinary or modified t-statistics, the ordinary using `rowttests()` in genefilter package and modified t-statistics using linear modeling approach in limma package. The significance of an expression change is determined by the analytical p-value 
-
-
-```{r statistical_tests, fig.show='hold', echo= FALSE, eval = FALSE}
+```{r statistical_t_tests, fig.show='hold', echo= FALSE, eval = FALSE, fig.width=3, fig.height=2}
 # t-test 
 t_test_result <- perform_t_tests(prot_inf_table, anno)
 
-# empirical bayes statistics
-modt_result <- perform_modt_tests(prot_inf_table, anno)
+# distribution of adjusted p values 
+hist <- hist(t_test_result$pval_adj)
+breaks <- hist$breaks
+counts <- hist$counts
 
+library(plotrix)  
+gap.barplot(hist$counts, gap=c(800,79000),xlab="Counts",ytics=c(0,600,79100, 79400),
+            ylab="Frequency",main="Barplot with gap",xtics=hist$breaks)
+
+```
+
++ `perform_modt_test()` calculates empirical bayes statistics for differential expression between sample groups based on `lmFit()` and `eBayes()`.  
+    + `lmFit()` fits a linear model to the expression data for each protein. The coefficients of the fitted models describe differences between the two compared sample groups. 
+    + Given the linear model fit, the `eBayes()` function computes moderated t-statistics, moderated F-statistics and log-odds of differential expression by empirical Bayes moderation of standard errors. This extension is analogous to relationship between t-tests and F-statistics in conventional anova except that the residual mean squares and residual degree of freedom have been moderated between rows. 
+
+```{r statistical_mot_tests, fig.show='hold', echo= FALSE, eval = FALSE}
+# t-test 
+modt_result <- perform_modt_tests(prot_inf_table, anno)
+```
+
++ `perform_anova()` calculates differential expression pattern of differnet sample groups for each protein based on `aov()` for parametric ANOVA and `kruskal.test()` in `stats` package for nonparametric ANOVA tests. 
+
+```{r statistical_anova_tests, fig.show='hold', echo= FALSE, eval = FALSE}
+# t-test 
+anova_result <- perform_anova(prot_inf_table, anno)
+```
+
++ `perform_peca()` conducts probe-level expression change averaging (PECA) using `PECA_tsv()` to identify expression change between two groups of samples for each protein. 
+    + PECA calculates the probe-level expression changes using the ordinary or modified t-statistics, the ordinary using `rowttests()` in `genefilter` package and modified t-statistics using linear modeling approach in `limma` package. The significance of an expression change is determined by the analytical p-value.
+
+```{r statistical_peca_tests, fig.show='hold', echo= FALSE, eval = FALSE}
 # PECA
 peca_result <- perform_peca_tests(prot_inf_table, anno)
 ```
@@ -324,13 +345,13 @@ plot_peptide_intensity(test_prot)
 
 \pagebreak
 
-# Train linear discriminant analysis (LDA) models 
-In this part, we demonstrate how to train the LDA model that is used as a default model in the package. This model was trained by the QGS dataset. In addition, the user can, if necessary, also train their own model by using these commands. 
+# Train linear discriminant analysis (LDA) models {#section_train_LDA}
+In this part, we demonstrate how to train the LDA model that is used as a default model in the package. This model was trained by the QGS dataset. The user can, if necessary, also train their own model by using these commands. 
 
 Here, we utilize the QGS dataset to demontrate how to train LDA models, consisting of a DE model using *E.coli* proteins with known and perturbed expressions, and a EE model using *Human* proteins with equal expression. 
 
 ## Compute feature statistics of QGS data
-To prepare for a training dataset, follow the data analysis steps in Part 2 up to feature calculation. Following `normalize_data()` and `calc_features()`, the dataset contains sample- and peptide-oriented features such as average sample intensity, sample CV, average peptide intensity, peptide CV, average peptide scores and etc. 
+To prepare for a training dataset, follow the data analysis steps in [Part 3](#section_analyze_data) up to feature calculation. Following `normalize_data()` and `calc_features()`, the dataset contains sample- and peptide-oriented features such as average sample intensity, sample CV, average peptide intensity, peptide CV, average peptide scores and etc. 
 
 The workflow is shown below: 
 ```{r mean_intensity_from_feature, fig.show='hold', eval = FALSE}
