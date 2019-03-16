@@ -1,0 +1,16 @@
+filename	InjectionName	SampleName	BioRep	TechRep	Batch_A	Batch_B	Batch_C
+./lgillet_J170408_001.mzXML.gz	lgillet_J170408_001	A	1	1
+./lgillet_J170408_002.mzXML.gz	lgillet_J170408_002	A	2	2
+./lgillet_J170408_003.mzXML.gz	lgillet_J170408_003	A	3	3			
+./lgillet_J170408_004.mzXML.gz	lgillet_J170408_004	B	1	1
+./lgillet_J170408_005.mzXML.gz	lgillet_J170408_005	B	2	2
+./lgillet_J170408_006.mzXML.gz	lgillet_J170408_006	B	3	3
+./lgillet_J170408_007.mzXML.gz	lgillet_J170408_007	C	1	1
+./lgillet_J170408_008.mzXML.gz	lgillet_J170408_008	C	2	2
+./lgillet_J170408_009.mzXML.gz	lgillet_J170408_009	C	3	3
+./lgillet_J170408_025.mzXML.gz	lgillet_J170408_010	D	1	1
+./lgillet_J170408_026.mzXML.gz	lgillet_J170408_011	D	2	2
+./lgillet_J170408_027.mzXML.gz	lgillet_J170408_012	D	3	3
+./lgillet_J170408_013.mzXML.gz	lgillet_J170408_013	E	1	1
+./lgillet_J170408_014.mzXML.gz	lgillet_J170408_014	E	2	2
+./lgillet_J170408_015.mzXML.gz	lgillet_J170408_015	E	3	3
