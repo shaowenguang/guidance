@@ -9,6 +9,8 @@
 #' 
 #' @return data.table 
 #' @export
+#' 
+#' @examples 
 #'
 # replace infinity values by NA
 replace_inf <- function(input_dt) {

@@ -308,9 +308,28 @@ peca_result <- perform_peca_tests(prot_inf_table, anno)
 
 After feature selection, users can visualize protein profiles, together with its generated peptides, across multiple conditions by `plot_protein_profile()`. This function visualizes features, such as metrics of reproducibility, correlation coefficient, averaged intensity, as well as posterior probabilities of each peptide with the indicator (dash or solid line) of which peptides have been kept or removed through the selection. 
 
+For visualization purpose, we utilize dataset wth requant values 
+```{r all_feature_plots, fig.show='hold', eval=FALSE}
+all_peptideIons <- SWATH_data <- import_openswath_matrix_fromEulerPortal(
+  search_results="data/QGS_SWATH_data", 
+  sample_annotation="data/QGS_sample_annotation")
+
+all_peptideIons_normalized <- normalize_data(all_peptideIons, replaceNA="keep", 
+                                             normalization="TIC")
+
+cons_peptideIons <- merge_replicates(all_peptideIons_normalized, anno, 
+                                     bool_NA_means_requant = T)
+
+cons_peptideIons <- cons_peptideIons[which(grepl("^1/", cons_peptideIons$ProteinName)), ]
+
+cons_peptideIons_features <- calc_features(cons_peptideIons)
+
+test <- perform_selection(cons_peptideIons_features)
+```
+
 ```{r all_feature_plots, fig.show='hold', eval=FALSE}
 # peptides corresponding to the protein of interest  
-prot_name <- "1/sp|P37108|SRP14_HUMAN" 
+prot_name <- c("1/O75976")
 
 # In practice  for high-qulity illustrations, we recommend following command to save figure in pdf:
 pdf("example_protein_profiles.pdf", width=7.5*3, height=4.1*2)
@@ -325,7 +344,7 @@ These features can be plotted separately by `plot_bar_intensity_n_probability()`
 
 ```{r feature_plots, fig.show='hold', fig.align='center', fig.height=4, fig.width=8}
 # peptides corresponding to the protein of interest 
-prot_name <- "1/sp|P37108|SRP14_HUMAN" 
+prot_name <- c("1/O75976")
 test_prot <- test[test$ProteinName==prot_name, ]
 
 # Barplot of average intensity and posterior probability of individual peptides
@@ -357,9 +376,10 @@ The workflow is shown below:
 ```{r mean_intensity_from_feature, fig.show='hold', eval = FALSE}
 
 # prepare data matrix 
-peptideIons <- import_openswath(search_results= "S:/SWATH-guidance/feature_alignment.csv", 
-                                sample_annotation="S:/SWATH-guidance/sample_annotation", 
-                                level="PeptideIon") 
+peptideIons <- import_openswath(search_results= "data/QGS_SWATH_data", 
+                                sample_annotation="data/QGS_sample_annotation", 
+                                level="PeptideIon")
+
 all_peptideIons <- long2wide(peptideIons)
 
 # normalize and merge replicates
