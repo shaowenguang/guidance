@@ -14,6 +14,13 @@
 #' measurements of each peptide or precursor ions in rows. 
 #' 
 #' @export
+#' 
+#' @examples 
+#' peptideIons <- import_openswath(search_results= "data/QGS_SWATH_data", 
+#' sample_annotation="data/QGS_sample_annotation", 
+#' level="PeptideIon")
+#' all_peptideIons <- long2wide(peptideIons)
+#' 
 long2wide <- function(input_dt, global_level = "PeptideIon") {
 
   if (!global_level %in% c("PeptideIon","Transition", "Peptide", "PeptideWithMod")) {
@@ -74,7 +81,12 @@ summarize_data <- function(input_dt) {
 #' @return data.table data.frame containing normalized measurement data  
 #'
 #' @export
-normalize_data <- function(input_dt, replaceNA="keep", normalization="mediancenter") {
+#' 
+#' @examples 
+#' all_peptideIons_normalized <- normalize_data(all_peptideIons, replaceNA="keep", 
+#' normalization="none")
+#' 
+normalize_data <- function(input_dt, replaceNA="keep", normalization="mediancenter"){
   
   if (!replaceNA %in% c("remove","keep","zero","min_intensity")) {
     stop("Please select a valid method for NA replacement. Options:  \"remove\", \"keep\", \"zero\", \"min_intensity\"")
@@ -90,14 +102,14 @@ normalize_data <- function(input_dt, replaceNA="keep", normalization="mediancent
   }
   
   normalized_dt <- copy(input_dt)
-
-#  if( length(which( grepl("Intensity", names(normalized_dt))) ) > 0 ) { 
-#    #wenguang: this means that input table is the matrix from Euler Portal
-#    index_intensity <- which( grepl("Intensity", names(normalized_dt)) )
-#  } else {
-#    index_intensity <- which(!names(normalized_dt) %in% c("aggr_Fragment_Annotation", "PeptideIon", "ProteinName"))
-#  }
- 
+  
+  #  if( length(which( grepl("Intensity", names(normalized_dt))) ) > 0 ) { 
+  #    #wenguang: this means that input table is the matrix from Euler Portal
+  #    index_intensity <- which( grepl("Intensity", names(normalized_dt)) )
+  #  } else {
+  #    index_intensity <- which(!names(normalized_dt) %in% c("aggr_Fragment_Annotation", "PeptideIon", "ProteinName"))
+  #  }
+  
   if( length(which( grepl("Intensity", names(normalized_dt))) ) > 0 ) { 
     #wenguang: peptide level data
     index_intensity <- which( grepl("Intensity", names(normalized_dt)) )
@@ -105,10 +117,10 @@ normalize_data <- function(input_dt, replaceNA="keep", normalization="mediancent
     #wenguang: transition level data
     index_intensity <- which( grepl("aggr_Peak_Area", names(normalized_dt)) )
   }
-   
-#  if(log2transform) {
-#    normalized_dt[, index_intensity := log2(normalized_dt[, index_intensity, with=F]), with=F]
-#  }
+  
+  #  if(log2transform) {
+  #    normalized_dt[, index_intensity := log2(normalized_dt[, index_intensity, with=F]), with=F]
+  #  }
   
   if(replaceNA=="remove") {
     normalized_dt <- normalized_dt[which(complete.cases(normalized_dt)), ]
@@ -117,7 +129,7 @@ normalize_data <- function(input_dt, replaceNA="keep", normalization="mediancent
   }  else if(replaceNA=="min_intensity") {
     normalized_dt[is.na(normalized_dt)] <- min(normalized_dt[, index_intensity, with=F], na.rm = T)
   }
-    
+  
   
   if(normalization=="mediancenter") {
     
@@ -147,7 +159,7 @@ normalize_data <- function(input_dt, replaceNA="keep", normalization="mediancent
       normalized_dt[, names(normalized_dt)[index_intensity[i]]] <- normalized_dt[, index_intensity[i], with=F] / run_TIC[i] * median(run_TIC)
     }
   } else if(normalization=="quantile") {
-
+    
     temp_rank <- apply(normalized_dt[, index_intensity, with=F], 2, function(x) rank(x, na.last = F))
     temp_sort <- apply(normalized_dt[, index_intensity, with=F], 2, function(x) sort(x, na.last = F))
     temp_mean <- apply(temp_sort, 1, mean_na)
@@ -158,7 +170,7 @@ normalize_data <- function(input_dt, replaceNA="keep", normalization="mediancent
     
   }
   
-  normalized_dt[, numPerProt := length( get(names(normalized_dt)[1]) ), by=(ProteinName)]
+  normalized_dt[, numPerProt := length( get(names(normalized_dt)[1]) ), by=list(ProteinName)]
   
   return(normalized_dt)  
   
@@ -182,6 +194,12 @@ normalize_data <- function(input_dt, replaceNA="keep", normalization="mediancent
 #' as \code{mean_intensity_A}, \code{cv_intensity_A} and \code{numNA_intensity_A}. 
 #'
 #' @export
+#' 
+#' @examples 
+#' all_peptideIons_normalized <- normalize_data(all_peptideIons, replaceNA="keep", 
+#' normalization="none")
+#' cons_peptideIons <- merge_replicates(all_peptideIons_normalized, anno)
+#' 
 merge_replicates <- function(wide, sample_annotation = NULL, 
                              bool_NA_means_requant = FALSE, averageFun = "mean") {
   
@@ -286,6 +304,8 @@ merge_replicates <- function(wide, sample_annotation = NULL,
 #' @return data.table data.frame containing only proteotypic peptides 
 #'
 #' @export
+#' @examples proteotypic_peptide_matrix <- keep_proteotypic_only(all_peptideIons)
+#' 
 keep_proteotypic_only <- function(input_dt) {
 
   output_dt <- copy(input_dt)
