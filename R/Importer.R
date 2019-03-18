@@ -19,6 +19,11 @@
 #' @return data.table data.frame containing SWATH-MS data and sample annotation
 #' 
 #' @export
+#' 
+#' @examples peptideIons <- import_openswath(search_results= "data/QGS_SWATH_data", 
+#' sample_annotation="data/QGS_sample_annotation", 
+#' level="PeptideIon")
+#' 
 import_openswath <- function(search_results, bool.removeDecoy = T, level = "PeptideIon", 
                              sample_annotation = NULL, remove_prefixInFileName = FALSE) {
   
@@ -109,6 +114,12 @@ import_openswath <- function(search_results, bool.removeDecoy = T, level = "Pept
 #' @return data.table data containing raw openSWATH matrix 
 #' 
 #' @export
+#' 
+#' @examples 
+#' all_peptideIons <- SWATH_data <- import_openswath_matrix_fromEulerPortal(
+#' search_results="data/YS_SWATH_data", 
+#' sample_annotation="data/YS_sample_annotation")
+#' 
 import_openswath_matrix_fromEulerPortal <- function(search_results, sample_annotation = NULL) {
   
   message("Message: It starts reading the search result matrix of OpenSWATH generated from Euler Portal...")
@@ -150,6 +161,9 @@ import_openswath_matrix_fromEulerPortal <- function(search_results, sample_annot
 #' (biological replicates) and technical covariates (technical replicates, batches, etc)
 #'
 #' @export
+#' peptideIons <- import_spectronaut_matrix(search_results= "data/QGS_SWATH_data", 
+#' sample_annotation="data/QGS_sample_annotation")
+#' 
 import_spectronaut_matrix <- function(search_results, sample_annotation = NULL) {
 
   message("Message: It starts reading the search result matrix of Spectronaut...")
