@@ -1,68 +1,3 @@
-#' @param input_dt 
-#' @param input_rank_index 
-#' @param topN 
-#' @param aggfun 
-#' @param bool_weighted_by_prob 
-#' @param bool_imputation 
-#' @param prob_threshold 
-#' @param bool_keep_low_confident_prot 
-#'
-#' @export
-generate_protein_table <- function(input_dt, input_rank_index = "prob", topN = 3, 
-                                   aggfun = "sum", bool_weighted_by_prob = TRUE, 
-                                   bool_imputation = TRUE,prob_threshold = 0.2, 
-                                   bool_keep_low_confident_prot = FALSE) {
-  
-  
-  test_filtered <- input_dt[prob > prob_threshold, ]
-  
-  if(bool_imputation == TRUE) {
-    
-    index_intensity <- which(grepl("^Intensity", names(test)))
-    
-    test_filtered_imputated <- impute_missing_values(test_filtered, index_intensity)
-    
-    cons_prot_table <- merge_replicates(pept2prot(test_filtered_imputated, input_rank_index, topN, aggfun, bool_weighted_by_prob), anno)
-    
-  } else{
-    
-    cons_prot_table <- merge_replicates(pept2prot(test_filtered, input_rank_index, topN, aggfun, bool_weighted_by_prob), anno)
-    
-  }
-  
-  
-  if(bool_keep_low_confident_prot == TRUE) {
-
-    low_confident_prot_list <- setdiff(unique(input_dt$ProteinName), unique(test_filtered$ProteinName))
-    lowSignal <- input_dt[which(input_dt$ProteinName %in% low_confident_prot_list), ]
-    
-    if(bool_imputation == TRUE) {
-      
-      lowSignal_imputated <- impute_missing_values(lowSignal, index_intensity)
-      cons_prot_table_lowSignal <- merge_replicates(pept2prot(lowSignal_imputated, input_rank_index, topN, aggfun, bool_weighted_by_prob), anno)
-      
-    } else{
-      
-      cons_prot_table_lowSignal <- merge_replicates(pept2prot(lowSignal, input_rank_index, topN, aggfun, bool_weighted_by_prob), anno)
-      
-    }
-    
-    output_prot_table <- rbind(cons_prot_table, cons_prot_table_lowSignal)
-    
-  } else {
-    
-    output_prot_table <- copy(cons_prot_table)
-    
-  }
-  
-  return(output_prot_table)
-  
-  
-}
-
-
-
-
 #' Infer protein abudnace from peptide measurements  
 #' 
 #' @param input_dt data table or data frame in wide representation. The data typically 
@@ -76,6 +11,14 @@ generate_protein_table <- function(input_dt, input_rank_index = "prob", topN = 3
 #' peptide
 #'
 #' @export
+#' 
+#' @examples 
+#' peptideIons_features <- calc_features(all_peptideIons)
+#' peptideIons_features_select <- calc_features(peptideIons_features)
+#' 
+#' peptide_to_protein <- pept2prot(peptideIons_features_select, 
+#' "prob", 3, aggfun="sum", bool_weighted_by_prob=T), anno)
+#' 
 pept2prot <- function(input_dt, input_rank_index = "prob", 
                       topN = 3, aggfun = "mean", bool_weighted_by_prob = TRUE) {
   
@@ -182,6 +125,12 @@ pept2prot_log2 <- function(input_dt, input_index, topN) {
 #' @return  data.table data.frame  
 #' 
 #' @export
+#' 
+#' @examples 
+#' peptideIons_features <- calc_features(all_peptideIons)
+#' peptideIons_features_select <- calc_features(peptideIons_features)
+#' Imputated <- impute_missing_values(test_yesFiltered, c(3:17))
+#' 
 impute_missing_values <- function(input_dt, input_index) {
   
   message("start to impute missing values...")
