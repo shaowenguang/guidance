@@ -1,85 +1,3 @@
-#Wenguang: the loop in this function is slow, the results of which, however, were well validated. An updated/faster version to calculate features was implemented below...
-calc_features_old_just_backup <- function(input_dt, level="PeptideIon") {
-  
-  message("start to calculate features per proteins...")
-  
-  output_dt <- copy(input_dt)
-  
-  output_dt[, feature_mean_intensity_all := apply(.SD, 1, mean_na), .SDcols=names(output_dt)[which(grepl("^mean_intensity", names(output_dt)))]]
-  output_dt[, feature_cv_intensity_all := apply(.SD, 1, mean_na), .SDcols=names(output_dt)[which(grepl("^cv_intensity", names(output_dt)))]]
-  output_dt[, feature_numNA_intensity_all := apply(.SD, 1, mean_na), .SDcols=names(output_dt)[which(grepl("^numNA_intensity", names(output_dt)))]]
-  output_dt[, feature_median_PCC := -2]
-  output_dt[, feature_median_SCC := -2]
-  output_dt[, feature_MAD_dist := -2]
-  
-  #if cv is na (that means no replicates), then the median cv overall is assigned. 
-  output_dt[is.na(output_dt$feature_cv_intensity_all), ]$feature_cv_intensity_all <- median_na(output_dt$feature_cv_intensity_all)
-  
-  output_dt[, median_PCC_PerProt := -2]
-  
-  
-  prot_list <- unique(output_dt$ProteinName)
-  
-  for (i in 1:length(prot_list)) {
-    
-    if(i%%500 == 0) {
-      message("processing: ", i, "th proteins: ", prot_list[i])
-    }
-    
-    case <- output_dt[output_dt$ProteinName==prot_list[i], ]
-    
-    if(dim(case)[1] > 1) {
-      
-      index_injections <- which(names(output_dt) %in% anno$InjectionName)
-      
-      mat_pcc <- cor(t(case[, index_injections, with=F]), use="p", method="p")
-      mat_scc <- cor(t(case[, index_injections, with=F]), use="p", method="s")
-      
-      # To exclude the self pairwise comparison. Otherwise median_PCC of proteins with two peptides will be overestimated (because of at least there is a ONE between two compairons).
-      diag(mat_pcc) <- NA
-      diag(mat_scc) <- NA
-      
-      # at least three completed paires to calculate the cor
-      mat_pairwise_complete <-  count_pairwise_number_matrix(t(case[, index_injections, with=F]))
-      
-      mat_pcc[mat_pairwise_complete < 3] <- NA
-      mat_scc[mat_pairwise_complete < 3] <- NA
-      
-      output_dt[which(output_dt$PeptideIon %in% case$PeptideIon), ]$feature_median_PCC <- apply(mat_pcc, 1, function(x) median_na(x))
-      output_dt[which(output_dt$PeptideIon %in% case$PeptideIon), ]$feature_median_SCC <- apply(mat_scc, 1, function(x) median_na(x))
-      
-      output_dt[which(output_dt$PeptideIon %in% case$PeptideIon), ]$median_PCC_PerProt <- median_na(apply(mat_pcc, 1, function(x) median_na(x)))
-      
-      #ratio_case <- log2(case$mean_intensity_a / case$mean_intensity_b)
-      #output_dt[which(output_dt$PeptideIon %in% case$PeptideIon), ]$feature_MAD_dist <- abs(ratio_case - median(ratio_case)) / mad(ratio_case, constant=1)
-      
-    }
-    
-  }
-  
-  
-  
-  output_dt[, `:=`(scaled_mean_intensity_all = scale(log2(feature_mean_intensity_all))
-                  , scaled_cv_intensity_all = scale(feature_cv_intensity_all)
-                  , scaled_numNA_intensity_all = scale(feature_numNA_intensity_all)
-                  , scaled_median_PCC = scale(feature_median_PCC)
-                  , scaled_MAD_dist = scale(feature_MAD_dist) )]
-  
-  
-  #if median_PCC/median_SCC is na (that means many NAs), then the median median_PCC/median_SCC overall is assigned. 
-  output_dt[is.na(output_dt$scaled_median_PCC), ]$scaled_median_PCC <- median_na(output_dt$scaled_median_PCC)
-
-  
-  message("done with calculating features...")
-  
-  return(output_dt)
-  
-}
-
-
-
-
-
 #' Compute metrics describing relationship among peptides of the same protein
 #' 
 #' @param input_dt data table or data frame in wide representation. The data typically 
@@ -88,6 +6,9 @@ calc_features_old_just_backup <- function(input_dt, level="PeptideIon") {
 #'
 #' @return  data.table data.frame containing feature statistics 
 #' @export
+#' 
+#' @examples peptideIons_features <- calc_features(all_peptideIons)
+#' 
 calc_features <- function(input_dt) {
   
   message("start to calculate features per protein...")
@@ -222,6 +143,15 @@ calc_features <- function(input_dt) {
 #' \code{scaled_median_PCC}, \code{scaled_sd_width_all} and \code{label}. 
 #' 
 #' @export
+#' 
+#' @examples 
+#' peptideIons_features <- calc_features(all_peptideIons)
+#' index_feature_selected <- c("scaled_mean_intensity_all", "scaled_cv_intensity_all", 
+#' "scaled_numNA_intensity_all", "scaled_averaged_score_all", 
+#' "scaled_median_PCC", "scaled_sd_width_all", "label")
+#' 
+#' model_lda_ecoli <- get_lda_model(peptideIons_features, index_feature_selected)
+#' 
 get_lda_model <- function(input_dt, input_features) {
   
   model_lda <- lda(label ~., input_dt[, c(input_features), with=F])
@@ -244,6 +174,11 @@ get_lda_model <- function(input_dt, input_features) {
 #' @return  data.table data.frame containing posterior probability. 
 #' 
 #' @export
+#' 
+#' @examples 
+#' peptideIons_features <- calc_features(all_peptideIons)
+#' peptideIons_features_select <- perform_selection(peptideIons_features)
+#' 
 perform_selection <- function(input_dt) {
   
   #Wenugang: these two rules still need to be checked... as I think there is room to improve...
