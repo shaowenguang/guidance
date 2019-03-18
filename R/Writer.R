@@ -6,7 +6,12 @@
 #' \code{"csv"}. 
 #' @param ... other parameters of \code{write.table} function
 #'  
-#' @export
+#' @return csv or tsv output
+#' @export 
+#' 
+#' @examples \dontrun{write_protein_table(protein_matrix, 
+#' file_name = "example_protein_table")}
+#' 
 write_protein_table <- function(input_dt, file_name = "protein_table", format = "tsv", ...){
   
   if (!format %in% c("tsv","csv")) {
