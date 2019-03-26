@@ -1,7 +1,7 @@
 #Wenguang: the loop in this function is slow, the results of which, however, were well validated. An updated/faster version to calculate features was implemented below...
 calc_features_old_just_backup <- function(input_dt, level="PeptideIon") {
   
-  message("start to calculate features per proteins...")
+  message("It starts to calculate features per protein...")
   
   output_dt <- copy(input_dt)
   
@@ -70,7 +70,7 @@ calc_features_old_just_backup <- function(input_dt, level="PeptideIon") {
   output_dt[is.na(output_dt$scaled_median_PCC), ]$scaled_median_PCC <- median_na(output_dt$scaled_median_PCC)
 
   
-  message("done with calculating features...")
+  message("Done with calculating features...")
   
   return(output_dt)
   
@@ -90,7 +90,7 @@ calc_features_old_just_backup <- function(input_dt, level="PeptideIon") {
 #' @export
 calc_features <- function(input_dt) {
   
-  message("start to calculate features per protein...")
+  message("It starts to calculate features per protein...")
 
   output_dt <- copy(input_dt)
   
@@ -200,7 +200,7 @@ calc_features <- function(input_dt) {
   }
   
   
-  message("done with calculating features...")
+  message("Done with calculating features...")
   
   return(output_dt)
   

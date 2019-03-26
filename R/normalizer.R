@@ -52,9 +52,18 @@ long2wide <- function(input_dt, global_level = "PeptideIon") {
 
 summarize_data <- function(input_dt) {
   
-  message("This table contains ", length(unique(input_dt$PeptideIon)), " peptide ions; " 
+  message("Some basic information for the input data")
+
+  message("  This table contains ", length(unique(input_dt$PeptideIon)), " peptide ions; " 
                                 , length(unique(input_dt$ProteinName)), " proteins." )
-  message("Among them, ", length(which(complete.cases(input_dt))), " are completed rows (no NAs)." )
+  message("  Among them, ", length(which(complete.cases(input_dt))), " are completed rows (no NAs)." )
+
+  proteotypic <- keep_proteotypic_only(input_dt)
+
+  message("If counted by proteotypic peptides")
+  message("  This table contains ", length(unique(proteotypic$PeptideIon)), " peptide ions; " 
+                                , length(unique(proteotypic$ProteinName)), " proteins." )
+  message("  Among them, ", length(which(complete.cases(proteotypic))), " are completed rows (no NAs)." )
   
 }
 
@@ -193,11 +202,11 @@ merge_replicates <- function(wide, sample_annotation = NULL,
   
   list_samples <- unique(sort(sample_annotation$SampleName)) 
   
-  message("start to merge replicates...")
+  message("It starts to merge replicates...")
   
   for(i in 1:length(list_samples)) {
   
-    message("processing: sample_", i, ": ", list_samples[i])
+    message("  processing: sample_", i, ": ", list_samples[i])
     
     
     if(global_level=="PeptideIon") {
@@ -252,7 +261,7 @@ merge_replicates <- function(wide, sample_annotation = NULL,
          
   }
   
-  message("done with merging replicates...")
+  message("Done with merging replicates...")
   
   
   

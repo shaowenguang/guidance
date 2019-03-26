@@ -4,8 +4,8 @@
 \alias{perform_modt_tests}
 \title{Performed modified t.test}
 \usage{
-perform_modt_tests(input_dt, sample_annotation,
-  input_bool_paired = FALSE, input_mtc_method = "BH")
+perform_modt_tests(input_dt, sample_annotation, input_bool_paired = FALSE,
+  input_mtc_method = "BH")
 }
 \arguments{
 \item{input_dt}{data table or data frame in wide representation. The data typically 
