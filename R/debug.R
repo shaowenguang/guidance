@@ -1023,7 +1023,7 @@ validate_HYE_lumos_pairwise_comparison_peca <- function(input_dt) {
 
 #' @export
 check_a_column <- function(input_vector) {
- 
+
   cat("length:", length(input_vector), "; max:", max(input_vector, na.rm=T), 
                                        "; min:", min(input_vector, na.rm=T), 
                                        "; median:", median(input_vector, na.rm=T),

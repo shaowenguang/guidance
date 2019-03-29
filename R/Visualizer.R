@@ -1,4 +1,14 @@
-#' Visualize peptide profiles 
+#' @importFrom ggplot2 ggplot
+#' @importFrom ggplot2 aes_string
+#' @importFrom ggplot2 geom_density
+#' @importFrom ggplot2 theme
+#' @importFrom ggplot2 element_text
+#' @importFrom ggplot2 element_blank
+#' @importFrom ggplot2 element_line
+#' @importFrom ggplot2 labs
+#' @importFrom ggplot2 ggtitle
+
+# Visualize peptide profiles 
 #' 
 #' @param case data table or data frame in wide representation. The data typically 
 #' contains \code{"PeptideIon"}, \code{"ProteinName"} and sample names in columns and 
