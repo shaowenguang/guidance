@@ -279,3 +279,44 @@ perform_selection <- function(input_dt) {
   return(result)
 
 }
+
+
+
+#' @export
+perform_prediction_and_filtering <- function(input_dt, cutoff_prob = 0.2) {
+  
+  #Wenugang: these two rules still need to be checked... as I think there is room to improve...
+  output_dt_withCor <- input_dt[median_PCC_PerProt > 0.4 & numPerProt > 4, ]
+  output_dt_withoutCor <- input_dt[-which(median_PCC_PerProt > 0.4 & numPerProt > 4), ] #wenguang: these include numPerProt<=4; median_PCC_PerProt==NA and median_PCC_PerProt <= 0.3 !
+  
+  
+  # process data withCor first
+
+  pred_lda <- predict(model_lda_withCor, output_dt_withCor[, c("scaled_mean_intensity_all", 
+                                                               "scaled_cv_intensity_all", 
+                                                               "scaled_numNA_intensity_all", 
+                                                               "scaled_averaged_score_all",
+                                                               "scaled_sd_width_all",
+                                                               "scaled_median_PCC"), with=F])
+  
+  output_dt_withCor[, prob := 0]
+  output_dt_withCor$prob <- pred_lda$posterior[,2]
+  
+  
+  # then process data withoutCor
+  pred_lda_1 <- predict(model_lda_withoutCor, output_dt_withoutCor[, c("scaled_mean_intensity_all", 
+                                                                       "scaled_cv_intensity_all", 
+                                                                       "scaled_numNA_intensity_all", 
+                                                                       "scaled_averaged_score_all",
+                                                                       "scaled_sd_width_all"), with=F])
+  
+  output_dt_withoutCor[, prob := 0]
+  output_dt_withoutCor$prob <- pred_lda_1$posterior[,2]
+  
+  result <- rbind(output_dt_withCor, output_dt_withoutCor)
+  
+  result <- result[prob > cutoff_prob, ]
+
+  return(result)
+
+}
