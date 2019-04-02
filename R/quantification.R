@@ -184,7 +184,7 @@ pept2prot_log2 <- function(input_dt, input_index, topN) {
 #' @export
 impute_missing_values <- function(input_dt, input_index) {
   
-  message("start to impute missing values...")
+  message("It starts to impute missing values...")
   
   output_dt <- copy(input_dt)
   
@@ -193,7 +193,7 @@ impute_missing_values <- function(input_dt, input_index) {
     #wenguang: this is a very slow way to imputate, needs to be improved using data.table functions.
     
     if( (i %% 1000) == 0 ) {
-      message("imputing missing values for ",  (i %/% 1000), "000 out of ", dim(output_dt)[1], " peptide ions...")
+      message("  imputing missing values for ",  (i %/% 1000), "000 out of ", dim(output_dt)[1], " peptide ions...")
     }
     
     index_na <- which(is.na(output_dt[i, input_index, with=F]))
@@ -213,7 +213,7 @@ impute_missing_values <- function(input_dt, input_index) {
     
   }
   
-  message("done with imputating missing values...")
+  message("Done with imputating missing values...")
   
   return(output_dt)
   
