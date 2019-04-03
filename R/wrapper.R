@@ -49,7 +49,7 @@
 dia_guidance <- function(data = NULL, data_fromEuler = NULL, sample_annotation = NULL, level = "PeptideIon", 
                          replaceNA="keep", bool_NA_means_requant = FALSE, 
                          averageFun = "mean",
-                         normalization="mediancenter", filter_prob = 0.2, 
+                         normalization="mediancenter", filter_prob = 0.25, 
                          input_rank_index = "prob", topN = 3, aggfun = "sum", 
                          bool_weighted_by_prob = TRUE, bool.removeDecoy = T, 
                          remove_prefixInFileName = FALSE){
@@ -100,5 +100,45 @@ dia_guidance <- function(data = NULL, data_fromEuler = NULL, sample_annotation =
               topN = topN, aggfun=aggfun, bool_weighted_by_prob=bool_weighted_by_prob), anno)
   
   return(prot_inf_table)
+
+}
+
+
+
+#' @export
+prepare_matrix <- function(data, data_type = "openswath"
+                               , sample_annotation = NULL
+                               , level = "PeptideIon"
+                               , bool.keepProteotypic = T
+                               , normalization="mediancenter"
+                               , replaceNA="keep"
+                               , remove_prefixInFileName = FALSE
+                               , bool.removeDecoy = T) {
+
+if(data_type=="openswath") {
+  peptideIons <- import_openswath(search_results=data, sample_annotation=sample_annotation, level=level
+                                                     , bool.removeDecoy=bool.removeDecoy, remove_prefixInFileName=remove_prefixInFileName) 
+} else if(data_type=="openswath_fromEulerPortal") {
+  peptideIons <- import_openswath_matrix_fromEulerPortal(search_results=data, sample_annotation=sample_annotation)
+} else if(data_type=="spectronaut") {
+  peptideIons <- import_spectronaut_matrix(search_results=data, sample_annotation=sample_annotation)
+} else {
+  stop("Please select a valid type for imported data to be kept in Prom. Options:  \"openswath(default)\", \"spectronaut\", \"openswath_fromEulerPortal\"")
+}
+
+  all_peptideIons <- long2wide(peptideIons)
+
+  all_peptideIons_normalized <- normalize_data(all_peptideIons, replaceNA=replaceNA, normalization=normalization)
+
+  cons_peptideIons <- merge_replicates(all_peptideIons_normalized, anno)
+   
+  if(bool.keepProteotypic == T) {
+    cons_peptideIons <- keep_proteotypic_only(cons_peptideIons)
+  }
+
+  cons_peptideIons_features <- calc_features(cons_peptideIons)
+
+  return(cons_peptideIons_features)
+
 }
 
