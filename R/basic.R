@@ -31,7 +31,12 @@ replace_inf <- function(input_dt) {
 #' 
 #' @param x a vector (atomic or list) or an `expression` object. 
 #' 
-#' @export
+#' @return a numeric value
+#' @export 
+#' 
+#' @example 
+#' vector <- c("c", "d", "v", "d", "t", "c", "a")
+#' u_count(vector)
 u_count <- function(x) {
   return( length(unique(x)) )
 }
@@ -41,6 +46,12 @@ u_count <- function(x) {
 #' @param x a vector (atomic or list) or an `expression` object. 
 #'
 #' @export
+#' @return a numeric value 
+#' 
+#' @example
+#' vector <- c("c", "d", "v", "d", "t", "c", "a")
+#' l_count(vector)
+#' 
 l_count <- function(x) {
   return( length(which(x)))
 }
@@ -48,8 +59,13 @@ l_count <- function(x) {
 #' Computes average excluding missing values 
 #' 
 #' @param x a vector (atomic or list) or an `expression` object. 
-#'
+#' 
+#' @return a numeric value
 #' @export
+#' 
+#' @example 
+#' vector <- c(1, 2, 4, NA, 2, 5, 6)
+#' mean_na(vector)
 mean_na <- function(x) {
   
   if(is.nan(mean(x, na.rm=T))) {
@@ -64,7 +80,12 @@ mean_na <- function(x) {
 #' 
 #' @param x a vector (atomic or list) or an `expression` object.
 #'
+#' @return a numeric value
 #' @export
+#' 
+#' @example 
+#' vector <- c(1, 2, 4, NA, 2, 5, 6)
+#' sd_na(vector)
 sd_na <- function(x) {
   
   if(is.nan(sd(x, na.rm=T))) {
@@ -80,6 +101,11 @@ sd_na <- function(x) {
 #' @param x a vector (atomic or list) or an `expression` object.
 #'
 #' @export
+#' @return a numeric value
+#' 
+#' @example 
+#' vector <- c(1, 2, 4, NA, 2, 5, 6)
+#' cv_na(vector)
 cv_na <- function(x) {
   return(sd(x, na.rm = T)/mean(x, na.rm = T))
 }
@@ -88,7 +114,12 @@ cv_na <- function(x) {
 #' 
 #' @param x a vector (atomic or list) or an `expression` object.
 #'
+#' @return a numeric value
 #' @export
+#' 
+#' @example 
+#' vector <- c(1, 2, 4, NA, 2, 5, 6)
+#' median_na(vector)
 median_na <- function(x) {
   return(median(x, na.rm = T))
 }
@@ -97,7 +128,12 @@ median_na <- function(x) {
 #' 
 #' @param x a vector (atomic or list) or an `expression` object.
 #'
+#' @return a numeric value
 #' @export
+#' 
+#' @example 
+#' vector <- c(1, 2, 4, NA, 2, 5, 6)
+#' sum_na(vector)
 sum_na <- function(x) {
   
   if(is.nan(sum(x, na.rm=T))) {
