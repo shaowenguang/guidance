@@ -17,3 +17,7 @@ data.table data.frame containing feature statistics
 \description{
 Compute metrics describing relationship among peptides of the same protein
 }
+\examples{
+peptideIons_features <- calc_features(all_peptideIons)
+
+}

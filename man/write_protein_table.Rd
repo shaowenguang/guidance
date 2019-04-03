@@ -17,6 +17,14 @@ write_protein_table(input_dt, file_name = "protein_table",
 
 \item{...}{other parameters of \code{write.table} function}
 }
+\value{
+csv or tsv output
+}
 \description{
 Export protein table to tsv or csv file
+}
+\examples{
+\dontrun{write_protein_table(protein_matrix, 
+file_name = "example_protein_table")}
+
 }

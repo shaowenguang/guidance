@@ -29,3 +29,9 @@ as \code{mean_intensity_A}, \code{cv_intensity_A} and \code{numNA_intensity_A}.
 \description{
 Merge biological replicates
 }
+\examples{
+all_peptideIons_normalized <- normalize_data(all_peptideIons, replaceNA="keep", 
+normalization="none")
+cons_peptideIons <- merge_replicates(all_peptideIons_normalized, anno)
+
+}

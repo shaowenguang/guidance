@@ -24,3 +24,10 @@ measurements of each peptide or precursor ions in rows.
 \description{
 Convert from long to wide representation
 }
+\examples{
+peptideIons <- import_openswath(search_results= "data/QGS_SWATH_data", 
+sample_annotation="data/QGS_sample_annotation", 
+level="PeptideIon")
+all_peptideIons <- long2wide(peptideIons)
+
+}

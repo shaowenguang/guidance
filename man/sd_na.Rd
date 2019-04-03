@@ -9,6 +9,9 @@ sd_na(x)
 \arguments{
 \item{x}{a vector (atomic or list) or an `expression` object.}
 }
+\value{
+a numeric value
+}
 \description{
 Computes standard deviation excluding missing values
 }

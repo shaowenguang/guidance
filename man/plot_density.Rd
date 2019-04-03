@@ -27,3 +27,8 @@ plots. Examples include \code{"feature_mean_intensity_all"},
 \description{
 Plot density distribution of peptide features
 }
+\examples{
+peptideIons_features <- calc_features(all_peptideIons)
+plot_density(peptideIons_features, feature = "feature_mean_intensity_all")
+
+}

@@ -22,3 +22,7 @@ data.table data.frame containing only proteotypic peptides
 \description{
 Filter for proteotypic peptides
 }
+\examples{
+proteotypic_peptide_matrix <- keep_proteotypic_only(all_peptideIons)
+
+}

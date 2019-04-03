@@ -24,3 +24,7 @@ protein measurements in rows. The input data is usually an output from
 \description{
 Perform PECA test
 }
+\examples{
+peca_result <- perform_peca_tests(protein_matrix)
+
+}

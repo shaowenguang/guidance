@@ -7,7 +7,7 @@
 dia_guidance(data = NULL, data_fromEuler = NULL,
   sample_annotation = NULL, level = "PeptideIon", replaceNA = "keep",
   bool_NA_means_requant = FALSE, averageFun = "mean",
-  normalization = "mediancenter", filter_prob = 0.2,
+  normalization = "mediancenter", filter_prob = 0.25,
   input_rank_index = "prob", topN = 3, aggfun = "sum",
   bool_weighted_by_prob = TRUE, bool.removeDecoy = T,
   remove_prefixInFileName = FALSE)

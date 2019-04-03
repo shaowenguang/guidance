@@ -22,3 +22,7 @@ non-parametric anova results
 \description{
 Perform ANOVA
 }
+\examples{
+anova_results <- perform_anova(protein_matrix)
+
+}

@@ -9,6 +9,9 @@ u_count(x)
 \arguments{
 \item{x}{a vector (atomic or list) or an `expression` object.}
 }
+\value{
+a numeric value
+}
 \description{
 Count number of unique values
 }

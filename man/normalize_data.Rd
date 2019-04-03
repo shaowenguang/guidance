@@ -27,3 +27,8 @@ data.table data.frame containing normalized measurement data
 \description{
 Normalize data
 }
+\examples{
+all_peptideIons_normalized <- normalize_data(all_peptideIons, replaceNA="keep", 
+normalization="none")
+
+}

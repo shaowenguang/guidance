@@ -24,3 +24,11 @@ peptide}
 \description{
 Infer protein abudnace from peptide measurements
 }
+\examples{
+peptideIons_features <- calc_features(all_peptideIons)
+peptideIons_features_select <- calc_features(peptideIons_features)
+
+peptide_to_protein <- pept2prot(peptideIons_features_select, 
+"prob", 3, aggfun="sum", bool_weighted_by_prob=T), anno)
+
+}

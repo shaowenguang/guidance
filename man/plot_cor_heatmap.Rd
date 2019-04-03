@@ -21,3 +21,12 @@ to keep or remove peptides.}
 \description{
 Visualize correlation heatmap
 }
+\examples{
+peptideIons_features <- calc_features(all_peptideIons)
+peptideIons_features_select <- perform_selection(peptideIons_features)
+
+prot_name <- c("1/O75976")
+test_prot <- test[test$ProteinName==prot_name, ]
+plot_cor_heatmap(test_prot)
+
+}

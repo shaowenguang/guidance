@@ -35,3 +35,9 @@ data.table data.frame containing SWATH-MS data and sample annotation
 \description{
 import openSWATH output data with sample annotation
 }
+\examples{
+peptideIons <- import_openswath(search_results= "data/QGS_SWATH_data", 
+sample_annotation="data/QGS_sample_annotation", 
+level="PeptideIon")
+
+}

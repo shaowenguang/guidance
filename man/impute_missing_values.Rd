@@ -19,3 +19,9 @@ data.table data.frame
 \description{
 Impute missing values
 }
+\examples{
+peptideIons_features <- calc_features(all_peptideIons)
+peptideIons_features_select <- calc_features(peptideIons_features)
+Imputated <- impute_missing_values(test_yesFiltered, c(3:17))
+
+}

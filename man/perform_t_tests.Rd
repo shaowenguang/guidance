@@ -26,3 +26,7 @@ protein measurements in rows. The input data is usually an output from
 \description{
 Perform t.test
 }
+\examples{
+t_test_result <- perform_t_tests(protein_matrix)
+
+}

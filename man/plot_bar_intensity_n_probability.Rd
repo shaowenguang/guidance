@@ -27,3 +27,12 @@ barplots}
 \description{
 Visualize intensity and posterior probability in barplots
 }
+\examples{
+peptideIons_features <- calc_features(all_peptideIons)
+peptideIons_features_select <- perform_selection(peptideIons_features)
+
+prot_name <- c("1/O75976")
+test_prot <- test[test$ProteinName==prot_name, ]
+plot_bar_intensity_n_probability(test_prot)
+
+}

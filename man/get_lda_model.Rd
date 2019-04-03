@@ -19,3 +19,12 @@ include \code{scaled_mean_intensity_all}, \code{scaled_cv_intensity_all},
 \description{
 Generate linear discriminant analysis (LDA) model
 }
+\examples{
+peptideIons_features <- calc_features(all_peptideIons)
+index_feature_selected <- c("scaled_mean_intensity_all", "scaled_cv_intensity_all", 
+"scaled_numNA_intensity_all", "scaled_averaged_score_all", 
+"scaled_median_PCC", "scaled_sd_width_all", "label")
+
+model_lda_ecoli <- get_lda_model(peptideIons_features, index_feature_selected)
+
+}

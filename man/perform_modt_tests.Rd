@@ -26,3 +26,7 @@ protein measurements in rows. The input data is usually an output from
 \description{
 Performed modified t.test
 }
+\examples{
+modt_test_result <- perform_modt_tests(protein_matrix)
+
+}

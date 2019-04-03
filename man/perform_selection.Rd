@@ -22,3 +22,8 @@ data.table data.frame containing posterior probability.
 \description{
 Compute posterior probability of being representative petpide
 }
+\examples{
+peptideIons_features <- calc_features(all_peptideIons)
+peptideIons_features_select <- perform_selection(peptideIons_features)
+
+}

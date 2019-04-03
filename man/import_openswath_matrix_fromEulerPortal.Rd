@@ -22,3 +22,9 @@ data.table data containing raw openSWATH matrix
 \description{
 Import data matrix from Eular portal
 }
+\examples{
+all_peptideIons <- SWATH_data <- import_openswath_matrix_fromEulerPortal(
+search_results="data/YS_SWATH_data", 
+sample_annotation="data/YS_sample_annotation")
+
+}
