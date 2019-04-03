@@ -1,10 +1,19 @@
-# workflow in short 
+###importing file from guidance/data
+peptideIons <- import_spectronaut_matrix(search_results= "data/QGS_SWATH_data", 
+                                          sample_annotation="data/QGS_sample_annotation"
+                                         )
+
+peptideIons <- import_openswath(search_results= "data/QGS_SWATH_data", 
+                                sample_annotation="data/QGS_sample_annotation", 
+                                level="PeptideIon")
+
+all_peptideIons <- long2wide(peptideIons)
 
 
 # import data
-peptideIons <- import_openswath(search_results= data, 
-                                sample_annotation = sample_annotation, 
-                                level=level) 
+peptideIons <- import_openswath(search_results= "S:/SWATH-guidance/feature_alignment.csv", 
+                                sample_annotation="S:/SWATH-guidance/sample_annotation", 
+                                level="PeptideIon") 
 
 # normalize data (if necessary)
 all_peptideIons <- long2wide(peptideIons)
@@ -26,7 +35,7 @@ test <- perform_selection(cons_peptideIons_features)
 
 # filter by probability, impute missing value 
 test_yesFiltered <- test[prob > 0.2, ]
-test_yesFiltered_yesImputated <- imputate_missing_values(test_yesFiltered, c(3:17))
+test_yesFiltered_yesImputated <- impute_missing_values(test_yesFiltered, c(3:17))
 
 # peptide to protein inference 
 cons_prot_test_yesFiltered_top3_sum_yesImputated_yesWeighted <- merge_replicates(

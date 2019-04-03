@@ -309,7 +309,7 @@ peca_result <- perform_peca_tests(prot_inf_table, anno)
 After feature selection, users can visualize protein profiles, together with its generated peptides, across multiple conditions by `plot_protein_profile()`. This function visualizes features, such as metrics of reproducibility, correlation coefficient, averaged intensity, as well as posterior probabilities of each peptide with the indicator (dash or solid line) of which peptides have been kept or removed through the selection. 
 
 For visualization purpose, we utilize dataset wth requant values 
-```{r all_feature_plots, fig.show='hold', eval=FALSE}
+```{r data_for_visualization, fig.show='hold', eval=FALSE}
 all_peptideIons <- SWATH_data <- import_openswath_matrix_fromEulerPortal(
   search_results="data/QGS_SWATH_data", 
   sample_annotation="data/QGS_sample_annotation")

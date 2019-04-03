@@ -18,7 +18,7 @@ library(gridExtra)
 library(qvalue) # not available for R-devel nor R 3.5.1 
 # Error: Bioconductor version '3.8' requires R version '3.5'; see https://bioconductor.org/install
 
-
+install.packages("PECA")
 
 # load library 
 library(Prom)
@@ -38,8 +38,11 @@ library(qvalue) # not available for R-devel nor R 3.5.1
 
 if (!requireNamespace("BiocManager", quietly = TRUE))
   install.packages("BiocManager")
-BiocManager::install("qvalue", version = "3.8")
+BiocManager::install("qvalue")
 
+if (!requireNamespace("BiocManager", quietly = TRUE))
+  install.packages("BiocManager")
+BiocManager::install("PECA")
 
 #wenguang: it will creat a global variable anno for sample_annotation table...
 #peptideIons <- import_openswath(search_results="feature_alignment.csv", sample_annotation="sample_annotation", level="PeptideIon") 
