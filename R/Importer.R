@@ -33,7 +33,7 @@ import_openswath <- function(search_results, bool.removeDecoy = T, level = "Pept
   
   global_level <<- level 
   
-  message("start to read raw OpenSWATH search results...")
+  message("It starts to read raw OpenSWATH search results...")
   
   raw <- fread(input=search_results, head=T)
 
@@ -85,8 +85,9 @@ import_openswath <- function(search_results, bool.removeDecoy = T, level = "Pept
   
   if(is.null(sample_annotation)) {
     
-    message("no sample annotation table was provided. each injection will be treated independently")
-    
+    message("  no sample annotation table was provided. each injection will be treated independently")
+    message("Done with importing search results...")
+
     return(raw)
     
   } else {
@@ -94,6 +95,8 @@ import_openswath <- function(search_results, bool.removeDecoy = T, level = "Pept
     read_sample_annotation(input_file = sample_annotation)
     annotated <- annotate_sample(raw, anno)
     
+    message("Done with importing search results...")
+
     return(annotated)
     
   }
