@@ -29,7 +29,7 @@
 #' 
 #' prot_name <- c("1/O75976")
 #' test_prot <- test[test$ProteinName==prot_name, ]
-#' plot_protein_profile(test_prot)
+#' p <- plot_protein_profile(test_prot)
 #' 
 plot_protein_profile <- function(case, cutoff_prob=0.3) {
 
@@ -158,7 +158,7 @@ plot_protein_profile <- function(case, cutoff_prob=0.3) {
 #' 
 #' prot_name <- c("1/O75976")
 #' test_prot <- test[test$ProteinName==prot_name, ]
-#' plot_peptide_intensity(test_prot)
+#' p <- plot_peptide_intensity(test_prot)
 #' 
 plot_peptide_intensity <- function(case, cutoff_prob=0.3) {
   
@@ -243,7 +243,7 @@ plot_peptide_intensity <- function(case, cutoff_prob=0.3) {
 #' 
 #' prot_name <- c("1/O75976")
 #' test_prot <- test[test$ProteinName==prot_name, ]
-#' plot_cor_heatmap(test_prot)
+#' p <- plot_cor_heatmap(test_prot)
 #' 
 plot_cor_heatmap <- function(case, cutoff_prob=0.3) {
   
@@ -286,7 +286,7 @@ plot_cor_heatmap <- function(case, cutoff_prob=0.3) {
 #' 
 #' prot_name <- c("1/O75976")
 #' test_prot <- test[test$ProteinName==prot_name, ]
-#' plot_bar_intensity_n_probability(test_prot)
+#' p <- plot_bar_intensity_n_probability(test_prot)
 #' 
 plot_bar_intensity_n_probability <- function(case, cutoff_prob=0.3, 
                                              plot_intensity = T, 
@@ -373,7 +373,7 @@ plot_bar_intensity_n_probability <- function(case, cutoff_prob=0.3,
 #' 
 #' @examples 
 #' peptideIons_features <- calc_features(all_peptideIons)
-#' plot_density(peptideIons_features, feature = "feature_mean_intensity_all")
+#' p <- plot_density(peptideIons_features, feature = "feature_mean_intensity_all")
 #' 
 plot_density <- function(data, feature = "feature_mean_intensity_all", 
                          fill = NULL,
