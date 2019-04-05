@@ -1,4 +1,4 @@
-#' Infer protein abudnace from peptide measurements  
+#' Infer protein abundance from peptide measurements  
 #' 
 #' @param input_dt data table or data frame in wide representation. The data typically 
 #' contains \code{PeptideIon}, \code{ProteinName} and sample names in columns and 
@@ -14,10 +14,10 @@
 #' 
 #' @examples 
 #' peptideIons_features <- calc_features(all_peptideIons)
-#' peptideIons_features_select <- calc_features(peptideIons_features)
+#' peptideIons_features_select <- perform_selection(peptideIons_features)
 #' 
 #' peptide_to_protein <- pept2prot(peptideIons_features_select, 
-#' "prob", 3, aggfun="sum", bool_weighted_by_prob=T), anno)
+#' "prob", 3, aggfun="sum", bool_weighted_by_prob=T)
 #' 
 pept2prot <- function(input_dt, input_rank_index = "prob", 
                       topN = 3, aggfun = "mean", bool_weighted_by_prob = TRUE) {
@@ -75,7 +75,7 @@ pept2prot <- function(input_dt, input_rank_index = "prob",
 
 
 
-#' Title
+#' Log2 tranform peptide intensity measurements and infer protein abunance 
 #'
 #' @param input_dt data table or data frame in wide representation. The data typically 
 #' contains \code{PeptideIon}, \code{ProteinName} and sample names in columns and 

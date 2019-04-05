@@ -12,7 +12,7 @@
 #' 
 #' @examples 
 #'
-# replace infinity values by NA
+# Replace infinity values by NA
 replace_inf <- function(input_dt) {
   
   temp <- lapply(input_dt, function(x) {
