@@ -1,4 +1,4 @@
-#' import openSWATH output data with sample annotation
+#' Import openSWATH output data with sample annotation
 #' 
 #' @param search_results A data frame containing the SWATH-MS data. This data typically
 #' contains peptide precursors in each row with corresponding \code{ProteinName}, 

@@ -151,7 +151,7 @@ sum_na <- function(x) {
   
 }
 
-#' Number of intersection between two groups
+#' Number of intersection between two vectors
 #' 
 #' @param input_a vectors, data frames, or ps objects
 #'  containing a sequence of elements (conceptually).
@@ -159,6 +159,10 @@ sum_na <- function(x) {
 #'  containing a sequence of elements (conceptually).
 #'
 #' @export
+#' @example 
+#' vector1 <- c(1, 2, 4, NA, 2, 5, 6)
+#' vector2 <- c(1, 2, 4, NA, 6, 7, 8)
+#' pairwise_length_vector(vector1, vector2)
 pairwise_length_vector <- function(input_a, input_b) {
   
   return( length(intersect(which(!is.na(input_a)),  which(!is.na(input_b)) )) )
@@ -166,7 +170,14 @@ pairwise_length_vector <- function(input_a, input_b) {
 }
 
 
+#' Number of intersection within a matrix 
+#'
+#' @param input_matrix a matrix containing numeric values 
+#'
+#' @return
 #' @export
+#'
+#' @examples
 pairwise_length_matrix <- function(input_matrix) {
   
   output_matrix <- matrix(0, dim(input_matrix)[1], dim(input_matrix)[1])
@@ -183,8 +194,8 @@ pairwise_length_matrix <- function(input_matrix) {
 
 #' Number of intersection betwen numeric groups 
 #' 
-#' @param input_vector_a vectors containing a sequence of numbers
-#' @param input_vector_b vectors containing a sequence of numbers  
+#' @param input_vector_a vectors containing a sequence of numeric values 
+#' @param input_vector_b vectors containing a sequence of numeric values
 #'
 #' @export
 count_pairwise_number <- function(input_vector_a, input_vector_b) {
@@ -195,9 +206,9 @@ count_pairwise_number <- function(input_vector_a, input_vector_b) {
 }
 
 
-#' Title 
+#' Number of intersection between samples within a matrix 
 #' 
-#' @param input_matrix 
+#' @param input_matrix matrix containing a numeric values 
 #'
 #' @export
 count_pairwise_number_matrix <- function(input_matrix) {
