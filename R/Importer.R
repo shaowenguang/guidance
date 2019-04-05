@@ -119,7 +119,7 @@ import_openswath <- function(search_results, bool.removeDecoy = T, level = "Pept
 #' @export
 #' 
 #' @examples 
-#' all_peptideIons <- SWATH_data <- import_openswath_matrix_fromEulerPortal(
+#' all_peptideIons <- import_openswath_matrix_fromEulerPortal(
 #' search_results="data/YS_SWATH_data", 
 #' sample_annotation="data/YS_sample_annotation")
 #' 

@@ -46,7 +46,8 @@
 #' sample_annotation="data/QGS_sample_annotation", level="PeptideIon")
 #'                 
 #' @export
-dia_guidance <- function(data = NULL, data_fromEuler = NULL, sample_annotation = NULL, level = "PeptideIon", 
+dia_guidance <- function(data = NULL, data_fromEuler = NULL, sample_annotation = NULL, 
+                         level = "PeptideIon", 
                          replaceNA="keep", bool_NA_means_requant = FALSE, 
                          averageFun = "mean",
                          normalization="mediancenter", filter_prob = 0.25, 
