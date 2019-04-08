@@ -1,4 +1,6 @@
-#' Export protein table to tsv or csv file 
+#' Export data table 
+#' 
+#' @description Export data table e.g. protein table to a tsv or csv file. 
 #'
 #' @param input_dt the object to be written, preferably data frame, data table or matrix
 #' @param file_name name of exported file 
@@ -10,7 +12,7 @@
 #' @export 
 #' 
 #' @examples \dontrun{write_protein_table(protein_matrix, 
-#' file_name = "example_protein_table")}
+#' file_name = "example_protein_table", format = "tsv)}
 #' 
 write_protein_table <- function(input_dt, file_name = "protein_table", format = "tsv", ...){
   
