@@ -1,5 +1,8 @@
 #' Perform PECA test
 #' 
+#' @description A function to perform probe-level expression change averaging (PECA)
+#' to identify expression change between two groups of samples for each protein.
+#' 
 #' @param input_file data table or data frame in wide representation. The data typically 
 #' contains \code{"PeptideIon"}, \code{"ProteinName"} and sample names in columns and 
 #' protein measurements in rows. The input data is usually an output from 
@@ -12,7 +15,7 @@
 #'
 #' @export
 #' 
-#' @examples peca_result <- perform_peca_tests(protein_matrix)
+#' @examples peca_result <- perform_peca_tests(protein_Filtered_top3_sum_ImputedWeighted)
 #' 
 perform_peca_tests <- function(input_file, sample_annotation, input_test="modt",
                                input_bool_paired=FALSE) {
@@ -56,6 +59,10 @@ perform_peca_tests <- function(input_file, sample_annotation, input_test="modt",
 
 #' Perform t.test 
 #' 
+#' A function to perform Student's t-test to identify differentially expressed proteins. 
+#' The significance of an expression change is determned by adjusted p-values 
+#' of the t-statistics.
+#' 
 #' @param input_dt data table or data frame in wide representation. The data typically 
 #' contains \code{"PeptideIon"}, \code{"ProteinName"} and sample names in columns and 
 #' protein measurements in rows. The input data is usually an output from 
@@ -70,7 +77,7 @@ perform_peca_tests <- function(input_file, sample_annotation, input_test="modt",
 #' \code{p.adjust()} for details. 
 #'
 #' @export
-#' @examples t_test_result <- perform_t_tests(protein_matrix)
+#' @examples t_test_result <- perform_t_tests(protein_Filtered_top3_sum_ImputedWeighted)
 #' 
 perform_t_tests <- function(input_dt, sample_annotation, input_bool_paired=FALSE, 
                             input_mtc_method="bonferroni") {
@@ -117,6 +124,13 @@ perform_t_tests <- function(input_dt, sample_annotation, input_bool_paired=FALSE
 
 #' Performed modified t.test
 #' 
+#' @description A function to perform modified t-test. \code{lmFit()} first fits 
+#' a linear model to the expression data for each protein and the coefficients of 
+#' the fitted models describde differences between two compared groups. Given 
+#' the linear model, the \code{eBayes()} computes moderated t-statistics, moderated 
+#' F-statistics and log-odds of differential expression by empirical Baes moderation 
+#' of standard errors. 
+#' 
 #' @param input_dt data table or data frame in wide representation. The data typically 
 #' contains \code{"PeptideIon"}, \code{"ProteinName"} and sample names in columns and 
 #' protein measurements in rows. The input data is usually an output from 
@@ -132,7 +146,7 @@ perform_t_tests <- function(input_dt, sample_annotation, input_bool_paired=FALSE
 #'
 #' @export
 #' 
-#' @examples modt_test_result <- perform_modt_tests(protein_matrix)
+#' @examples modt_test_result <- perform_modt_tests(protein_Filtered_top3_sum_ImputedWeighted)
 #' 
 perform_modt_tests <- function(input_dt, sample_annotation, input_bool_paired=FALSE, input_mtc_method="BH") {
   
@@ -199,6 +213,9 @@ perform_modt_tests <- function(input_dt, sample_annotation, input_bool_paired=FA
 
 #' Perform ANOVA
 #'
+#' @description A function to perform Analysis of variance (ANOVA) test to identify
+#' differentially expressed proteins between different sample groups. 
+#' 
 #' @param input_dt @param input_dt data table or data frame in wide representation. The data typically 
 #' contains \code{"PeptideIon"}, \code{"ProteinName"} and sample names in columns and 
 #' protein measurements in rows. The input data is usually an output from 
@@ -212,7 +229,7 @@ perform_modt_tests <- function(input_dt, sample_annotation, input_bool_paired=FA
 #' 
 #' @export 
 #'
-#' @examples anova_results <- perform_anova(protein_matrix)
+#' @examples anova_results <- perform_anova(protein_Filtered_top3_sum_ImputedWeighted)
 #' 
 perform_anova <- function(input_dt, sample_annotation) {
   
