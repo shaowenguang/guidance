@@ -10,13 +10,16 @@
 
 # Visualize peptide profiles 
 #' 
+#' @description A function to visualize profiles of peptides corresponding to 
+#' protein of interest. The profiles include log2 transformed peptide intensity,
+#' correlation between peptides represented in heatmap, average intensity and 
+#' probability of being representative peptide. 
+#' 
 #' @param case data table or data frame in wide representation. The data typically 
 #' contains \code{"PeptideIon"}, \code{"ProteinName"} and sample names in columns and 
-#' measurements of each peptide or precursor ions in rows. 
-#' 
-#' For a clear visualization of peptide profile, recommend to prepare a 
-#' data table pre-filter 
-#' peptides corresponding to a single protein  
+#' measurements of each peptide or precursor ions in rows. For a clear visualization
+#' of peptide profile, recommend to prepare a data table filtered on peptides 
+#' corresponding to a protein of interest 
 #' 
 #' @param cutoff_prob a numeric value denoting posterior probability threshold
 #' to keep or remove peptides. 
@@ -139,13 +142,15 @@ plot_protein_profile <- function(case, cutoff_prob=0.3) {
 
 #' Visualize peptide intensity 
 #' 
+#' @description Visualize peptide intensities in different samples by a line graph. 
+#' Lines are colored by differnet peptides and dotted represent removed peptides based on 
+#' LDA algorithm. 
+#' 
 #' @param case data table or data frame in wide representation. The data typically 
 #' contains \code{"PeptideIon"}, \code{"ProteinName"} and sample names in columns and 
-#' measurements of each peptide or precursor ions in rows. 
-#' 
-#' To visualize profile of peptides corresponding to the same protein, 
-#' peptides corresponding to one protein are pre-filtered for clearer 
-#' visualizations. 
+#' measurements of each peptide or precursor ions in rows. For a clear visualization
+#' of peptide profile, recommend to prepare a data table filtered on peptides 
+#' corresponding to a protein of interest 
 #'
 #' @param cutoff_prob a numeric value denoting posterior probability threshold
 #' to keep or remove peptides. 
@@ -224,13 +229,16 @@ plot_peptide_intensity <- function(case, cutoff_prob=0.3) {
 
 #' Visualize correlation heatmap 
 #' 
+#' @description A function to visualize heatmap representing correlation between 
+#' different peptides corresponding to either the same or different proteins. 
+#' 
 #' @param case data table or data frame in wide representation. The data typically 
 #' contains \code{"PeptideIon"}, \code{"ProteinName"} and sample names in columns and 
 #' measurements of each peptide or precursor ions in rows. 
 #' 
 #' To visualize profile of peptides corresponding to the same protein, 
-#' peptides corresponding to one protein are pre-filtered for clearer 
-#' visualizations. 
+#' recommend to prepare a data table filtered on peptides 
+#' corresponding to a protein of interest 
 #'
 #' @param cutoff_prob a numeric value denoting posterior probability threshold
 #' to keep or remove peptides. 
@@ -264,13 +272,16 @@ plot_cor_heatmap <- function(case, cutoff_prob=0.3) {
 
 #' Visualize intensity and posterior probability in barplots 
 #' 
+#' @description A function to visualize average peptide intensity and 
+#' posterior probability of being the representative peptide via barplots. 
+#' 
 #' @param case data table or data frame in wide representation. The data typically 
 #' contains \code{"PeptideIon"}, \code{"ProteinName"} and sample names in columns and 
 #' measurements of each peptide or precursor ions in rows. 
 #' 
 #' To visualize profile of peptides corresponding to the same protein, 
-#' peptides corresponding to one protein are pre-filtered for clearer 
-#' visualizations. 
+#' recommend to prepare a data table filtered on peptides 
+#' corresponding to a protein of interest 
 #'
 #' @param cutoff_prob a numeric value denoting posterior probability threshold
 #' to keep or remove peptides. 
@@ -355,6 +366,10 @@ plot_bar_intensity_n_probability <- function(case, cutoff_prob=0.3,
 
 
 #' Plot density distribution of peptide features
+#' 
+#' @description A function to visualize distribution of computed features through 
+#' density plots. These features include average intensity, coefficient of variance 
+#' and standard deviation. 
 #' 
 #' @param data data table or data frame in wide representation. The data typically 
 #' contains \code{PeptideIon}, \code{ProteinName} and sample names in columns and 
