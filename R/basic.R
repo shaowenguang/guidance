@@ -39,7 +39,7 @@ replace_inf <- function(input_dt) {
 #' @return a numeric value
 #' @export 
 #' 
-#' @example 
+#' @examples 
 #' vector <- c("c", "d", "v", "d", "t", "c", "a")
 #' u_count(vector)
 u_count <- function(x) {
@@ -54,7 +54,7 @@ u_count <- function(x) {
 #' @export
 #' @return a numeric value 
 #' 
-#' @example
+#' @examples
 #' vector <- c(TRUE, TRUE, FALSE, TRUE)
 #' l_count(vector)
 #' 
@@ -71,7 +71,7 @@ l_count <- function(x) {
 #' @return a numeric value
 #' @export
 #' 
-#' @example 
+#' @examples 
 #' vector <- c(1, 2, 4, NA, 2, 5, 6)
 #' mean_na(vector)
 mean_na <- function(x) {
@@ -94,7 +94,7 @@ mean_na <- function(x) {
 #' @return a numeric value
 #' @export
 #' 
-#' @example 
+#' @examples 
 #' vector <- c(1, 2, 4, NA, 2, 5, 6)
 #' sd_na(vector)
 sd_na <- function(x) {
@@ -116,7 +116,7 @@ sd_na <- function(x) {
 #' @export
 #' @return a numeric value
 #' 
-#' @example 
+#' @examples 
 #' vector <- c(1, 2, 4, NA, 2, 5, 6)
 #' cv_na(vector)
 cv_na <- function(x) {
@@ -133,7 +133,7 @@ cv_na <- function(x) {
 #' @return a numeric value
 #' @export
 #' 
-#' @example 
+#' @examples 
 #' vector <- c(1, 2, 4, NA, 2, 5, 6)
 #' median_na(vector)
 median_na <- function(x) {
@@ -149,7 +149,7 @@ median_na <- function(x) {
 #' @return a numeric value
 #' @export
 #' 
-#' @example 
+#' @examples 
 #' vector <- c(1, 2, 4, NA, 2, 5, 6)
 #' sum_na(vector)
 sum_na <- function(x) {
@@ -179,7 +179,7 @@ sum_na <- function(x) {
 #'  containing a sequence of elements (conceptually).
 #'
 #' @export
-#' @example 
+#' @examples 
 #' vector1 <- c(1, 2, 4, NA, 2, 5, 6)
 #' vector2 <- c(1, 2, 4, NA, 6, 7, 8)
 #' pairwise_length_vector(vector1, vector2)
@@ -223,7 +223,7 @@ pairwise_length_matrix <- function(input_matrix) {
 #' @param input_vector_a vectors containing a sequence of numeric values 
 #' @param input_vector_b vectors containing a sequence of numeric values
 #' @export
-#' @example 
+#' @examples 
 #' vector1 <- c(1, 2, 5, 100, 200, 50000)
 #' vector2 <- c(1, 2, 4, 100, 500, 40000)
 #' count_pairwise_number(vector1, vector2)

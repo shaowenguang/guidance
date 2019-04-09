@@ -2,7 +2,7 @@
 % Please edit documentation in R/basic.R
 \name{mean_na}
 \alias{mean_na}
-\title{Computes average excluding missing values}
+\title{Computes mean}
 \usage{
 mean_na(x)
 }
@@ -13,5 +13,10 @@ mean_na(x)
 a numeric value
 }
 \description{
-Computes average excluding missing values
+A function to compute average of a numeric vector 
+after exclusion of missing values
+}
+\examples{
+vector <- c(1, 2, 4, NA, 2, 5, 6)
+mean_na(vector)
 }

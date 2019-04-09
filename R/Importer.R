@@ -182,7 +182,9 @@ import_openswath_matrix_fromEulerPortal <- function(search_results, sample_annot
 #' @param sample_annotation data matrix with \code{SampleName}, biological covariates 
 #' (biological replicates) and technical covariates (technical replicates, batches, etc)
 #'
-#' @export
+#' @export 
+#' 
+#' @examples 
 #' peptideIons <- import_spectronaut_matrix(search_results= "data/QGS_SWATH_data", 
 #' sample_annotation="data/QGS_sample_annotation")
 #' 
