@@ -1,4 +1,11 @@
-#' Import openSWATH output data with sample annotation
+#' Import openSWATH data table 
+#' 
+#' @description A function to import openSWATH data and filter for relevant columns. 
+#' The imported data table contains columns denoting name of peptide ion, 
+#' corresponding protein name, injection name, sample name, intensity values, 
+#' retention time, score and width of spectral peaks. In particular for transition-level 
+#' data, the table contains aggregate fragment annotation and aggregated peak area 
+#' in place of peak width. 
 #' 
 #' @param search_results A data frame containing the SWATH-MS data. This data typically
 #' contains peptide precursors in each row with corresponding \code{ProteinName}, 
@@ -104,7 +111,12 @@ import_openswath <- function(search_results, bool.removeDecoy = T, level = "Pept
 } 
 
 
-#' Import data matrix from Eular portal 
+#' Import openSWATH data table from Eular portal 
+#' 
+#' @description A function to import a full openSWATH data table, 
+#' typically pre-processed or pre-filtered for downstream analysis. 
+#' The imported data table contains columns denoting peptide name, corresponding 
+#' protein name, intensity, retention time and score of each peptide. 
 #' 
 #' @param search_results  A data frame containing the SWATH-MS data. This data typically
 #' contains peptide ions in each row with corresponding \code{ProteinName}, 
@@ -153,7 +165,14 @@ import_openswath_matrix_fromEulerPortal <- function(search_results, sample_annot
     
 }
 
-#' Import data matrix output from Spectronaut
+#' Import Spectronaut data table
+#' 
+#' @description A function to import a full Spectronaut data table, typically 
+#' pre-processed or pre-filtered for downstream analysis. The imported data 
+#' table contains columns denoting peptide name, corresponding protein name, 
+#' intensity, retention time and score of each peptide. From the Spectronaut 
+#' output, this function takes PEP Quantity value as Intensity and EG q-value 
+#' as Score. 
 #' 
 #' @param search_results A data frame containing the SWATH-MS data. This data typically
 #' contains peptide ions in each row with corresponding \code{ProteinName}, 
