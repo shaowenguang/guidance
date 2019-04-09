@@ -1,4 +1,11 @@
-#' Convert from long to wide representation
+#' Convert from long to wide data  
+#' 
+#' @description A function to convert from long to wide representation. 
+#' A typical input data table contains columns denoting name of a peptide, 
+#' its corresponding protein name, sample name, intensity, retention time and 
+#' width of spectral peaks. The \code{long2wide()} converts this long format data 
+#' into wide representation having intensity, score, RT and width of each sample 
+#' in each column. Each row will represent a unique peptide. 
 #' 
 #' @param input_dt a data table or data frame in a long format. The data typically 
 #' contains peptide ID (e.g. \code{PeptideIon}), sample ID (e.g. \code{SampleName}) and 
@@ -76,6 +83,19 @@ summarize_data <- function(input_dt) {
 
 #' Normalize data 
 #' 
+#' @description A function to normalize peptide/fragment-level intensity across 
+#' different samples. It provides several normalization methods: 
+#' \code{“mediancenter”} as default method to equalize median of intensity distribution, 
+#' \code{“quantile”} to adjust distributions to have the same statistical properties 
+#' i.e. quantiles, \code{“TIC”} to normalize mass spectra based on total ion 
+#' current (TIC) assuming that the same amount of protein was injected for each 
+#' MS run, and lastly \code{“iRT”} to normalize intensities based on injected 
+#' indexed retention time (iRT) standards. 
+#' 
+#' In addition to the normalization functionality, this function also counts 
+#' the number of peptides corresponding to the same protein and outputs in 
+#' column \code{numPerProt}. 
+#' 
 #' @param input_dt data table or data frame in wide representation. The data typically 
 #' contains \code{"PeptideIon"}, \code{"ProteinName"} and sample names in columns and 
 #' measurements of each peptide or precursor ions in rows. 
@@ -87,7 +107,8 @@ summarize_data <- function(input_dt) {
 #' time (iRT) standards \code{"iRT"}. The default is \code{"mediancenter"} and denote 
 #' \code{"none"} if normalization is not necessary.
 #' 
-#' @return data.table data.frame containing normalized measurement data  
+#' @return data.table data.frame containing normalized measurement data and a column
+#' denoting number of peptides corresponding to the same protein 
 #'
 #' @export
 #' 
@@ -186,7 +207,11 @@ normalize_data <- function(input_dt, replaceNA="keep", normalization="mediancent
 }
 
 
-#' Merge biological replicates 
+#' Statistics among biological replicates
+#' 
+#' @description A function to compute statistics of biological replicates under 
+#' column \code{“SampleName”}. The statistics include average intensity, 
+#' coefficient of variance (CV) and number of missing values (NAs) for each sample.   
 #' 
 #' @param wide data table or data frame in wide representation. The data typically 
 #' contains \code{PeptideIon}, \code{ProteinName} and sample names in columns and 
@@ -300,6 +325,11 @@ merge_replicates <- function(wide, sample_annotation = NULL,
 
 
 #' Filter for proteotypic peptides 
+#' 
+#' @description A function to filter for proteotypic peptides indicated as 1/ 
+#' under \code{ProteinName}. For any given protein, only a few proteotypic peptides 
+#' are uniquely and consistently identified and these represent peptides 
+#' most confidently observed in the current MS-based proteomics workflow.  
 #' 
 #' @param input_dt data table or data frame in wide representation. The data typically 
 #' contains \code{"PeptideIon"}, \code{"ProteinName"} and sample names in columns and 
