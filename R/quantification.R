@@ -12,7 +12,7 @@
 #' contains \code{PeptideIon}, \code{ProteinName} and sample names in columns and 
 #' measurements of each peptide or precursor ions in rows
 #' @param input_rank_index name of a column to rank the protein by. The default 
-#' column is \code{"prob} which depicts the probability of being peptide 
+#' column is \code{"prob"} which depicts the probability of being peptide 
 #' representative of protein 
 #' @param topN number of peptides utilized to infer protein abundance for each protein 
 #' @param aggfun method to aggregate peptide measurements to estimate protein abundance.
@@ -101,7 +101,7 @@ pept2prot <- function(input_dt, input_rank_index = "prob",
 #' contains \code{PeptideIon}, \code{ProteinName} and sample names in columns and 
 #' measurements of each peptide or precursor ions in rows
 #' @param input_rank_index name of a column to rank the protein by. The default 
-#' column is \code{"prob} which depicts the probability of being peptide 
+#' column is \code{"prob"} which depicts the probability of being peptide 
 #' representative of protein 
 #' @param topN number of peptides utilized to infer protein abundance for each protein 
 #' @param aggfun method to aggregate peptide measurements to estimate protein abundance.

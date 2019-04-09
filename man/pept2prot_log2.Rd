@@ -13,7 +13,7 @@ contains \code{PeptideIon}, \code{ProteinName} and sample names in columns and
 measurements of each peptide or precursor ions in rows}
 
 \item{input_rank_index}{name of a column to rank the protein by. The default 
-column is \code{"prob} which depicts the probability of being peptide 
+column is \code{"prob"} which depicts the probability of being peptide 
 representative of protein}
 
 \item{topN}{number of peptides utilized to infer protein abundance for each protein}

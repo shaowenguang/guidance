@@ -12,7 +12,7 @@
 #' @export 
 #' 
 #' @examples \dontrun{write_protein_table(protein_matrix, 
-#' file_name = "example_protein_table", format = "tsv)}
+#' file_name = "example_protein_table", format = "tsv")}
 #' 
 write_protein_table <- function(input_dt, file_name = "protein_table", format = "tsv", ...){
   

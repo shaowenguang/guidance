@@ -23,3 +23,8 @@ csv or tsv output
 \description{
 Export data table e.g. protein table to a tsv or csv file.
 }
+\examples{
+\dontrun{write_protein_table(protein_matrix, 
+file_name = "example_protein_table", format = "tsv")}
+
+}

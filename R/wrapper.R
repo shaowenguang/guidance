@@ -41,7 +41,7 @@
 #' filename will look like \code{"/scratch/71239421.tmpdir/xuep_J180621_SW_3.mzXML.gz"} 
 #' and \code{remove_prefixInFileName = TRUE} will result in \code{"xuep_J180621_SW_3.mzXML.gz"}
 #'
-#' @example
+#' @examples 
 #' guidance <- dia_guidance(search_results= "data/QGS_SWATH_data", 
 #' sample_annotation="data/QGS_sample_annotation", level="PeptideIon")
 #'                 

@@ -71,3 +71,8 @@ and \code{remove_prefixInFileName = TRUE} will result in \code{"xuep_J180621_SW_
 \description{
 Wrapper function from importing peptide data to infering protein abundance
 }
+\examples{
+guidance <- dia_guidance(search_results= "data/QGS_SWATH_data", 
+sample_annotation="data/QGS_sample_annotation", level="PeptideIon")
+                
+}
