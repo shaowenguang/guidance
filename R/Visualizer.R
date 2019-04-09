@@ -13,7 +13,7 @@
 #' @description A function to visualize profiles of peptides corresponding to 
 #' protein of interest. The profiles include log2 transformed peptide intensity,
 #' correlation between peptides represented in heatmap, average intensity and 
-#' probability of being representative peptide. 
+#' probability of being a representative peptide. 
 #' 
 #' @param case data table or data frame in wide representation. The data typically 
 #' contains \code{"PeptideIon"}, \code{"ProteinName"} and sample names in columns and 

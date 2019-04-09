@@ -5,6 +5,8 @@
 #' @importFrom MASS lda
 
 
+#' 
+#' @description A function to replace infinity values by NA in a data table 
 #' @param input_dt a data table, data frame or matrix with numeric values 
 #' 
 #' @return data.table 
@@ -29,6 +31,9 @@ replace_inf <- function(input_dt) {
 
 #' Count number of unique values 
 #' 
+#' @description A function to count the number of unique values in a numeric 
+#' or character vector
+#' 
 #' @param x a vector (atomic or list) or an `expression` object. 
 #' 
 #' @return a numeric value
@@ -41,23 +46,26 @@ u_count <- function(x) {
   return( length(unique(x)) )
 }
 
-#' Count number of values in a vector 
+#' Count TRUE values 
 #' 
-#' @param x a vector (atomic or list) or an `expression` object. 
+#' @description A function to count the number of TRUE values in a vector 
+#' @param x a vector (atomic or list) in TRUE or FALSE 
 #'
 #' @export
 #' @return a numeric value 
 #' 
 #' @example
-#' vector <- c("c", "d", "v", "d", "t", "c", "a")
+#' vector <- c(TRUE, TRUE, FALSE, TRUE)
 #' l_count(vector)
 #' 
 l_count <- function(x) {
   return( length(which(x)))
 }
 
-#' Computes average excluding missing values 
+#' Computes mean  
 #' 
+#' @description A function to compute average of a numeric vector 
+#' after exclusion of missing values 
 #' @param x a vector (atomic or list) or an `expression` object. 
 #' 
 #' @return a numeric value
@@ -76,7 +84,10 @@ mean_na <- function(x) {
   
 }
 
-#' Computes standard deviation excluding missing values 
+#' Computes standard deviation 
+#' 
+#' @description A function to compute standard deviation of a numeric vector 
+#' after exclusion of missing values 
 #' 
 #' @param x a vector (atomic or list) or an `expression` object.
 #'
@@ -96,8 +107,10 @@ sd_na <- function(x) {
 
 }
 
-#' Computes coefficient of variation (CV) excluding missing values
+#' Computes coefficient of variation (CV) 
 #' 
+#' @description A function to compute coefficient of variance (CV) of a numeric vector 
+#' after exclusion of missing values 
 #' @param x a vector (atomic or list) or an `expression` object.
 #'
 #' @export
@@ -110,7 +123,10 @@ cv_na <- function(x) {
   return(sd(x, na.rm = T)/mean(x, na.rm = T))
 }
 
-#' Computes median excluding missing values 
+#' Computes median  
+#' 
+#' @description A function to compute median of a numeric vector 
+#' after exclusion of missing values 
 #' 
 #' @param x a vector (atomic or list) or an `expression` object.
 #'
@@ -124,8 +140,10 @@ median_na <- function(x) {
   return(median(x, na.rm = T))
 }
 
-#' Computes sum excluding missing values 
+#' Computes sum 
 #' 
+#' @description A function to compute sum of a numeric vector 
+#' after exclusion of missing values 
 #' @param x a vector (atomic or list) or an `expression` object.
 #'
 #' @return a numeric value
@@ -151,8 +169,10 @@ sum_na <- function(x) {
   
 }
 
-#' Number of intersection between two vectors
+#' Number of intersection
 #' 
+#' @description A function to calculate the number of intersecting 
+#' values between two vectors, excluding missing values 
 #' @param input_a vectors, data frames, or ps objects
 #'  containing a sequence of elements (conceptually).
 #' @param input_b vectors, data frames, or ps objects
@@ -163,6 +183,7 @@ sum_na <- function(x) {
 #' vector1 <- c(1, 2, 4, NA, 2, 5, 6)
 #' vector2 <- c(1, 2, 4, NA, 6, 7, 8)
 #' pairwise_length_vector(vector1, vector2)
+#' 
 pairwise_length_vector <- function(input_a, input_b) {
   
   return( length(intersect(which(!is.na(input_a)),  which(!is.na(input_b)) )) )
@@ -172,6 +193,8 @@ pairwise_length_vector <- function(input_a, input_b) {
 
 #' Number of intersection within a matrix 
 #'
+#' @description A function to calculate the number of intersecting values 
+#' between rows of input matrix 
 #' @param input_matrix a matrix containing numeric values 
 #'
 #' @return
@@ -194,10 +217,16 @@ pairwise_length_matrix <- function(input_matrix) {
 
 #' Number of intersection betwen numeric groups 
 #' 
+#' @description A function to calculate the number of intersecting values 
+#' between two numeric vectors. 
+#' 
 #' @param input_vector_a vectors containing a sequence of numeric values 
 #' @param input_vector_b vectors containing a sequence of numeric values
-#'
 #' @export
+#' @example 
+#' vector1 <- c(1, 2, 5, 100, 200, 50000)
+#' vector2 <- c(1, 2, 4, 100, 500, 40000)
+#' count_pairwise_number(vector1, vector2)
 count_pairwise_number <- function(input_vector_a, input_vector_b) {
   
   return( length(intersect( which(input_vector_a > -99999999999 & input_vector_a < 99999999999), 
@@ -207,6 +236,9 @@ count_pairwise_number <- function(input_vector_a, input_vector_b) {
 
 
 #' Number of intersection between samples within a matrix 
+#' 
+#' @description A function to calculate the number of intersecting numeric values 
+#' between columns of a matrix.
 #' 
 #' @param input_matrix matrix containing a numeric values 
 #'
