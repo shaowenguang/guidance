@@ -17,7 +17,9 @@ include \code{scaled_mean_intensity_all}, \code{scaled_cv_intensity_all},
 \code{scaled_median_PCC}, \code{scaled_sd_width_all} and \code{label}.}
 }
 \description{
-Generate linear discriminant analysis (LDA) model
+A function to generate linear discriminant analysis (LDA) model 
+by using a subset of feature (peptide) statistics. This function utilizes 
+\code{lda()} function in \code{MASS}.
 }
 \examples{
 peptideIons_features <- calc_features(all_peptideIons)

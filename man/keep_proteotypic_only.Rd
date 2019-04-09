@@ -20,7 +20,10 @@ by \code{keep_proteotypic_only()}}
 data.table data.frame containing only proteotypic peptides
 }
 \description{
-Filter for proteotypic peptides
+A function to filter for proteotypic peptides indicated as 1/ 
+under \code{ProteinName}. For any given protein, only a few proteotypic peptides 
+are uniquely and consistently identified and these represent peptides 
+most confidently observed in the current MS-based proteomics workflow.
 }
 \examples{
 proteotypic_peptide_matrix <- keep_proteotypic_only(all_peptideIons)

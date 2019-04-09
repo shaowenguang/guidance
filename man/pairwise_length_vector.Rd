@@ -2,7 +2,7 @@
 % Please edit documentation in R/basic.R
 \name{pairwise_length_vector}
 \alias{pairwise_length_vector}
-\title{Number of intersection between two groups}
+\title{Number of intersection}
 \usage{
 pairwise_length_vector(input_a, input_b)
 }
@@ -14,5 +14,12 @@ containing a sequence of elements (conceptually).}
 containing a sequence of elements (conceptually).}
 }
 \description{
-Number of intersection between two groups
+A function to calculate the number of intersecting 
+values between two vectors, excluding missing values
+}
+\examples{
+vector1 <- c(1, 2, 4, NA, 2, 5, 6)
+vector2 <- c(1, 2, 4, NA, 6, 7, 8)
+pairwise_length_vector(vector1, vector2)
+
 }

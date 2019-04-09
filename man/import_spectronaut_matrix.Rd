@@ -2,7 +2,7 @@
 % Please edit documentation in R/Importer.R
 \name{import_spectronaut_matrix}
 \alias{import_spectronaut_matrix}
-\title{Import data matrix output from Spectronaut}
+\title{Import Spectronaut data table}
 \usage{
 import_spectronaut_matrix(search_results, sample_annotation = NULL)
 }
@@ -16,5 +16,15 @@ from local directory.}
 (biological replicates) and technical covariates (technical replicates, batches, etc)}
 }
 \description{
-Import data matrix output from Spectronaut
+A function to import a full Spectronaut data table, typically 
+pre-processed or pre-filtered for downstream analysis. The imported data 
+table contains columns denoting peptide name, corresponding protein name, 
+intensity, retention time and score of each peptide. From the Spectronaut 
+output, this function takes PEP Quantity value as Intensity and EG q-value 
+as Score.
+}
+\examples{
+peptideIons <- import_spectronaut_matrix(search_results= "data/QGS_SWATH_data", 
+sample_annotation="data/QGS_sample_annotation")
+
 }

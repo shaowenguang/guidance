@@ -2,13 +2,14 @@
 % Please edit documentation in R/basic.R
 \name{count_pairwise_number_matrix}
 \alias{count_pairwise_number_matrix}
-\title{Title}
+\title{Number of intersection between samples within a matrix}
 \usage{
 count_pairwise_number_matrix(input_matrix)
 }
 \arguments{
-\item{input_matrix}{}
+\item{input_matrix}{matrix containing a numeric values}
 }
 \description{
-Title
+A function to calculate the number of intersecting numeric values 
+between columns of a matrix.
 }

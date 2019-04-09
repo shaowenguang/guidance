@@ -13,5 +13,10 @@ u_count(x)
 a numeric value
 }
 \description{
-Count number of unique values
+A function to count the number of unique values in a numeric 
+or character vector
+}
+\examples{
+vector <- c("c", "d", "v", "d", "t", "c", "a")
+u_count(vector)
 }

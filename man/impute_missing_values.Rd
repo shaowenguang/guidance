@@ -17,7 +17,9 @@ measurements of each peptide or precursor ions in rows.}
 data.table data.frame
 }
 \description{
-Impute missing values
+A function to impute for missing value by fitting data to a 
+uniform distribution between minimum $0.1 \times CV$ and minimum 
+$1.1 \times CV$ and infer the intensity of missing values.
 }
 \examples{
 peptideIons_features <- calc_features(all_peptideIons)

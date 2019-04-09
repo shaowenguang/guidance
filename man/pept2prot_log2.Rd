@@ -2,22 +2,44 @@
 % Please edit documentation in R/quantification.R
 \name{pept2prot_log2}
 \alias{pept2prot_log2}
-\title{Title}
+\title{Log2 tranform peptide intensity measurements and infer protein abunance}
 \usage{
-pept2prot_log2(input_dt, input_index, topN)
+pept2prot_log2(input_dt, input_rank_index = "prob", topN = 3,
+  aggfun = "mean", bool_weighted_by_prob = TRUE)
 }
 \arguments{
 \item{input_dt}{data table or data frame in wide representation. The data typically 
 contains \code{PeptideIon}, \code{ProteinName} and sample names in columns and 
 measurements of each peptide or precursor ions in rows}
 
-\item{input_index}{}
+\item{input_rank_index}{name of a column to rank the protein by. The default 
+column is \code{"prob} which depicts the probability of being peptide 
+representative of protein}
 
 \item{topN}{number of peptides utilized to infer protein abundance for each protein}
-}
-\value{
-data.table data.frame
+
+\item{aggfun}{method to aggregate peptide measurements to estimate protein abundance.
+Options include \code{"mean"} and \code{"sum"}}
+
+\item{bool_weighted_by_prob}{boolean value (\code{TRUE} or \code{FALSE}) determining 
+whether to weight the intensity by the posterior probability of being a representative 
+peptide}
 }
 \description{
-Title
+A function infer protein abundance from peptide/fragment-level 
+measurements after log2 tranformation. The users can denote parameters 
+such as the number of peptides to be utilized for protein inference 
+(\code{topN}), the method to aggregate peptide/fragment intensities 
+(\code{aggfun}) and whether to weight intensity of each peptide by 
+their posterior probability in estimating protein abundance
+(\code{bool_weighted_by_prob}). This function then outputs estimated protein 
+intensities for each sample.
+}
+\examples{
+peptideIons_features <- calc_features(all_peptideIons)
+peptideIons_features_select <- perform_selection(peptideIons_features)
+
+peptide_to_protein <- pept2prot(peptideIons_features_select, 
+"prob", 3, aggfun="sum", bool_weighted_by_prob=T)
+
 }

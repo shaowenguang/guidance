@@ -2,7 +2,7 @@
 % Please edit documentation in R/basic.R
 \name{median_na}
 \alias{median_na}
-\title{Computes median excluding missing values}
+\title{Computes median}
 \usage{
 median_na(x)
 }
@@ -13,5 +13,10 @@ median_na(x)
 a numeric value
 }
 \description{
-Computes median excluding missing values
+A function to compute median of a numeric vector 
+after exclusion of missing values
+}
+\examples{
+vector <- c(1, 2, 4, NA, 2, 5, 6)
+median_na(vector)
 }

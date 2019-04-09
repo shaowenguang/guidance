@@ -20,9 +20,10 @@ data.table data.frame containing statistics of parametric and
 non-parametric anova results
 }
 \description{
-Perform ANOVA
+A function to perform Analysis of variance (ANOVA) test to identify
+differentially expressed proteins between different sample groups.
 }
 \examples{
-anova_results <- perform_anova(protein_matrix)
+anova_results <- perform_anova(protein_Filtered_top3_sum_ImputedWeighted)
 
 }

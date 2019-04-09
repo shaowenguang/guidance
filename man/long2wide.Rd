@@ -2,7 +2,7 @@
 % Please edit documentation in R/normalizer.R
 \name{long2wide}
 \alias{long2wide}
-\title{Convert from long to wide representation}
+\title{Convert from long to wide data}
 \usage{
 long2wide(input_dt, global_level = "PeptideIon")
 }
@@ -22,7 +22,12 @@ data.table data.frame in a wide format representation containing
 measurements of each peptide or precursor ions in rows.
 }
 \description{
-Convert from long to wide representation
+A function to convert from long to wide representation. 
+A typical input data table contains columns denoting name of a peptide, 
+its corresponding protein name, sample name, intensity, retention time and 
+width of spectral peaks. The \code{long2wide()} converts this long format data 
+into wide representation having intensity, score, RT and width of each sample 
+in each column. Each row will represent a unique peptide.
 }
 \examples{
 peptideIons <- import_openswath(search_results= "data/QGS_SWATH_data", 

@@ -24,9 +24,11 @@ protein measurements in rows. The input data is usually an output from
 \code{p.adjust()} for details.}
 }
 \description{
-Perform t.test
+A function to perform Student's t-test to identify differentially expressed proteins. 
+The significance of an expression change is determned by adjusted p-values 
+of the t-statistics.
 }
 \examples{
-t_test_result <- perform_t_tests(protein_matrix)
+t_test_result <- perform_t_tests(protein_Filtered_top3_sum_ImputedWeighted)
 
 }

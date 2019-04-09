@@ -2,7 +2,7 @@
 % Please edit documentation in R/Importer.R
 \name{import_openswath_matrix_fromEulerPortal}
 \alias{import_openswath_matrix_fromEulerPortal}
-\title{Import data matrix from Eular portal}
+\title{Import openSWATH data table from Eular portal}
 \usage{
 import_openswath_matrix_fromEulerPortal(search_results,
   sample_annotation = NULL)
@@ -20,10 +20,13 @@ from local directory.}
 data.table data containing raw openSWATH matrix
 }
 \description{
-Import data matrix from Eular portal
+A function to import a full openSWATH data table, 
+typically pre-processed or pre-filtered for downstream analysis. 
+The imported data table contains columns denoting peptide name, corresponding 
+protein name, intensity, retention time and score of each peptide.
 }
 \examples{
-all_peptideIons <- SWATH_data <- import_openswath_matrix_fromEulerPortal(
+all_peptideIons <- import_openswath_matrix_fromEulerPortal(
 search_results="data/YS_SWATH_data", 
 sample_annotation="data/YS_sample_annotation")
 

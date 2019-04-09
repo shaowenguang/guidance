@@ -15,7 +15,12 @@ measurements of each peptide or precursor ions in rows.}
 data.table data.frame containing feature statistics
 }
 \description{
-Compute metrics describing relationship among peptides of the same protein
+A function to compute feature i.e. peptide statistics including 
+average intensity, coefficient of variance (CV), number of missing values, 
+average score, standard deviation, median Pearson correlation coefficient (PCC), 
+median Spearman correlation coefficient (SCC) and median absolute deviation (MAD). 
+The function also outputs a set of scaled statistics, where numeric values are 
+centered by subtracting the mean and scaled by dividing standard deviation.
 }
 \examples{
 peptideIons_features <- calc_features(all_peptideIons)

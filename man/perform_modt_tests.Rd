@@ -24,9 +24,14 @@ protein measurements in rows. The input data is usually an output from
 \code{p.adjust()} for details.}
 }
 \description{
-Performed modified t.test
+A function to perform modified t-test. \code{lmFit()} first fits 
+a linear model to the expression data for each protein and the coefficients of 
+the fitted models describde differences between two compared groups. Given 
+the linear model, the \code{eBayes()} computes moderated t-statistics, moderated 
+F-statistics and log-odds of differential expression by empirical Baes moderation 
+of standard errors.
 }
 \examples{
-modt_test_result <- perform_modt_tests(protein_matrix)
+modt_test_result <- perform_modt_tests(protein_Filtered_top3_sum_ImputedWeighted)
 
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/Importer.R
 \name{import_openswath}
 \alias{import_openswath}
-\title{import openSWATH output data with sample annotation}
+\title{Import openSWATH data table}
 \usage{
 import_openswath(search_results, bool.removeDecoy = T,
   level = "PeptideIon", sample_annotation = NULL,
@@ -33,7 +33,12 @@ and \code{remove_prefixInFileName = TRUE} will result in \code{"xuep_J180621_SW_
 data.table data.frame containing SWATH-MS data and sample annotation
 }
 \description{
-import openSWATH output data with sample annotation
+A function to import openSWATH data and filter for relevant columns. 
+The imported data table contains columns denoting name of peptide ion, 
+corresponding protein name, injection name, sample name, intensity values, 
+retention time, score and width of spectral peaks. In particular for transition-level 
+data, the table contains aggregate fragment annotation and aggregated peak area 
+in place of peak width.
 }
 \examples{
 peptideIons <- import_openswath(search_results= "data/QGS_SWATH_data", 

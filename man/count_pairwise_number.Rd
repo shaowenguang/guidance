@@ -7,10 +7,16 @@
 count_pairwise_number(input_vector_a, input_vector_b)
 }
 \arguments{
-\item{input_vector_a}{vectors containing a sequence of numbers}
+\item{input_vector_a}{vectors containing a sequence of numeric values}
 
-\item{input_vector_b}{vectors containing a sequence of numbers}
+\item{input_vector_b}{vectors containing a sequence of numeric values}
 }
 \description{
-Number of intersection betwen numeric groups
+A function to calculate the number of intersecting values 
+between two numeric vectors.
+}
+\examples{
+vector1 <- c(1, 2, 5, 100, 200, 50000)
+vector2 <- c(1, 2, 4, 100, 500, 40000)
+count_pairwise_number(vector1, vector2)
 }

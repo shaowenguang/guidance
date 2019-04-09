@@ -2,7 +2,7 @@
 % Please edit documentation in R/basic.R
 \name{sum_na}
 \alias{sum_na}
-\title{Computes sum excluding missing values}
+\title{Computes sum}
 \usage{
 sum_na(x)
 }
@@ -13,5 +13,10 @@ sum_na(x)
 a numeric value
 }
 \description{
-Computes sum excluding missing values
+A function to compute sum of a numeric vector 
+after exclusion of missing values
+}
+\examples{
+vector <- c(1, 2, 4, NA, 2, 5, 6)
+sum_na(vector)
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/Writer.R
 \name{write_protein_table}
 \alias{write_protein_table}
-\title{Export protein table to tsv or csv file}
+\title{Export data table}
 \usage{
 write_protein_table(input_dt, file_name = "protein_table",
   format = "tsv", ...)
@@ -21,10 +21,5 @@ write_protein_table(input_dt, file_name = "protein_table",
 csv or tsv output
 }
 \description{
-Export protein table to tsv or csv file
-}
-\examples{
-\dontrun{write_protein_table(protein_matrix, 
-file_name = "example_protein_table")}
-
+Export data table e.g. protein table to a tsv or csv file.
 }

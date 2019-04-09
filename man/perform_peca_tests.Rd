@@ -22,9 +22,10 @@ protein measurements in rows. The input data is usually an output from
 \item{input_bool_paired}{a logical indicating whether a paired test is performed}
 }
 \description{
-Perform PECA test
+A function to perform probe-level expression change averaging (PECA)
+to identify expression change between two groups of samples for each protein.
 }
 \examples{
-peca_result <- perform_peca_tests(protein_matrix)
+peca_result <- perform_peca_tests(protein_Filtered_top3_sum_ImputedWeighted)
 
 }

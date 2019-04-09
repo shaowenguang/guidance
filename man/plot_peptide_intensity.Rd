@@ -9,17 +9,17 @@ plot_peptide_intensity(case, cutoff_prob = 0.3)
 \arguments{
 \item{case}{data table or data frame in wide representation. The data typically 
 contains \code{"PeptideIon"}, \code{"ProteinName"} and sample names in columns and 
-measurements of each peptide or precursor ions in rows. 
-
-To visualize profile of peptides corresponding to the same protein, 
-peptides corresponding to one protein are pre-filtered for clearer 
-visualizations.}
+measurements of each peptide or precursor ions in rows. For a clear visualization
+of peptide profile, recommend to prepare a data table filtered on peptides 
+corresponding to a protein of interest}
 
 \item{cutoff_prob}{a numeric value denoting posterior probability threshold
 to keep or remove peptides.}
 }
 \description{
-Visualize peptide intensity
+Visualize peptide intensities in different samples by a line graph. 
+Lines are colored by differnet peptides and dotted represent removed peptides based on 
+LDA algorithm.
 }
 \examples{
 peptideIons_features <- calc_features(all_peptideIons)
@@ -27,6 +27,6 @@ peptideIons_features_select <- perform_selection(peptideIons_features)
 
 prot_name <- c("1/O75976")
 test_prot <- test[test$ProteinName==prot_name, ]
-plot_peptide_intensity(test_prot)
+p <- plot_peptide_intensity(test_prot)
 
 }

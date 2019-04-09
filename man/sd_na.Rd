@@ -2,7 +2,7 @@
 % Please edit documentation in R/basic.R
 \name{sd_na}
 \alias{sd_na}
-\title{Computes standard deviation excluding missing values}
+\title{Computes standard deviation}
 \usage{
 sd_na(x)
 }
@@ -13,5 +13,10 @@ sd_na(x)
 a numeric value
 }
 \description{
-Computes standard deviation excluding missing values
+A function to compute standard deviation of a numeric vector 
+after exclusion of missing values
+}
+\examples{
+vector <- c(1, 2, 4, NA, 2, 5, 6)
+sd_na(vector)
 }

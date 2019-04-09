@@ -2,7 +2,7 @@
 % Please edit documentation in R/basic.R
 \name{cv_na}
 \alias{cv_na}
-\title{Computes coefficient of variation (CV) excluding missing values}
+\title{Computes coefficient of variation (CV)}
 \usage{
 cv_na(x)
 }
@@ -13,5 +13,10 @@ cv_na(x)
 a numeric value
 }
 \description{
-Computes coefficient of variation (CV) excluding missing values
+A function to compute coefficient of variance (CV) of a numeric vector 
+after exclusion of missing values
+}
+\examples{
+vector <- c(1, 2, 4, NA, 2, 5, 6)
+cv_na(vector)
 }

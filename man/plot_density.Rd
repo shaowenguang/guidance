@@ -25,10 +25,12 @@ plots. Examples include \code{"feature_mean_intensity_all"},
 \item{title}{title of density plot}
 }
 \description{
-Plot density distribution of peptide features
+A function to visualize distribution of computed features through 
+density plots. These features include average intensity, coefficient of variance 
+and standard deviation.
 }
 \examples{
 peptideIons_features <- calc_features(all_peptideIons)
-plot_density(peptideIons_features, feature = "feature_mean_intensity_all")
+p <- plot_density(peptideIons_features, feature = "feature_mean_intensity_all")
 
 }

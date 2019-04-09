@@ -2,16 +2,21 @@
 % Please edit documentation in R/basic.R
 \name{l_count}
 \alias{l_count}
-\title{Count number of values in a vector}
+\title{Count TRUE values}
 \usage{
 l_count(x)
 }
 \arguments{
-\item{x}{a vector (atomic or list) or an `expression` object.}
+\item{x}{a vector (atomic or list) in TRUE or FALSE}
 }
 \value{
 a numeric value
 }
 \description{
-Count number of values in a vector
+A function to count the number of TRUE values in a vector
+}
+\examples{
+vector <- c(TRUE, TRUE, FALSE, TRUE)
+l_count(vector)
+
 }

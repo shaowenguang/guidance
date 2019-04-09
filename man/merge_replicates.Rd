@@ -2,7 +2,7 @@
 % Please edit documentation in R/normalizer.R
 \name{merge_replicates}
 \alias{merge_replicates}
-\title{Merge biological replicates}
+\title{Statistics among biological replicates}
 \usage{
 merge_replicates(wide, sample_annotation = NULL,
   bool_NA_means_requant = FALSE, averageFun = "mean")
@@ -27,7 +27,9 @@ data.table data.frame containing statistics of biological replicates, such
 as \code{mean_intensity_A}, \code{cv_intensity_A} and \code{numNA_intensity_A}.
 }
 \description{
-Merge biological replicates
+A function to compute statistics of biological replicates under 
+column \code{“SampleName”}. The statistics include average intensity, 
+coefficient of variance (CV) and number of missing values (NAs) for each sample.
 }
 \examples{
 all_peptideIons_normalized <- normalize_data(all_peptideIons, replaceNA="keep", 

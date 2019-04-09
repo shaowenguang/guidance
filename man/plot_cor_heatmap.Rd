@@ -12,14 +12,15 @@ contains \code{"PeptideIon"}, \code{"ProteinName"} and sample names in columns a
 measurements of each peptide or precursor ions in rows. 
 
 To visualize profile of peptides corresponding to the same protein, 
-peptides corresponding to one protein are pre-filtered for clearer 
-visualizations.}
+recommend to prepare a data table filtered on peptides 
+corresponding to a protein of interest}
 
 \item{cutoff_prob}{a numeric value denoting posterior probability threshold
 to keep or remove peptides.}
 }
 \description{
-Visualize correlation heatmap
+A function to visualize heatmap representing correlation between 
+different peptides corresponding to either the same or different proteins.
 }
 \examples{
 peptideIons_features <- calc_features(all_peptideIons)
@@ -27,6 +28,6 @@ peptideIons_features_select <- perform_selection(peptideIons_features)
 
 prot_name <- c("1/O75976")
 test_prot <- test[test$ProteinName==prot_name, ]
-plot_cor_heatmap(test_prot)
+p <- plot_cor_heatmap(test_prot)
 
 }

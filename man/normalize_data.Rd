@@ -22,10 +22,22 @@ time (iRT) standards \code{"iRT"}. The default is \code{"mediancenter"} and deno
 \code{"none"} if normalization is not necessary.}
 }
 \value{
-data.table data.frame containing normalized measurement data
+data.table data.frame containing normalized measurement data and a column
+denoting number of peptides corresponding to the same protein
 }
 \description{
-Normalize data
+A function to normalize peptide/fragment-level intensity across 
+different samples. It provides several normalization methods: 
+\code{“mediancenter”} as default method to equalize median of intensity distribution, 
+\code{“quantile”} to adjust distributions to have the same statistical properties 
+i.e. quantiles, \code{“TIC”} to normalize mass spectra based on total ion 
+current (TIC) assuming that the same amount of protein was injected for each 
+MS run, and lastly \code{“iRT”} to normalize intensities based on injected 
+indexed retention time (iRT) standards. 
+
+In addition to the normalization functionality, this function also counts 
+the number of peptides corresponding to the same protein and outputs in 
+column \code{numPerProt}.
 }
 \examples{
 all_peptideIons_normalized <- normalize_data(all_peptideIons, replaceNA="keep", 
