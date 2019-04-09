@@ -112,7 +112,9 @@ require(plotrix)
 
 
 ## Example data
-The example data is a subset of the OpenSWATH search results generated from the ... dataset [ref]. Details on which dataset to include in the package for demonstration purpose.  
+The example data is a reduced OpenSWATH data for Quantitative Gold Standard (QGS) dataset [Shao et al.] and . 
+
++ Quantiative golden standard (QGS) data: 
 
 (I think we need a reduced SWTAH data that can be deposited in the package, but not QGS dataset)
 (Wenguang: can we use the subset, e.g., ~10 E coli. proteins from QGS datasets?)
@@ -148,8 +150,6 @@ The `normalize_data()` provides options to normalize intensities across differen
 Quantile normalization and median-centering are two commonly used methods for normalizing proteomics data. The TIC normalization is based on total ion current (TIC), where all mass spectra are divided by their TIC assuming that the same amount of protein was injected for each MS run, resulting in the same integrated area under the spectrum. TIC normalization is useful across samples containing similar cell types, but when comparing widely different tissues types, TIC-corrected expression levels may not be applicable. For samples with injected iRT (indexed retention time) standards, the data can also be normalized against the measurements of iRT peptides. 
 
 For missing values (NAs), users can also specify how to treat those via `replaceNA =` either to `"remove"` or `"keep"` (by default), alternatively users have the options to replace NAs by `"zero"` or `“min_intensity"`. 
-
-*(Wenguang: shall we have some explanations for each parameters?)*
 
 ```{r normalize_data, fig.show='hold'}
 all_peptideIons_normalized <- normalize_data(all_peptideIons, replaceNA="keep", 
@@ -286,7 +286,7 @@ gap.barplot(hist$counts, gap=c(800,79000),xlab="Counts",ytics=c(0,600,79100, 794
 modt_result <- perform_modt_tests(prot_inf_table, anno)
 ```
 
-+ `perform_anova()` calculates differential expression pattern of differnet sample groups for each protein based on `aov()` for parametric ANOVA and `kruskal.test()` in `stats` package for nonparametric ANOVA tests. 
++ `perform_anova()` calculates differential expression pattern of different sample groups for each protein based on `aov()` for parametric ANOVA and `kruskal.test()` in `stats` package for nonparametric ANOVA tests. 
 
 ```{r statistical_anova_tests, fig.show='hold', echo= FALSE, eval = FALSE}
 # t-test 
