@@ -1,5 +1,12 @@
 #' Compute metrics describing relationship among peptides of the same protein
 #' 
+#' @description A function to compute feature i.e. peptide statistics including 
+#' average intensity, coefficient of variance (CV), number of missing values, 
+#' average score, standard deviation, median Pearson correlation coefficient (PCC), 
+#' median Spearman correlation coefficient (SCC) and median absolute deviation (MAD). 
+#' The function also outputs a set of scaled statistics, where numeric values are 
+#' centered by subtracting the mean and scaled by dividing standard deviation. 
+#' 
 #' @param input_dt data table or data frame in wide representation. The data typically 
 #' contains \code{"PeptideIon"}, \code{"ProteinName"} and sample names in columns and 
 #' measurements of each peptide or precursor ions in rows. 
@@ -133,10 +140,13 @@ calc_features <- function(input_dt) {
 
 #' Generate linear discriminant analysis (LDA) model 
 #' 
+#' @description A function to generate linear discriminant analysis (LDA) model 
+#' by using a subset of feature (peptide) statistics. This function utilizes 
+#' \code{lda()} function in \code{MASS}. 
+#' 
 #' @param input_dt data table or data frame in wide representation. The data typically 
 #' contains \code{"PeptideIon"}, \code{"ProteinName"} and sample names in columns and 
 #' measurements of each peptide or precursor ions in rows. 
-#'
 #' @param input_features a vector of features to be used for training. The examples 
 #' include \code{scaled_mean_intensity_all}, \code{scaled_cv_intensity_all}, 
 #' \code{scaled_numNA_intensity_all}, \code{scaled_averaged_score_all}, 
@@ -160,7 +170,14 @@ get_lda_model <- function(input_dt, input_features) {
 }
 
 
-#' Compute posterior probability of being representative petpide 
+#' Compute probability of being representative peptide 
+#' 
+#' @description A function to compute the probability of being representative 
+#' peptide. It utilizes \code{predict()} from \code{stats} to make prediction
+#' based on a linear discriminant analysis (LDA) model, typically generated 
+#' from a quantitative gold standard dataset. The function outputs the posterior
+#' probability that describes the likelihood of the peptide intensity being
+#' representative of the intensity of its corresponding protein. 
 #' 
 #' @param input_dt data table or data frame in wide representation. The data typically 
 #' contains \code{"PeptideIon"}, \code{"ProteinName"} and sample names in columns and 
@@ -216,8 +233,36 @@ perform_selection <- function(input_dt) {
 }
 
 
-
+#' Filter for representative peptide 
+#' 
+#' @description A function to filter peptides based on probability of 
+#' being a representative peptide. It utilizes \code{predict()} from \code{stats} 
+#' to make prediction based on a linear discriminant analysis (LDA) model, typically generated 
+#' from a quantitative gold standard dataset. The function outputs the posterior
+#' probability that describes the likelihood of the peptide intensity being
+#' representative of the intensity of its corresponding protein. 
+#' The data table is filtered to only contain representative peptides, 
+#' having posterior probability higher than a given cutoff threshold. 
+#' 
+#' @param input_dt data table or data frame in wide representation. The data typically 
+#' contains \code{"PeptideIon"}, \code{"ProteinName"} and sample names in columns and 
+#' measurements of each peptide or precursor ions in rows. 
+#' 
+#' Additionally, the data table includes metrics computed from \code{calc_features()} 
+#' such as \code{scaled_mean_intensity_all}, \code{scaled_cv_intensity_all} 
+#' \code{scaled_numNA_intensity_all} and etc which are utilized to compute 
+#' a posterior probability of being the representative peptides.  
+#'
+#' @param cutoff_prob a numeric value denoting the posterior probability 
+#' threshold to filter peptides by.
+#' @return  data.table data.frame containing posterior probability. 
+#' 
 #' @export
+#' 
+#' @examples 
+#' peptideIons_features <- calc_features(all_peptideIons)
+#' peptideIons_features_select <- perform_prediction_and_filtering(peptideIons_features)
+#' 
 perform_prediction_and_filtering <- function(input_dt, cutoff_prob = 0.2) {
   
   #Wenugang: these two rules still need to be checked... as I think there is room to improve...
