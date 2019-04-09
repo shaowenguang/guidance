@@ -23,7 +23,7 @@ Options include \code{"mean"} and \code{"sum"}}
 
 \item{bool_weighted_by_prob}{boolean value (\code{TRUE} or \code{FALSE}) determining 
 whether to weight the intensity by the posterior probability of being a representative 
-peptide}
+peptide.}
 }
 \description{
 A function infer protein abundance from peptide/fragment-level 

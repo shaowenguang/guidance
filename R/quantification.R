@@ -19,7 +19,7 @@
 #' Options include \code{"mean"} and \code{"sum"}
 #' @param bool_weighted_by_prob boolean value (\code{TRUE} or \code{FALSE}) determining 
 #' whether to weight the intensity by the posterior probability of being a representative 
-#' peptide
+#' peptide.
 #'
 #' @export
 #' 
@@ -179,8 +179,8 @@ pept2prot_log2 <- function(input_dt, input_rank_index = "prob",
 #' Impute missing values 
 #' 
 #' @description A function to impute for missing value by fitting data to a 
-#' uniform distribution between minimum $0.1 \times CV$ and minimum 
-#' $1.1 \times CV$ and infer the intensity of missing values. 
+#' uniform distribution between minimum 0.1CV and minimum 
+#' 1.1CV and infer the intensity of missing values. 
 #' 
 #' @param input_dt data table or data frame in wide representation. The data typically 
 #' contains \code{PeptideIon}, \code{ProteinName} and sample names in columns and 
