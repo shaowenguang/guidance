@@ -49,7 +49,9 @@ time (iRT) standards \code{"iRT"}. The default is \code{"mediancenter"} and deno
 \item{filter_prob}{a numeric value in range of 0 to 1 denoting posterior 
 probability threshold to filter peptides by.}
 
-\item{input_rank_index}{}
+\item{input_rank_index}{name of a column to rank the protein by. 
+The default column is "prob" which depicts the probability of being peptide 
+representative of protein.}
 
 \item{topN}{number of peptides utilized to infer protein abundance for each protein}
 

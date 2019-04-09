@@ -27,7 +27,9 @@
 #' \code{"none"} if normalization is not necessary.
 #' @param filter_prob a numeric value in range of 0 to 1 denoting posterior 
 #' probability threshold to filter peptides by.
-#' @param input_rank_index 
+#' @param input_rank_index name of a column to rank the protein by. 
+#' The default column is "prob" which depicts the probability of being peptide 
+#' representative of protein.
 #' @param topN number of peptides utilized to infer protein abundance for each protein 
 #' @param aggfun method to aggregate peptide measurements to estimate protein abundance.
 #' Options include \code{"mean"} and \code{"sum"}
