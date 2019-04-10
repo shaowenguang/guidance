@@ -14,7 +14,7 @@
 #' @return  data.table data.frame containing feature statistics 
 #' @export
 #' 
-#' @examples peptideIons_features <- calc_features(all_peptideIons)
+#' @examples  d_feature <- calc_features(peptideIon_st)
 #' 
 calc_features <- function(input_dt) {
   
@@ -155,12 +155,22 @@ calc_features <- function(input_dt) {
 #' @export
 #' 
 #' @examples 
-#' peptideIons_features <- calc_features(all_peptideIons)
-#' index_feature_selected <- c("scaled_mean_intensity_all", "scaled_cv_intensity_all", 
-#' "scaled_numNA_intensity_all", "scaled_averaged_score_all", 
-#' "scaled_median_PCC", "scaled_sd_width_all", "label")
+#' d_feature <- calc_features(peptideIon_st)
 #' 
-#' model_lda_ecoli <- get_lda_model(peptideIons_features, index_feature_selected)
+#' ecoli_std <- c(2, 3, 4, 6, 8)
+#' index_mean_int <- which(grepl("^mean_intensity", names(d_feature)))
+#' d_feature[, cor_std := 0]
+#' d_feature$cor_std <- apply(d_feature[, index_mean_int, with=F], 1,
+#'  function(x) cor(x, ecoli_std, use="p"))
+#' d_feature$cor_std[apply(d_feature[, index_mean_int, with=F], 1, 
+#'  function(x) count_pairwise_number(x, ecoli_std)) < 4] <- NA
+#' d_feature[, label := "bad"]
+#' d_feature[ cor_std > 0.95, ]$label <- "good"
+#' 
+#' index_features <- c("scaled_mean_intensity_all", "scaled_cv_intensity_all", 
+#'                     "scaled_numNA_intensity_all", "scaled_averaged_score_all", 
+#'                      "scaled_median_PCC", "scaled_sd_width_all", "label")
+#' model_lda <- get_lda_model(d_feature, index_features)
 #' 
 get_lda_model <- function(input_dt, input_features) {
   
@@ -193,8 +203,8 @@ get_lda_model <- function(input_dt, input_features) {
 #' @export
 #' 
 #' @examples 
-#' peptideIons_features <- calc_features(all_peptideIons)
-#' peptideIons_features_select <- perform_selection(peptideIons_features)
+#' d_feature <- calc_features(peptideIon_st)
+#' d_select <- perform_selection(d_feature)
 #' 
 perform_selection <- function(input_dt) {
   
@@ -260,8 +270,8 @@ perform_selection <- function(input_dt) {
 #' @export
 #' 
 #' @examples 
-#' peptideIons_features <- calc_features(all_peptideIons)
-#' peptideIons_features_select <- perform_prediction_and_filtering(peptideIons_features)
+#' d_feature <- calc_features(peptideIon_st)
+#' d_select <- perform_prediction_and_filtering(d_feature)
 #' 
 perform_prediction_and_filtering <- function(input_dt, cutoff_prob = 0.2) {
   
