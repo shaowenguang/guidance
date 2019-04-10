@@ -26,6 +26,6 @@ are uniquely and consistently identified and these represent peptides
 most confidently observed in the current MS-based proteomics workflow.
 }
 \examples{
-proteotypic_peptide_matrix <- keep_proteotypic_only(all_peptideIons)
+proteotypic <- keep_proteotypic_only(peptideIon_st)
 
 }

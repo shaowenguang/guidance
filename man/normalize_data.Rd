@@ -40,7 +40,6 @@ the number of peptides corresponding to the same protein and outputs in
 column \code{numPerProt}.
 }
 \examples{
-all_peptideIons_normalized <- normalize_data(all_peptideIons, replaceNA="keep", 
-normalization="none")
+peptideIon_n <- normalize_data(peptideIon_st, replaceNA="keep", normalization="none")
 
 }

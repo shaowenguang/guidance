@@ -32,8 +32,7 @@ column \code{“SampleName”}. The statistics include average intensity,
 coefficient of variance (CV) and number of missing values (NAs) for each sample.
 }
 \examples{
-all_peptideIons_normalized <- normalize_data(all_peptideIons, replaceNA="keep", 
-normalization="none")
-cons_peptideIons <- merge_replicates(all_peptideIons_normalized, anno)
+peptideIon <- peptideIon_st[, -c(64:78)]
+cons_peptideIons <- merge_replicates(peptideIon, anno)
 
 }

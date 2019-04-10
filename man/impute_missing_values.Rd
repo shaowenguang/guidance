@@ -22,8 +22,9 @@ uniform distribution between minimum 0.1CV and minimum
 1.1CV and infer the intensity of missing values.
 }
 \examples{
-peptideIons_features <- calc_features(all_peptideIons)
-peptideIons_features_select <- calc_features(peptideIons_features)
-Imputated <- impute_missing_values(test_yesFiltered, c(3:17))
+d_feature <- calc_features(peptideIon_st)
+d_feature_select <- perform_selection(d_feature)
+
+imputated <- impute_missing_values(d_feature_select, c(3:17))
 
 }

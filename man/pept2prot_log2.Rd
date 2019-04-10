@@ -36,10 +36,10 @@ their posterior probability in estimating protein abundance
 intensities for each sample.
 }
 \examples{
-peptideIons_features <- calc_features(all_peptideIons)
-peptideIons_features_select <- perform_selection(peptideIons_features)
+d_feature <- calc_features(peptideIon_st)
+d_feature_select <- perform_selection(d_feature)
 
-peptide_to_protein <- pept2prot_log2(peptideIons_features_select, 
+protein_log <- pept2prot_log2(d_feature_select, 
 input_rank_index = "prob", 3, aggfun="sum", bool_weighted_by_prob=T)
 
 }

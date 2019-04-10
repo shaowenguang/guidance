@@ -33,7 +33,7 @@ The data table is filtered to only contain representative peptides,
 having posterior probability higher than a given cutoff threshold.
 }
 \examples{
-peptideIons_features <- calc_features(all_peptideIons)
-peptideIons_features_select <- perform_prediction_and_filtering(peptideIons_features)
+d_feature <- calc_features(peptideIon_st)
+d_select <- perform_prediction_and_filtering(d_feature)
 
 }

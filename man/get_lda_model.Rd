@@ -22,11 +22,21 @@ by using a subset of feature (peptide) statistics. This function utilizes
 \code{lda()} function in \code{MASS}.
 }
 \examples{
-peptideIons_features <- calc_features(all_peptideIons)
-index_feature_selected <- c("scaled_mean_intensity_all", "scaled_cv_intensity_all", 
-"scaled_numNA_intensity_all", "scaled_averaged_score_all", 
-"scaled_median_PCC", "scaled_sd_width_all", "label")
+d_feature <- calc_features(peptideIon_st)
 
-model_lda_ecoli <- get_lda_model(peptideIons_features, index_feature_selected)
+ecoli_std <- c(2, 3, 4, 6, 8)
+index_mean_int <- which(grepl("^mean_intensity", names(d_feature)))
+d_feature[, cor_std := 0]
+d_feature$cor_std <- apply(d_feature[, index_mean_int, with=F], 1,
+ function(x) cor(x, ecoli_std, use="p"))
+d_feature$cor_std[apply(d_feature[, index_mean_int, with=F], 1, 
+ function(x) count_pairwise_number(x, ecoli_std)) < 4] <- NA
+d_feature[, label := "bad"]
+d_feature[ cor_std > 0.95, ]$label <- "good"
+
+index_features <- c("scaled_mean_intensity_all", "scaled_cv_intensity_all", 
+                    "scaled_numNA_intensity_all", "scaled_averaged_score_all", 
+                     "scaled_median_PCC", "scaled_sd_width_all", "label")
+model_lda <- get_lda_model(d_feature, index_features)
 
 }
