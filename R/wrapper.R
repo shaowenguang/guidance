@@ -48,11 +48,15 @@
 #' and \code{remove_prefixInFileName = TRUE} will result in \code{"xuep_J180621_SW_3.mzXML.gz"}
 #'
 #' @examples 
-#' guidance <- dia_guidance(search_results= "data/QGS_SWATH_data", 
-#' sample_annotation="data/QGS_sample_annotation", level="PeptideIon")
+#' guidance <- dia_guidance(data= "data/QGS_SWATH_data", data_type = "openswath",
+#' sample_annotation="data/QGS_sample_annotation", level="PeptideIon",
+#' replaceNA="keep", bool_NA_means_requant = FALSE, 
+#' averageFun = "mean", normalization="none", filter_prob = 0.25, 
+#' input_rank_index = "prob", topN = 3, aggfun = "sum", 
+#' bool_weighted_by_prob = TRUE, bool.removeDecoy = T, remove_prefixInFileName = FALSE)
 #'                 
 #' @export
-dia_guidance <- function(data = NULL, data_fromEuler = NULL, sample_annotation = NULL, 
+dia_guidance <- function(data, data_type = "openswath", sample_annotation = NULL, 
                          level = "PeptideIon", 
                          replaceNA="keep", bool_NA_means_requant = FALSE, 
                          averageFun = "mean",
@@ -61,24 +65,20 @@ dia_guidance <- function(data = NULL, data_fromEuler = NULL, sample_annotation =
                          bool_weighted_by_prob = TRUE, bool.removeDecoy = T, 
                          remove_prefixInFileName = FALSE){
   
-  if(!is.null(data)){
-    peptide <- import_openswath(search_results= data, 
-                                    sample_annotation = sample_annotation, 
-                                    level=level) 
-    all_peptide <- long2wide(peptide)
+  if(data_type=="openswath") {
+    peptideIons <- import_openswath(search_results=data, sample_annotation=sample_annotation, level=level
+                                    , bool.removeDecoy=bool.removeDecoy, remove_prefixInFileName=remove_prefixInFileName) 
+  } else if(data_type=="openswath_fromEulerPortal") {
+    peptideIons <- import_openswath_matrix_fromEulerPortal(search_results=data, sample_annotation=sample_annotation)
+  } else if(data_type=="spectronaut") {
+    peptideIons <- import_spectronaut_matrix(search_results=data, sample_annotation=sample_annotation)
+  } else {
+    stop("Please select a valid type for imported data to be kept in Prom. Options:  \"openswath(default)\", \"spectronaut\", \"openswath_fromEulerPortal\"")
   }
   
-  if(!is.null(data_fromEuler)){
-    all_peptide <- import_openswath_matrix_fromEulerPortal(
-      search_results=data_fromEuler, sample_annotation=sample_annotation) 
-  }
-
-  if(!is.null(data) & !is.null(data_fromEuler)){
-    stop("Input one dataset only")
-  }
-  
-  # normalize data (if necessary)
-  all_peptide_normalized <- normalize_data(all_peptide, replaceNA= replaceNA, 
+  # normalize data 
+  all_peptideIons <- long2wide(peptideIons)
+  all_peptide_normalized <- normalize_data(all_peptideIons, replaceNA= replaceNA, 
                                                normalization=normalization)
   
   # merge replicates - CHECK!! THE STEP, SAMPLENAME NOT VALID 

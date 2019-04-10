@@ -4,8 +4,8 @@
 \alias{dia_guidance}
 \title{Guidance wrapper function}
 \usage{
-dia_guidance(data = NULL, data_fromEuler = NULL,
-  sample_annotation = NULL, level = "PeptideIon", replaceNA = "keep",
+dia_guidance(data, data_type = "openswath", sample_annotation = NULL,
+  level = "PeptideIon", replaceNA = "keep",
   bool_NA_means_requant = FALSE, averageFun = "mean",
   normalization = "mediancenter", filter_prob = 0.25,
   input_rank_index = "prob", topN = 3, aggfun = "sum",
@@ -15,11 +15,6 @@ dia_guidance(data = NULL, data_fromEuler = NULL,
 \arguments{
 \item{data}{A data frame containing the SWATH-MS data. This data typically
 contains peptide precursors in each row with corresponding \code{ProteinName}, 
-\code{Intensity}, \code{RT}, \code{Score} and etc in columns. The data can be loaded
-from local directory.}
-
-\item{data_fromEuler}{A data frame containing the SWATH-MS data. This data typically
-contains peptide ions in each row with corresponding \code{ProteinName}, 
 \code{Intensity}, \code{RT}, \code{Score} and etc in columns. The data can be loaded
 from local directory.}
 
@@ -69,6 +64,11 @@ if the decoy peptides should be removed from the imported data}
 remove unnecessary prefix from euler portal file name. For example, a typical 
 filename will look like \code{"/scratch/71239421.tmpdir/xuep_J180621_SW_3.mzXML.gz"} 
 and \code{remove_prefixInFileName = TRUE} will result in \code{"xuep_J180621_SW_3.mzXML.gz"}}
+
+\item{data_fromEuler}{A data frame containing the SWATH-MS data. This data typically
+contains peptide ions in each row with corresponding \code{ProteinName}, 
+\code{Intensity}, \code{RT}, \code{Score} and etc in columns. The data can be loaded
+from local directory.}
 }
 \description{
 A wrapper function to import, normalize, calculate features and 
@@ -76,7 +76,11 @@ infer protein abundance, returning a protein data table containing protein
 intensities for each sample.
 }
 \examples{
-guidance <- dia_guidance(search_results= "data/QGS_SWATH_data", 
-sample_annotation="data/QGS_sample_annotation", level="PeptideIon")
+guidance <- dia_guidance(data= "data/QGS_SWATH_data", data_type = "openswath",
+sample_annotation="data/QGS_sample_annotation", level="PeptideIon",
+replaceNA="keep", bool_NA_means_requant = FALSE, 
+averageFun = "mean", normalization="none", filter_prob = 0.25, 
+input_rank_index = "prob", topN = 3, aggfun = "sum", 
+bool_weighted_by_prob = TRUE, bool.removeDecoy = T, remove_prefixInFileName = FALSE)
                 
 }
