@@ -24,11 +24,10 @@
 #' @export
 #' 
 #' @examples 
-#' peptideIons_features <- calc_features(all_peptideIons)
-#' peptideIons_features_select <- perform_selection(peptideIons_features)
+#' d_feature <- calc_features(peptideIon_st)
+#' d_feature_select <- perform_selection(d_feature)
 #' 
-#' peptide_to_protein <- pept2prot(peptideIons_features_select, 
-#' input_rank_index = "prob", 3, aggfun="sum", bool_weighted_by_prob=T)
+#' protein_m <- pept2prot(d_feature_select, "prob", 3, aggfun="sum", bool_weighted_by_prob=T)
 #' 
 pept2prot <- function(input_dt, input_rank_index = "prob", 
                       topN = 3, aggfun = "mean", bool_weighted_by_prob = TRUE) {
@@ -113,10 +112,10 @@ pept2prot <- function(input_dt, input_rank_index = "prob",
 #' @export
 #' 
 #' @examples 
-#' peptideIons_features <- calc_features(all_peptideIons)
-#' peptideIons_features_select <- perform_selection(peptideIons_features)
+#' d_feature <- calc_features(peptideIon_st)
+#' d_feature_select <- perform_selection(d_feature)
 #' 
-#' peptide_to_protein <- pept2prot_log2(peptideIons_features_select, 
+#' protein_log <- pept2prot_log2(d_feature_select, 
 #' input_rank_index = "prob", 3, aggfun="sum", bool_weighted_by_prob=T)
 #' 
 pept2prot_log2 <- function(input_dt, input_rank_index = "prob", 
@@ -192,9 +191,10 @@ pept2prot_log2 <- function(input_dt, input_rank_index = "prob",
 #' @export
 #' 
 #' @examples 
-#' peptideIons_features <- calc_features(all_peptideIons)
-#' peptideIons_features_select <- calc_features(peptideIons_features)
-#' Imputated <- impute_missing_values(test_yesFiltered, c(3:17))
+#' d_feature <- calc_features(peptideIon_st)
+#' d_feature_select <- perform_selection(d_feature)
+#' 
+#' imputated <- impute_missing_values(d_feature_select, c(3:17))
 #' 
 impute_missing_values <- function(input_dt, input_index) {
   
