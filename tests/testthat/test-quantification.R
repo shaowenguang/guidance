@@ -1,14 +1,7 @@
 context("quantification")
 
-peptideIons <- import_openswath(search_results= "data/QGS_SWATH_data", 
-                                sample_annotation="data/QGS_sample_annotation", 
-                                level="PeptideIon")
-all_peptideIons <- long2wide(peptideIons)
-peptideIon_n <- normalize_data(all_peptideIons, replaceNA="keep", normalization="none")
-d <- merge_replicates(peptideIon_n, anno)
-d_feature <- calc_features(d)
+d_feature <- calc_features(peptideIon_st)
 d_feature_select <- perform_selection(d_feature)
-
 
 test_that("pept2prot", {
   protein_m <- pept2prot(d_feature_select, "prob", 3, aggfun="sum", bool_weighted_by_prob=T)
@@ -23,6 +16,23 @@ test_that("pept2prot", {
   expect_equivalent(round(mean(as.matrix(protein_m[,3:18]), na.rm=TRUE),2), 33409.88)
 
 })
+
+
+
+test_that("pept2prot", {
+  protein_log <- pept2prot_log2(d_feature_select, 
+                                input_rank_index = "prob", 3, aggfun="sum", bool_weighted_by_prob=T)  
+  expect_equivalent(dim(protein_log)[1], 9)
+  expect_equivalent(dim(protein_log)[2], 18)
+  
+  colnames <- colnames(protein_log)
+  expect_equivalent(colnames[1:2], c("ProteinName", "numPerProt"))
+  expect_equivalent(colnames[4],  "Intensity_lgillet_J170408_001")
+  
+  expect_equivalent(round(mean(as.matrix(protein_log[,3:18]), na.rm=TRUE),2), 18.35)
+  
+})
+
 
 
 test_that("impute_missing_values", {

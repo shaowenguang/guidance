@@ -1,11 +1,12 @@
 context("normalizer")
 
+peptideIons <- import_openswath(search_results= "data/QGS_SWATH_data", 
+                                sample_annotation="data/QGS_sample_annotation", 
+                                level="PeptideIon")
+all_peptideIons <- long2wide(peptideIons)
+
+
 test_that("long2wide", {
-  peptideIons <- import_openswath(search_results= "data/QGS_SWATH_data", 
-                                  sample_annotation="data/QGS_sample_annotation", 
-                                  level="PeptideIon")
-  all_peptideIons <- long2wide(peptideIons)
-                                  
   expect_equivalent(dim(all_peptideIons)[1], 52)
   expect_equivalent(dim(all_peptideIons)[2], 62)
   
@@ -20,12 +21,11 @@ test_that("long2wide", {
 })
 
 test_that("normalize_data", {
-  data("all_peptideIons")
   all_peptideIons_normalized <- normalize_data(all_peptideIons, replaceNA="keep", 
                                                normalization="none")
   
   expect_equivalent(dim(all_peptideIons_normalized)[1], 52)
-  expect_equivalent(dim(all_peptideIons_normalized)[2], 63)
+  expect_equivalent(dim(all_peptideIons_normalized)[2], 78)
   
   colnames <- colnames(all_peptideIons_normalized)
   
@@ -40,7 +40,6 @@ test_that("normalize_data", {
 
 
 test_that("merge_replicates", {
-  data("all_peptideIons")
   all_peptideIons_normalized <- normalize_data(all_peptideIons, replaceNA="keep", 
                                                normalization="none")
   cons_peptideIons <- merge_replicates(all_peptideIons_normalized, anno)
