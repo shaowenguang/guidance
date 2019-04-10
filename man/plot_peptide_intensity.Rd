@@ -4,7 +4,8 @@
 \alias{plot_peptide_intensity}
 \title{Visualize peptide intensity}
 \usage{
-plot_peptide_intensity(case, cutoff_prob = 0.3)
+plot_peptide_intensity(case, cutoff_prob = 0.3,
+  bool_isPeptideIon = TRUE)
 }
 \arguments{
 \item{case}{data table or data frame in wide representation. The data typically 

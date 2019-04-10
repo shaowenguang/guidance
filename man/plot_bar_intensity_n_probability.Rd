@@ -5,7 +5,7 @@
 \title{Visualize intensity and posterior probability in barplots}
 \usage{
 plot_bar_intensity_n_probability(case, cutoff_prob = 0.3,
-  plot_intensity = T, plot_prob = T)
+  bool_isPeptideIon = TRUE, plot_intensity = T, plot_prob = T)
 }
 \arguments{
 \item{case}{data table or data frame in wide representation. The data typically 

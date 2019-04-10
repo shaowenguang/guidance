@@ -34,7 +34,8 @@
 #' test_prot <- test[test$ProteinName==prot_name, ]
 #' p <- plot_protein_profile(test_prot)
 #' 
-plot_protein_profile <- function(case, cutoff_prob=0.3) {
+plot_protein_profile <- function(case, cutoff_prob=0.3,
+                                 bool_isPeptideIon = TRUE) {
 
   a_reorder <- compute_cor(case = case, cutoff_prob=cutoff_prob)
   
@@ -165,7 +166,8 @@ plot_protein_profile <- function(case, cutoff_prob=0.3) {
 #' test_prot <- test[test$ProteinName==prot_name, ]
 #' p <- plot_peptide_intensity(test_prot)
 #' 
-plot_peptide_intensity <- function(case, cutoff_prob=0.3) {
+plot_peptide_intensity <- function(case, cutoff_prob=0.3,
+                                   bool_isPeptideIon = TRUE) {
   
   a_reorder <- compute_cor(case = case, cutoff_prob=cutoff_prob)
   
@@ -300,6 +302,7 @@ plot_cor_heatmap <- function(case, cutoff_prob=0.3) {
 #' p <- plot_bar_intensity_n_probability(test_prot)
 #' 
 plot_bar_intensity_n_probability <- function(case, cutoff_prob=0.3, 
+                                             bool_isPeptideIon = TRUE,
                                              plot_intensity = T, 
                                                plot_prob = T) {
   
