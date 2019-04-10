@@ -1,4 +1,8 @@
-#' Wrapper function from importing peptide data to infering protein abundance
+#' Guidance wrapper function
+#' 
+#' @description A wrapper function to import, normalize, calculate features and 
+#' infer protein abundance, returning a protein data table containing protein 
+#' intensities for each sample. 
 #' 
 #' @param data A data frame containing the SWATH-MS data. This data typically
 #' contains peptide precursors in each row with corresponding \code{ProteinName}, 

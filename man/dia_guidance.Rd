@@ -2,7 +2,7 @@
 % Please edit documentation in R/wrapper.R
 \name{dia_guidance}
 \alias{dia_guidance}
-\title{Wrapper function from importing peptide data to infering protein abundance}
+\title{Guidance wrapper function}
 \usage{
 dia_guidance(data = NULL, data_fromEuler = NULL,
   sample_annotation = NULL, level = "PeptideIon", replaceNA = "keep",
@@ -71,7 +71,9 @@ filename will look like \code{"/scratch/71239421.tmpdir/xuep_J180621_SW_3.mzXML.
 and \code{remove_prefixInFileName = TRUE} will result in \code{"xuep_J180621_SW_3.mzXML.gz"}}
 }
 \description{
-Wrapper function from importing peptide data to infering protein abundance
+A wrapper function to import, normalize, calculate features and 
+infer protein abundance, returning a protein data table containing protein 
+intensities for each sample.
 }
 \examples{
 guidance <- dia_guidance(search_results= "data/QGS_SWATH_data", 
