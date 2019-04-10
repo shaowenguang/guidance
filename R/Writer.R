@@ -11,8 +11,8 @@
 #' @return csv or tsv output
 #' @export 
 #' 
-#' @examples \dontrun{write_protein_table(protein_matrix, 
-#' file_name = "example_protein_table", format = "tsv")}
+#' @examples \dontrun{write_protein_table(protein_Filtered_top3_sum_ImputedWeighted, 
+#' file_name = "protein_Filtered_top3_sum_ImputedWeighted", format = "tsv")}
 #' 
 write_protein_table <- function(input_dt, file_name = "protein_table", format = "tsv", ...){
   

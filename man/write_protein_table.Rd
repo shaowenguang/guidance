@@ -24,7 +24,7 @@ csv or tsv output
 Export data table e.g. protein table to a tsv or csv file.
 }
 \examples{
-\dontrun{write_protein_table(protein_matrix, 
-file_name = "example_protein_table", format = "tsv")}
+\dontrun{write_protein_table(protein_Filtered_top3_sum_ImputedWeighted, 
+file_name = "protein_Filtered_top3_sum_ImputedWeighted", format = "tsv")}
 
 }
