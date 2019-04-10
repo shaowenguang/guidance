@@ -29,6 +29,6 @@ The significance of an expression change is determned by adjusted p-values
 of the t-statistics.
 }
 \examples{
-t_test_result <- perform_t_tests(protein_Filtered_top3_sum_ImputedWeighted)
+t_test_result <- perform_t_tests(protein_Filtered_top3_sum_ImputedWeighted, anno)
 
 }

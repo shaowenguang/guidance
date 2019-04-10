@@ -26,6 +26,6 @@ A function to perform probe-level expression change averaging (PECA)
 to identify expression change between two groups of samples for each protein.
 }
 \examples{
-peca_result <- perform_peca_tests(protein_Filtered_top3_sum_ImputedWeighted)
+peca_result <- perform_peca_tests(protein_Filtered_top3_sum_ImputedWeighted, anno)
 
 }

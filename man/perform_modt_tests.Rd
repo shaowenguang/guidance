@@ -32,6 +32,6 @@ F-statistics and log-odds of differential expression by empirical Baes moderatio
 of standard errors.
 }
 \examples{
-modt_test_result <- perform_modt_tests(protein_Filtered_top3_sum_ImputedWeighted)
+modt_test_result <- perform_modt_tests(protein_Filtered_top3_sum_ImputedWeighted, anno)
 
 }
