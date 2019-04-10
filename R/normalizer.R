@@ -113,8 +113,7 @@ summarize_data <- function(input_dt) {
 #' @export
 #' 
 #' @examples 
-#' all_peptideIons_normalized <- normalize_data(all_peptideIons, replaceNA="keep", 
-#' normalization="none")
+#' peptideIon_n <- normalize_data(peptideIon_st, replaceNA="keep", normalization="none")
 #' 
 normalize_data <- function(input_dt, replaceNA="keep", normalization="mediancenter"){
   
@@ -230,9 +229,8 @@ normalize_data <- function(input_dt, replaceNA="keep", normalization="mediancent
 #' @export
 #' 
 #' @examples 
-#' all_peptideIons_normalized <- normalize_data(all_peptideIons, replaceNA="keep", 
-#' normalization="none")
-#' cons_peptideIons <- merge_replicates(all_peptideIons_normalized, anno)
+#' peptideIon <- peptideIon_st[, -c(64:78)]
+#' cons_peptideIons <- merge_replicates(peptideIon, anno)
 #' 
 merge_replicates <- function(wide, sample_annotation = NULL, 
                              bool_NA_means_requant = FALSE, averageFun = "mean") {
@@ -343,7 +341,7 @@ merge_replicates <- function(wide, sample_annotation = NULL,
 #' @return data.table data.frame containing only proteotypic peptides 
 #'
 #' @export
-#' @examples proteotypic_peptide_matrix <- keep_proteotypic_only(all_peptideIons)
+#' @examples proteotypic <- keep_proteotypic_only(peptideIon_st)
 #' 
 keep_proteotypic_only <- function(input_dt) {
 
