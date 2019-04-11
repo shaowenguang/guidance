@@ -44,7 +44,7 @@ test_that("plot_peptide_intensity", {
 })
 
 
-test_that("plot_peptide_intensity", {
+test_that("plot_cor_heatmap", {
   p <- plot_cor_heatmap(test_prot)
 
   expect_equivalent(summary(p$plot_env$a_reorder)[1],  "Min.   :0.2800  ")
@@ -61,7 +61,7 @@ test_that("plot_peptide_intensity", {
 })
 
 
-test_that("plot_peptide_intensity", {
+test_that("plot_bar_intensity_n_probability", {
   p <- plot_bar_intensity_n_probability(test_prot)
   
   expect_equivalent(p$layout$t, c(1,2))
