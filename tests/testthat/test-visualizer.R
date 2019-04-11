@@ -9,9 +9,8 @@ peptideIon_n <- normalize_data(peptideIons, replaceNA="keep", normalization="non
 d <- merge_replicates(peptideIon_n, anno)
 d_feature <- calc_features(d)
 d_feature_select <- perform_selection(d_feature)
-prot_name <- "1/sp|P45578|LUXS_ECOLI"
-test_prot <- test[test$ProteinName==prot_name, ]
-
+prot_name <- "1/P25391"
+test_prot <- d_feature_select[d_feature_select$ProteinName==prot_name, ]
 
 
 test_that("plot_protein_profile", {
