@@ -237,7 +237,7 @@ read_sample_annotation <- function(input_file="sample_annotation") {
   
 #  return(sample_annotation)
 
-  anno <<- as.data.frame(read.table(file=input_file, fill=T, header=T, stringsAsFactors=F))
+  anno <- as.data.frame(read.table(file=input_file, fill=T, header=T, stringsAsFactors=F))
     
 }
 
