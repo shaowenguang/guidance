@@ -19,8 +19,9 @@ to keep or remove peptides.}
 }
 \description{
 Visualize peptide intensities in different samples by a line graph. 
-Lines are colored by differnet peptides and dotted represent removed peptides based on 
-LDA algorithm.
+Colors denote different peptides, dotted represent removed peptides based on 
+posterior probability of LDA algorithm and triangle dots denote requant 
+measurements (m-score = 2).
 }
 \examples{
 peptideIons_features <- calc_features(all_peptideIons)

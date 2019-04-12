@@ -144,8 +144,9 @@ plot_protein_profile <- function(case, cutoff_prob=0.3,
 #' Visualize peptide intensity 
 #' 
 #' @description Visualize peptide intensities in different samples by a line graph. 
-#' Lines are colored by differnet peptides and dotted represent removed peptides based on 
-#' LDA algorithm. 
+#' Colors denote different peptides, dotted represent removed peptides based on 
+#' posterior probability of LDA algorithm and triangle dots denote requant 
+#' measurements (m-score = 2). 
 #' 
 #' @param case data table or data frame in wide representation. The data typically 
 #' contains \code{"PeptideIon"}, \code{"ProteinName"} and sample names in columns and 
