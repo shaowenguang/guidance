@@ -1,19 +1,11 @@
 ###importing file from guidance/data
 peptideIons <- import_spectronaut_matrix(search_results= "data/QGS_SWATH_data", 
-                                          sample_annotation="data/QGS_sample_annotation"
-                                         )
+                                          sample_annotation="data/QGS_sample_annotation" )
 
 peptideIons <- import_openswath(search_results= "data/QGS_SWATH_data", 
                                 sample_annotation="data/QGS_sample_annotation", 
                                 level="PeptideIon")
 
-all_peptideIons <- long2wide(peptideIons)
-
-
-# import data
-peptideIons <- import_openswath(search_results= "S:/SWATH-guidance/feature_alignment.csv", 
-                                sample_annotation="S:/SWATH-guidance/sample_annotation", 
-                                level="PeptideIon") 
 
 # normalize data (if necessary)
 all_peptideIons <- long2wide(peptideIons)
@@ -57,3 +49,7 @@ dev.off()
 plot_bar_intensity_prob(test_prot)
 plot_heatmap(test_prot)
 plot_peptide_trend(test_prot)
+
+
+protein_Filtered_top3_sum_ImputedWeighted <- cons_prot_test_yesFiltered_top3_sum_yesImputated_yesWeighted
+devtools::use_data(protein_Filtered_top3_sum_ImputedWeighted)

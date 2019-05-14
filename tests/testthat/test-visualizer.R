@@ -5,14 +5,31 @@ library(grid)
 
 peptideIons <- import_openswath_matrix_fromEulerPortal(search_results= "data/YS_SWATH_data", 
                                 sample_annotation="data/YS_sample_annotation")
+anno <- as.data.frame(read.table(file="data/YS_sample_annotation", fill=T, header=T, stringsAsFactors=F))
+
 peptideIon_n <- normalize_data(peptideIons, replaceNA="keep", normalization="none")
 d <- merge_replicates(peptideIon_n, anno)
 d_feature <- calc_features(d)
 d_feature_select <- perform_selection(d_feature)
+prot_name <- "1/sp|P45578|LUXS_ECOLI"
 prot_name <- "1/P25391"
 test_prot <- d_feature_select[d_feature_select$ProteinName==prot_name, ]
 
+peptideIons_features <- calc_features(peptideIon_st)
 
+d_feature <- calc_features(peptideIon_st)
+test <- perform_selection(peptideIons_features)
+prot_name <- c("1/O75976")
+ test_prot <- test[test$ProteinName==prot_name, ]
+#' p <- plot_protein_profile(test_prot)
+
+ ### need to change the data!! calc_features require global_level == "PeptideIon" which
+ ### does not get saved if only the processed data is saved. 
+ ### probably the tests were generated using the QGS dataset. Confirm if the tests 
+ ### can be run smoothly. 
+ 
+ 
+ 
 test_that("plot_protein_profile", {
   p <- plot_protein_profile(test_prot, cutoff_prob = 0.3)
   

@@ -1,5 +1,7 @@
 context("quantification")
 
+### need to change the data!! calc_features require global_level == "PeptideIon" which
+### does not get saved if only the processed data is saved. 
 d_feature <- calc_features(peptideIon_st)
 d_feature_select <- perform_selection(d_feature)
 
