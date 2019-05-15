@@ -24,6 +24,7 @@
 #' @export
 #' 
 #' @examples 
+#' global_level = "PeptideIon"
 #' d_feature <- calc_features(peptideIon_st)
 #' d_feature_select <- perform_selection(d_feature)
 #' 
@@ -112,6 +113,7 @@ pept2prot <- function(input_dt, input_rank_index = "prob",
 #' @export
 #' 
 #' @examples 
+#' global_level = "PeptideIon"
 #' d_feature <- calc_features(peptideIon_st)
 #' d_feature_select <- perform_selection(d_feature)
 #' 
@@ -191,6 +193,7 @@ pept2prot_log2 <- function(input_dt, input_rank_index = "prob",
 #' @export
 #' 
 #' @examples 
+#' global_level = "PeptideIon"
 #' d_feature <- calc_features(peptideIon_st)
 #' d_feature_select <- perform_selection(d_feature)
 #' 

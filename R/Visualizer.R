@@ -27,11 +27,12 @@
 #' @export
 #' 
 #' @examples 
-#' peptideIons_features <- calc_features(all_peptideIons)
-#' test <- perform_selection(peptideIons_features)
+#' global_level = "PeptideIon"
+#' d_feature <- calc_features(peptideIon_st)
+#' d_feature_select <- perform_selection(d_feature)
 #' 
-#' prot_name <- c("1/O75976")
-#' test_prot <- test[test$ProteinName==prot_name, ]
+#' prot_name <- c("1/sp|O00429|DNM1L_HUMAN")
+#' test_prot <- d_feature_select[d_feature_select$ProteinName==prot_name, ]
 #' p <- plot_protein_profile(test_prot)
 #' 
 plot_protein_profile <- function(case, cutoff_prob=0.3,
@@ -160,11 +161,12 @@ plot_protein_profile <- function(case, cutoff_prob=0.3,
 #' @export
 #' 
 #' @examples 
-#' peptideIons_features <- calc_features(all_peptideIons)
-#' peptideIons_features_select <- perform_selection(peptideIons_features)
+#' global_level = "PeptideIon"
+#' d_feature <- calc_features(peptideIon_st)
+#' d_feature_select <- perform_selection(d_feature)
 #' 
-#' prot_name <- c("1/O75976")
-#' test_prot <- test[test$ProteinName==prot_name, ]
+#' prot_name <- c("1/sp|O00429|DNM1L_HUMAN")
+#' test_prot <- d_feature_select[d_feature_select$ProteinName==prot_name, ]
 #' p <- plot_peptide_intensity(test_prot)
 #' 
 plot_peptide_intensity <- function(case, cutoff_prob=0.3,
@@ -249,11 +251,12 @@ plot_peptide_intensity <- function(case, cutoff_prob=0.3,
 #' @export
 #' 
 #' @examples 
-#' peptideIons_features <- calc_features(all_peptideIons)
-#' peptideIons_features_select <- perform_selection(peptideIons_features)
+#' global_level = "PeptideIon"
+#' d_feature <- calc_features(peptideIon_st)
+#' d_feature_select <- perform_selection(d_feature)
 #' 
-#' prot_name <- c("1/O75976")
-#' test_prot <- test[test$ProteinName==prot_name, ]
+#' prot_name <- c("1/sp|O00429|DNM1L_HUMAN")
+#' test_prot <- d_feature_select[d_feature_select$ProteinName==prot_name, ]
 #' p <- plot_cor_heatmap(test_prot)
 #' 
 plot_cor_heatmap <- function(case, cutoff_prob=0.3) {
@@ -295,11 +298,12 @@ plot_cor_heatmap <- function(case, cutoff_prob=0.3) {
 #' @export
 #' 
 #' @examples 
-#' peptideIons_features <- calc_features(all_peptideIons)
-#' peptideIons_features_select <- perform_selection(peptideIons_features)
+#' global_level = "PeptideIon"
+#' d_feature <- calc_features(peptideIon_st)
+#' d_feature_select <- perform_selection(d_feature)
 #' 
-#' prot_name <- c("1/O75976")
-#' test_prot <- test[test$ProteinName==prot_name, ]
+#' prot_name <- c("1/sp|O00429|DNM1L_HUMAN")
+#' test_prot <- d_feature_select[d_feature_select$ProteinName==prot_name, ]
 #' p <- plot_bar_intensity_n_probability(test_prot)
 #' 
 plot_bar_intensity_n_probability <- function(case, cutoff_prob=0.3, 
@@ -391,8 +395,10 @@ plot_bar_intensity_n_probability <- function(case, cutoff_prob=0.3,
 #' @export
 #' 
 #' @examples 
-#' peptideIons_features <- calc_features(all_peptideIons)
-#' p <- plot_density(peptideIons_features, feature = "feature_mean_intensity_all")
+#' global_level = "PeptideIon"
+#' d_feature <- calc_features(peptideIon_st)
+#' 
+#' p <- plot_density(d_feature, feature = "feature_mean_intensity_all")
 #' 
 plot_density <- function(data, feature = "feature_mean_intensity_all", 
                          fill = NULL,

@@ -14,7 +14,9 @@
 #' @return  data.table data.frame containing feature statistics 
 #' @export
 #' 
-#' @examples  d_feature <- calc_features(peptideIon_st)
+#' @examples  
+#' global_level = "PeptideIon"
+#' d_feature <- calc_features(peptideIon_st)
 #' 
 calc_features <- function(input_dt) {
   
@@ -155,11 +157,12 @@ calc_features <- function(input_dt) {
 #' @export
 #' 
 #' @examples 
+#' global_level = "PeptideIon"
 #' d_feature <- calc_features(peptideIon_st)
 #' 
 #' ecoli_std <- c(2, 3, 4, 6, 8)
 #' index_mean_int <- which(grepl("^mean_intensity", names(d_feature)))
-#' d_feature[, cor_std := 0]
+#' d_feature <- d_feature[, cor_std := 0]
 #' d_feature$cor_std <- apply(d_feature[, index_mean_int, with=F], 1,
 #'  function(x) cor(x, ecoli_std, use="p"))
 #' d_feature$cor_std[apply(d_feature[, index_mean_int, with=F], 1, 
@@ -203,6 +206,7 @@ get_lda_model <- function(input_dt, input_features) {
 #' @export
 #' 
 #' @examples 
+#' global_level = "PeptideIon"
 #' d_feature <- calc_features(peptideIon_st)
 #' d_select <- perform_selection(d_feature)
 #' 
@@ -270,6 +274,7 @@ perform_selection <- function(input_dt) {
 #' @export
 #' 
 #' @examples 
+#' global_level = "PeptideIon"
 #' d_feature <- calc_features(peptideIon_st)
 #' d_select <- perform_prediction_and_filtering(d_feature)
 #' 
