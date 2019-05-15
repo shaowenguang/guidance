@@ -15,8 +15,6 @@
 #'
 #' @export
 #' 
-#' @examples peca_result <- perform_peca_tests(protein_Filtered_top3_sum_ImputedWeighted, anno)
-#' 
 perform_peca_tests <- function(input_file, sample_annotation, input_test="modt",
                                input_bool_paired=FALSE) {
   
@@ -77,7 +75,9 @@ perform_peca_tests <- function(input_file, sample_annotation, input_test="modt",
 #' \code{p.adjust()} for details. 
 #'
 #' @export
-#' @examples t_test_result <- perform_t_tests(protein_Filtered_top3_sum_ImputedWeighted, anno)
+#' @examples 
+#' anno <- as.data.frame(read.table(file="data/QGS_sample_annotation", fill=T, header=T, stringsAsFactors=F))
+#' t_test_result <- perform_t_tests(protein_Filtered_top3_sum_ImputedWeighted, anno)
 #' 
 perform_t_tests <- function(input_dt, sample_annotation, input_bool_paired=FALSE, 
                             input_mtc_method="bonferroni") {
@@ -146,7 +146,9 @@ perform_t_tests <- function(input_dt, sample_annotation, input_bool_paired=FALSE
 #'
 #' @export
 #' 
-#' @examples modt_test_result <- perform_modt_tests(protein_Filtered_top3_sum_ImputedWeighted, anno)
+#' @examples 
+#' anno <- as.data.frame(read.table(file="data/QGS_sample_annotation", fill=T, header=T, stringsAsFactors=F))
+#' modt_test_result <- perform_modt_tests(protein_Filtered_top3_sum_ImputedWeighted, anno)
 #' 
 perform_modt_tests <- function(input_dt, sample_annotation, input_bool_paired=FALSE, input_mtc_method="BH") {
   
@@ -229,7 +231,9 @@ perform_modt_tests <- function(input_dt, sample_annotation, input_bool_paired=FA
 #' 
 #' @export 
 #'
-#' @examples anova_results <- perform_anova(protein_Filtered_top3_sum_ImputedWeighted, anno)
+#' @examples 
+#' anno <- as.data.frame(read.table(file="data/QGS_sample_annotation", fill=T, header=T, stringsAsFactors=F))
+#' anova_results <- perform_anova(protein_Filtered_top3_sum_ImputedWeighted, anno)
 #' 
 perform_anova <- function(input_dt, sample_annotation) {
   
