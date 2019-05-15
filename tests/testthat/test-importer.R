@@ -22,11 +22,11 @@ test_that("import_openswath_matrix_fromEulerPortal", {
   
   expect_equivalent(dim(all_peptideIons)[1], 234)
   expect_equivalent(dim(all_peptideIons)[2], 65)
-  expect_equivalent(colnames(all_peptideIons)[1],  "PeptideIons")
+  expect_equivalent(colnames(all_peptideIons)[1],  "PeptideIon")
   expect_equivalent(colnames(all_peptideIons)[3:5], 
                     c("Intensity_uT01","RT_uT01","Score_uT01"))
 
-  expect_equivalent(dim(anno)[1], 20)
+  expect_equivalent(dim(anno)[1], 15)
   expect_equivalent(dim(anno)[2], 8)
   
 })
@@ -49,4 +49,5 @@ test_that("import_spectronaut_matrix", {
   expect_equivalent(dim(anno)[2], 8)
   
 })
+
 
