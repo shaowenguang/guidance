@@ -16,16 +16,7 @@ library(gridExtra)
 library(Prom)
 require(plotrix)
 
-
-test_that("perform_peca_tests", {
-  
-  # peca_result <- perform_peca_tests(protein_Filtered_top3_sum_ImputedWeighted, anno)
-  # this function is currently buggy fl
-  
-  
-})
-
-
+anno <- as.data.frame(read.table(file="data/QGS_sample_annotation", fill=T, header=T, stringsAsFactors=F))
 
 test_that("perform_t_tests", {
   t_test_result <- perform_t_tests(protein_Filtered_top3_sum_ImputedWeighted, anno)
