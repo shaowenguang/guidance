@@ -25,7 +25,7 @@ test_that("normalize_data", {
                                                normalization="none")
   
   expect_equivalent(dim(all_peptideIons_normalized)[1], 52)
-  expect_equivalent(dim(all_peptideIons_normalized)[2], 78)
+  expect_equivalent(dim(all_peptideIons_normalized)[2], 63)
   
   colnames <- colnames(all_peptideIons_normalized)
   
