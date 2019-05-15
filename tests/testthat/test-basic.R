@@ -3,7 +3,7 @@ context("basic")
 
 test_that("u_count", {
   vector <- c("c", "d", "v", "d", "t", "c", "a")
-  expect_identical(u_count(vector), 5)
+  expect_equal(u_count(vector), 5)
 })
 
 
