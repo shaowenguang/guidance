@@ -1,7 +1,6 @@
 context("quantification")
 
-### need to change the data!! calc_features require global_level == "PeptideIon" which
-### does not get saved if only the processed data is saved. 
+global_level = "PeptideIon"
 d_feature <- calc_features(peptideIon_st)
 d_feature_select <- perform_selection(d_feature)
 
@@ -18,7 +17,6 @@ test_that("pept2prot", {
   expect_equivalent(round(mean(as.matrix(protein_m[,3:18]), na.rm=TRUE),2), 33409.88)
 
 })
-
 
 
 test_that("pept2prot", {
@@ -43,7 +41,7 @@ test_that("impute_missing_values", {
   expect_equivalent(round(mean(as.matrix(d_feature_select[,3:18]), na.rm=TRUE),2), 18879.38)
   expect_equivalent(round(mean(is.na(d_feature_select)), 5), 0.16559)
   
-  expect_equivalent(round(mean(as.matrix(imputated[,3:18]), na.rm=TRUE),2), 15915.01)
+  expect_equivalent(signif(mean(as.matrix(imputated[,3:18]), na.rm=TRUE),3), 15900)
   expect_equivalent(round(mean(is.na(imputated)), 5), 0.13441)
   
 })
