@@ -35,6 +35,7 @@ of each peptide by their posterior probability in estimating protein abundance
 intensities for each sample.
 }
 \examples{
+global_level = "PeptideIon"
 d_feature <- calc_features(peptideIon_st)
 d_feature_select <- perform_selection(d_feature)
 

@@ -30,7 +30,9 @@ density plots. These features include average intensity, coefficient of variance
 and standard deviation.
 }
 \examples{
-peptideIons_features <- calc_features(all_peptideIons)
-p <- plot_density(peptideIons_features, feature = "feature_mean_intensity_all")
+global_level = "PeptideIon"
+d_feature <- calc_features(peptideIon_st)
+
+p <- plot_density(d_feature, feature = "feature_mean_intensity_all")
 
 }

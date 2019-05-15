@@ -24,11 +24,12 @@ posterior probability of LDA algorithm and triangle dots denote requant
 measurements (m-score = 2).
 }
 \examples{
-peptideIons_features <- calc_features(all_peptideIons)
-peptideIons_features_select <- perform_selection(peptideIons_features)
+global_level = "PeptideIon"
+d_feature <- calc_features(peptideIon_st)
+d_feature_select <- perform_selection(d_feature)
 
-prot_name <- c("1/O75976")
-test_prot <- test[test$ProteinName==prot_name, ]
+prot_name <- c("1/sp|O00429|DNM1L_HUMAN")
+test_prot <- d_feature_select[d_feature_select$ProteinName==prot_name, ]
 p <- plot_peptide_intensity(test_prot)
 
 }

@@ -22,6 +22,7 @@ uniform distribution between minimum 0.1CV and minimum
 1.1CV and infer the intensity of missing values.
 }
 \examples{
+global_level = "PeptideIon"
 d_feature <- calc_features(peptideIon_st)
 d_feature_select <- perform_selection(d_feature)
 

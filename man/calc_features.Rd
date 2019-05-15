@@ -23,6 +23,8 @@ The function also outputs a set of scaled statistics, where numeric values are
 centered by subtracting the mean and scaled by dividing standard deviation.
 }
 \examples{
- d_feature <- calc_features(peptideIon_st)
+ 
+global_level = "PeptideIon"
+d_feature <- calc_features(peptideIon_st)
 
 }

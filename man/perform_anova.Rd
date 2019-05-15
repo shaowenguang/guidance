@@ -24,6 +24,7 @@ A function to perform Analysis of variance (ANOVA) test to identify
 differentially expressed proteins between different sample groups.
 }
 \examples{
+anno <- as.data.frame(read.table(file="data/QGS_sample_annotation", fill=T, header=T, stringsAsFactors=F))
 anova_results <- perform_anova(protein_Filtered_top3_sum_ImputedWeighted, anno)
 
 }

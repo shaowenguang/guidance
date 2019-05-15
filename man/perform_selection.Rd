@@ -28,6 +28,7 @@ probability that describes the likelihood of the peptide intensity being
 representative of the intensity of its corresponding protein.
 }
 \examples{
+global_level = "PeptideIon"
 d_feature <- calc_features(peptideIon_st)
 d_select <- perform_selection(d_feature)
 

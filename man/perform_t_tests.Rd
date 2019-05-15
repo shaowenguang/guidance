@@ -29,6 +29,7 @@ The significance of an expression change is determned by adjusted p-values
 of the t-statistics.
 }
 \examples{
+anno <- as.data.frame(read.table(file="data/QGS_sample_annotation", fill=T, header=T, stringsAsFactors=F))
 t_test_result <- perform_t_tests(protein_Filtered_top3_sum_ImputedWeighted, anno)
 
 }

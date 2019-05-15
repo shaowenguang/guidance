@@ -22,11 +22,12 @@ by using a subset of feature (peptide) statistics. This function utilizes
 \code{lda()} function in \code{MASS}.
 }
 \examples{
+global_level = "PeptideIon"
 d_feature <- calc_features(peptideIon_st)
 
 ecoli_std <- c(2, 3, 4, 6, 8)
 index_mean_int <- which(grepl("^mean_intensity", names(d_feature)))
-d_feature[, cor_std := 0]
+d_feature <- d_feature[, cor_std := 0]
 d_feature$cor_std <- apply(d_feature[, index_mean_int, with=F], 1,
  function(x) cor(x, ecoli_std, use="p"))
 d_feature$cor_std[apply(d_feature[, index_mean_int, with=F], 1, 
