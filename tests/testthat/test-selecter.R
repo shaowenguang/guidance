@@ -1,5 +1,6 @@
 context("selecter")
 
+global_level = "PeptideIon"
 
 test_that("calc_features", {
   d_feature <- calc_features(peptideIon_st)
