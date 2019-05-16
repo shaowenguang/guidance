@@ -1,0 +1,3078 @@
+diff --git a/NAMESPACE b/NAMESPACE
+index b7ec26e..18c6bc0 100644
+--- a/NAMESPACE
++++ b/NAMESPACE
+@@ -10,6 +10,7 @@ export(dia_guidance)
+ export(get_lda_model)
+ export(import_openswath)
+ export(import_openswath_matrix_fromEulerPortal)
++export(import_spectronaut_matrix)
+ export(impute_missing_values)
+ export(keep_proteotypic_only)
+ export(l_count)
+diff --git a/R/Importer.R b/R/Importer.R
+index daaf346..5f69418 100644
+--- a/R/Importer.R
++++ b/R/Importer.R
+@@ -1,4 +1,11 @@
+-#' Import openSWATH output data with sample annotation
++#' Import openSWATH data table 
++#' 
++#' @description A function to import openSWATH data and filter for relevant columns. 
++#' The imported data table contains columns denoting name of peptide ion, 
++#' corresponding protein name, injection name, sample name, intensity values, 
++#' retention time, score and width of spectral peaks. In particular for transition-level 
++#' data, the table contains aggregate fragment annotation and aggregated peak area 
++#' in place of peak width. 
+ #' 
+ #' @param search_results A data frame containing the SWATH-MS data. This data typically
+ #' contains peptide precursors in each row with corresponding \code{ProteinName}, 
+@@ -104,7 +111,12 @@ import_openswath <- function(search_results, bool.removeDecoy = T, level = "Pept
+ } 
+ 
+ 
+-#' Import data matrix from Eular portal 
++#' Import openSWATH data table from Eular portal 
++#' 
++#' @description A function to import a full openSWATH data table, 
++#' typically pre-processed or pre-filtered for downstream analysis. 
++#' The imported data table contains columns denoting peptide name, corresponding 
++#' protein name, intensity, retention time and score of each peptide. 
+ #' 
+ #' @param search_results  A data frame containing the SWATH-MS data. This data typically
+ #' contains peptide ions in each row with corresponding \code{ProteinName}, 
+@@ -153,7 +165,14 @@ import_openswath_matrix_fromEulerPortal <- function(search_results, sample_annot
+     
+ }
+ 
+-#' Import data matrix output from Spectronaut
++#' Import Spectronaut data table
++#' 
++#' @description A function to import a full Spectronaut data table, typically 
++#' pre-processed or pre-filtered for downstream analysis. The imported data 
++#' table contains columns denoting peptide name, corresponding protein name, 
++#' intensity, retention time and score of each peptide. From the Spectronaut 
++#' output, this function takes PEP Quantity value as Intensity and EG q-value 
++#' as Score. 
+ #' 
+ #' @param search_results A data frame containing the SWATH-MS data. This data typically
+ #' contains peptide ions in each row with corresponding \code{ProteinName}, 
+@@ -163,7 +182,9 @@ import_openswath_matrix_fromEulerPortal <- function(search_results, sample_annot
+ #' @param sample_annotation data matrix with \code{SampleName}, biological covariates 
+ #' (biological replicates) and technical covariates (technical replicates, batches, etc)
+ #'
+-#' @export
++#' @export 
++#' 
++#' @examples 
+ #' peptideIons <- import_spectronaut_matrix(search_results= "data/QGS_SWATH_data", 
+ #' sample_annotation="data/QGS_sample_annotation")
+ #' 
+@@ -216,7 +237,7 @@ read_sample_annotation <- function(input_file="sample_annotation") {
+   
+ #  return(sample_annotation)
+ 
+-  anno <<- as.data.frame(read.table(file=input_file, fill=T, header=T, stringsAsFactors=F))
++  anno <- as.data.frame(read.table(file=input_file, fill=T, header=T, stringsAsFactors=F))
+     
+ }
+ 
+diff --git a/R/Visualizer.R b/R/Visualizer.R
+index cc3fd61..2dd2fb4 100644
+--- a/R/Visualizer.R
++++ b/R/Visualizer.R
+@@ -10,13 +10,16 @@
+ 
+ # Visualize peptide profiles 
+ #' 
++#' @description A function to visualize profiles of peptides corresponding to 
++#' protein of interest. The profiles include log2 transformed peptide intensity,
++#' correlation between peptides represented in heatmap, average intensity and 
++#' probability of being a representative peptide. 
++#' 
+ #' @param case data table or data frame in wide representation. The data typically 
+ #' contains \code{"PeptideIon"}, \code{"ProteinName"} and sample names in columns and 
+-#' measurements of each peptide or precursor ions in rows. 
+-#' 
+-#' For a clear visualization of peptide profile, recommend to prepare a 
+-#' data table pre-filter 
+-#' peptides corresponding to a single protein  
++#' measurements of each peptide or precursor ions in rows. For a clear visualization
++#' of peptide profile, recommend to prepare a data table filtered on peptides 
++#' corresponding to a protein of interest 
+ #' 
+ #' @param cutoff_prob a numeric value denoting posterior probability threshold
+ #' to keep or remove peptides. 
+@@ -29,9 +32,10 @@
+ #' 
+ #' prot_name <- c("1/O75976")
+ #' test_prot <- test[test$ProteinName==prot_name, ]
+-#' plot_protein_profile(test_prot)
++#' p <- plot_protein_profile(test_prot)
+ #' 
+-plot_protein_profile <- function(case, cutoff_prob=0.3) {
++plot_protein_profile <- function(case, cutoff_prob=0.3,
++                                 bool_isPeptideIon = TRUE) {
+ 
+   a_reorder <- compute_cor(case = case, cutoff_prob=cutoff_prob)
+   
+@@ -139,13 +143,16 @@ plot_protein_profile <- function(case, cutoff_prob=0.3) {
+ 
+ #' Visualize peptide intensity 
+ #' 
++#' @description Visualize peptide intensities in different samples by a line graph. 
++#' Colors denote different peptides, dotted represent removed peptides based on 
++#' posterior probability of LDA algorithm and triangle dots denote requant 
++#' measurements (m-score = 2). 
++#' 
+ #' @param case data table or data frame in wide representation. The data typically 
+ #' contains \code{"PeptideIon"}, \code{"ProteinName"} and sample names in columns and 
+-#' measurements of each peptide or precursor ions in rows. 
+-#' 
+-#' To visualize profile of peptides corresponding to the same protein, 
+-#' peptides corresponding to one protein are pre-filtered for clearer 
+-#' visualizations. 
++#' measurements of each peptide or precursor ions in rows. For a clear visualization
++#' of peptide profile, recommend to prepare a data table filtered on peptides 
++#' corresponding to a protein of interest 
+ #'
+ #' @param cutoff_prob a numeric value denoting posterior probability threshold
+ #' to keep or remove peptides. 
+@@ -158,9 +165,10 @@ plot_protein_profile <- function(case, cutoff_prob=0.3) {
+ #' 
+ #' prot_name <- c("1/O75976")
+ #' test_prot <- test[test$ProteinName==prot_name, ]
+-#' plot_peptide_intensity(test_prot)
++#' p <- plot_peptide_intensity(test_prot)
+ #' 
+-plot_peptide_intensity <- function(case, cutoff_prob=0.3) {
++plot_peptide_intensity <- function(case, cutoff_prob=0.3,
++                                   bool_isPeptideIon = TRUE) {
+   
+   a_reorder <- compute_cor(case = case, cutoff_prob=cutoff_prob)
+   
+@@ -224,13 +232,16 @@ plot_peptide_intensity <- function(case, cutoff_prob=0.3) {
+ 
+ #' Visualize correlation heatmap 
+ #' 
++#' @description A function to visualize heatmap representing correlation between 
++#' different peptides corresponding to either the same or different proteins. 
++#' 
+ #' @param case data table or data frame in wide representation. The data typically 
+ #' contains \code{"PeptideIon"}, \code{"ProteinName"} and sample names in columns and 
+ #' measurements of each peptide or precursor ions in rows. 
+ #' 
+ #' To visualize profile of peptides corresponding to the same protein, 
+-#' peptides corresponding to one protein are pre-filtered for clearer 
+-#' visualizations. 
++#' recommend to prepare a data table filtered on peptides 
++#' corresponding to a protein of interest 
+ #'
+ #' @param cutoff_prob a numeric value denoting posterior probability threshold
+ #' to keep or remove peptides. 
+@@ -243,7 +254,7 @@ plot_peptide_intensity <- function(case, cutoff_prob=0.3) {
+ #' 
+ #' prot_name <- c("1/O75976")
+ #' test_prot <- test[test$ProteinName==prot_name, ]
+-#' plot_cor_heatmap(test_prot)
++#' p <- plot_cor_heatmap(test_prot)
+ #' 
+ plot_cor_heatmap <- function(case, cutoff_prob=0.3) {
+   
+@@ -264,13 +275,16 @@ plot_cor_heatmap <- function(case, cutoff_prob=0.3) {
+ 
+ #' Visualize intensity and posterior probability in barplots 
+ #' 
++#' @description A function to visualize average peptide intensity and 
++#' posterior probability of being the representative peptide via barplots. 
++#' 
+ #' @param case data table or data frame in wide representation. The data typically 
+ #' contains \code{"PeptideIon"}, \code{"ProteinName"} and sample names in columns and 
+ #' measurements of each peptide or precursor ions in rows. 
+ #' 
+ #' To visualize profile of peptides corresponding to the same protein, 
+-#' peptides corresponding to one protein are pre-filtered for clearer 
+-#' visualizations. 
++#' recommend to prepare a data table filtered on peptides 
++#' corresponding to a protein of interest 
+ #'
+ #' @param cutoff_prob a numeric value denoting posterior probability threshold
+ #' to keep or remove peptides. 
+@@ -286,9 +300,10 @@ plot_cor_heatmap <- function(case, cutoff_prob=0.3) {
+ #' 
+ #' prot_name <- c("1/O75976")
+ #' test_prot <- test[test$ProteinName==prot_name, ]
+-#' plot_bar_intensity_n_probability(test_prot)
++#' p <- plot_bar_intensity_n_probability(test_prot)
+ #' 
+ plot_bar_intensity_n_probability <- function(case, cutoff_prob=0.3, 
++                                             bool_isPeptideIon = TRUE,
+                                              plot_intensity = T, 
+                                                plot_prob = T) {
+   
+@@ -356,6 +371,10 @@ plot_bar_intensity_n_probability <- function(case, cutoff_prob=0.3,
+ 
+ #' Plot density distribution of peptide features
+ #' 
++#' @description A function to visualize distribution of computed features through 
++#' density plots. These features include average intensity, coefficient of variance 
++#' and standard deviation. 
++#' 
+ #' @param data data table or data frame in wide representation. The data typically 
+ #' contains \code{PeptideIon}, \code{ProteinName} and sample names in columns and 
+ #' measurements of each peptide or precursor ions in rows. The function is 
+@@ -373,7 +392,7 @@ plot_bar_intensity_n_probability <- function(case, cutoff_prob=0.3,
+ #' 
+ #' @examples 
+ #' peptideIons_features <- calc_features(all_peptideIons)
+-#' plot_density(peptideIons_features, feature = "feature_mean_intensity_all")
++#' p <- plot_density(peptideIons_features, feature = "feature_mean_intensity_all")
+ #' 
+ plot_density <- function(data, feature = "feature_mean_intensity_all", 
+                          fill = NULL,
+diff --git a/R/Writer.R b/R/Writer.R
+index 1a54e37..381bf64 100644
+--- a/R/Writer.R
++++ b/R/Writer.R
+@@ -1,4 +1,6 @@
+-#' Export protein table to tsv or csv file 
++#' Export data table 
++#' 
++#' @description Export data table e.g. protein table to a tsv or csv file. 
+ #'
+ #' @param input_dt the object to be written, preferably data frame, data table or matrix
+ #' @param file_name name of exported file 
+@@ -9,8 +11,8 @@
+ #' @return csv or tsv output
+ #' @export 
+ #' 
+-#' @examples \dontrun{write_protein_table(protein_matrix, 
+-#' file_name = "example_protein_table")}
++#' @examples \dontrun{write_protein_table(protein_Filtered_top3_sum_ImputedWeighted, 
++#' file_name = "protein_Filtered_top3_sum_ImputedWeighted", format = "tsv")}
+ #' 
+ write_protein_table <- function(input_dt, file_name = "protein_table", format = "tsv", ...){
+   
+diff --git a/R/basic.R b/R/basic.R
+index a19c236..2ef146d 100644
+--- a/R/basic.R
++++ b/R/basic.R
+@@ -5,6 +5,8 @@
+ #' @importFrom MASS lda
+ 
+ 
++#' 
++#' @description A function to replace infinity values by NA in a data table 
+ #' @param input_dt a data table, data frame or matrix with numeric values 
+ #' 
+ #' @return data.table 
+@@ -12,7 +14,7 @@
+ #' 
+ #' @examples 
+ #'
+-# replace infinity values by NA
++# Replace infinity values by NA
+ replace_inf <- function(input_dt) {
+   
+   temp <- lapply(input_dt, function(x) {
+@@ -29,41 +31,47 @@ replace_inf <- function(input_dt) {
+ 
+ #' Count number of unique values 
+ #' 
++#' @description A function to count the number of unique values in a numeric 
++#' or character vector
++#' 
+ #' @param x a vector (atomic or list) or an `expression` object. 
+ #' 
+ #' @return a numeric value
+ #' @export 
+ #' 
+-#' @example 
++#' @examples 
+ #' vector <- c("c", "d", "v", "d", "t", "c", "a")
+ #' u_count(vector)
+ u_count <- function(x) {
+   return( length(unique(x)) )
+ }
+ 
+-#' Count number of values in a vector 
++#' Count TRUE values 
+ #' 
+-#' @param x a vector (atomic or list) or an `expression` object. 
++#' @description A function to count the number of TRUE values in a vector 
++#' @param x a vector (atomic or list) in TRUE or FALSE 
+ #'
+ #' @export
+ #' @return a numeric value 
+ #' 
+-#' @example
+-#' vector <- c("c", "d", "v", "d", "t", "c", "a")
++#' @examples
++#' vector <- c(TRUE, TRUE, FALSE, TRUE)
+ #' l_count(vector)
+ #' 
+ l_count <- function(x) {
+   return( length(which(x)))
+ }
+ 
+-#' Computes average excluding missing values 
++#' Computes mean  
+ #' 
++#' @description A function to compute average of a numeric vector 
++#' after exclusion of missing values 
+ #' @param x a vector (atomic or list) or an `expression` object. 
+ #' 
+ #' @return a numeric value
+ #' @export
+ #' 
+-#' @example 
++#' @examples 
+ #' vector <- c(1, 2, 4, NA, 2, 5, 6)
+ #' mean_na(vector)
+ mean_na <- function(x) {
+@@ -76,14 +84,17 @@ mean_na <- function(x) {
+   
+ }
+ 
+-#' Computes standard deviation excluding missing values 
++#' Computes standard deviation 
++#' 
++#' @description A function to compute standard deviation of a numeric vector 
++#' after exclusion of missing values 
+ #' 
+ #' @param x a vector (atomic or list) or an `expression` object.
+ #'
+ #' @return a numeric value
+ #' @export
+ #' 
+-#' @example 
++#' @examples 
+ #' vector <- c(1, 2, 4, NA, 2, 5, 6)
+ #' sd_na(vector)
+ sd_na <- function(x) {
+@@ -96,42 +107,49 @@ sd_na <- function(x) {
+ 
+ }
+ 
+-#' Computes coefficient of variation (CV) excluding missing values
++#' Computes coefficient of variation (CV) 
+ #' 
++#' @description A function to compute coefficient of variance (CV) of a numeric vector 
++#' after exclusion of missing values 
+ #' @param x a vector (atomic or list) or an `expression` object.
+ #'
+ #' @export
+ #' @return a numeric value
+ #' 
+-#' @example 
++#' @examples 
+ #' vector <- c(1, 2, 4, NA, 2, 5, 6)
+ #' cv_na(vector)
+ cv_na <- function(x) {
+   return(sd(x, na.rm = T)/mean(x, na.rm = T))
+ }
+ 
+-#' Computes median excluding missing values 
++#' Computes median  
++#' 
++#' @description A function to compute median of a numeric vector 
++#' after exclusion of missing values 
+ #' 
+ #' @param x a vector (atomic or list) or an `expression` object.
+ #'
+ #' @return a numeric value
+ #' @export
+ #' 
+-#' @example 
++#' @examples 
+ #' vector <- c(1, 2, 4, NA, 2, 5, 6)
+ #' median_na(vector)
+ median_na <- function(x) {
+   return(median(x, na.rm = T))
+ }
+ 
+-#' Computes sum excluding missing values 
++#' Computes sum 
+ #' 
++#' @description A function to compute sum of a numeric vector 
++#' after exclusion of missing values 
+ #' @param x a vector (atomic or list) or an `expression` object.
+ #'
+ #' @return a numeric value
+ #' @export
+ #' 
+-#' @example 
++#' @examples 
+ #' vector <- c(1, 2, 4, NA, 2, 5, 6)
+ #' sum_na(vector)
+ sum_na <- function(x) {
+@@ -151,18 +169,21 @@ sum_na <- function(x) {
+   
+ }
+ 
+-#' Number of intersection between two vectors
++#' Number of intersection
+ #' 
++#' @description A function to calculate the number of intersecting 
++#' values between two vectors, excluding missing values 
+ #' @param input_a vectors, data frames, or ps objects
+ #'  containing a sequence of elements (conceptually).
+ #' @param input_b vectors, data frames, or ps objects
+ #'  containing a sequence of elements (conceptually).
+ #'
+ #' @export
+-#' @example 
++#' @examples 
+ #' vector1 <- c(1, 2, 4, NA, 2, 5, 6)
+ #' vector2 <- c(1, 2, 4, NA, 6, 7, 8)
+ #' pairwise_length_vector(vector1, vector2)
++#' 
+ pairwise_length_vector <- function(input_a, input_b) {
+   
+   return( length(intersect(which(!is.na(input_a)),  which(!is.na(input_b)) )) )
+@@ -172,6 +193,8 @@ pairwise_length_vector <- function(input_a, input_b) {
+ 
+ #' Number of intersection within a matrix 
+ #'
++#' @description A function to calculate the number of intersecting values 
++#' between rows of input matrix 
+ #' @param input_matrix a matrix containing numeric values 
+ #'
+ #' @return
+@@ -194,10 +217,16 @@ pairwise_length_matrix <- function(input_matrix) {
+ 
+ #' Number of intersection betwen numeric groups 
+ #' 
++#' @description A function to calculate the number of intersecting values 
++#' between two numeric vectors. 
++#' 
+ #' @param input_vector_a vectors containing a sequence of numeric values 
+ #' @param input_vector_b vectors containing a sequence of numeric values
+-#'
+ #' @export
++#' @examples 
++#' vector1 <- c(1, 2, 5, 100, 200, 50000)
++#' vector2 <- c(1, 2, 4, 100, 500, 40000)
++#' count_pairwise_number(vector1, vector2)
+ count_pairwise_number <- function(input_vector_a, input_vector_b) {
+   
+   return( length(intersect( which(input_vector_a > -99999999999 & input_vector_a < 99999999999), 
+@@ -208,6 +237,9 @@ count_pairwise_number <- function(input_vector_a, input_vector_b) {
+ 
+ #' Number of intersection between samples within a matrix 
+ #' 
++#' @description A function to calculate the number of intersecting numeric values 
++#' between columns of a matrix.
++#' 
+ #' @param input_matrix matrix containing a numeric values 
+ #'
+ #' @export
+diff --git a/R/guidance.R b/R/guidance.R
+index ba9899e..fd8ebd5 100644
+--- a/R/guidance.R
++++ b/R/guidance.R
+@@ -14,6 +14,7 @@
+ #' @importFrom data.table dcast
+ #' @importFrom data.table copy
+ #' @importFrom MASS lda
++#' @importFrom dendextend, set
+ 
+ 
+ 
+diff --git a/R/normalizer.R b/R/normalizer.R
+index f529b79..c3ada0a 100644
+--- a/R/normalizer.R
++++ b/R/normalizer.R
+@@ -1,4 +1,11 @@
+-#' Convert from long to wide representation
++#' Convert from long to wide data  
++#' 
++#' @description A function to convert from long to wide representation. 
++#' A typical input data table contains columns denoting name of a peptide, 
++#' its corresponding protein name, sample name, intensity, retention time and 
++#' width of spectral peaks. The \code{long2wide()} converts this long format data 
++#' into wide representation having intensity, score, RT and width of each sample 
++#' in each column. Each row will represent a unique peptide. 
+ #' 
+ #' @param input_dt a data table or data frame in a long format. The data typically 
+ #' contains peptide ID (e.g. \code{PeptideIon}), sample ID (e.g. \code{SampleName}) and 
+@@ -76,6 +83,19 @@ summarize_data <- function(input_dt) {
+ 
+ #' Normalize data 
+ #' 
++#' @description A function to normalize peptide/fragment-level intensity across 
++#' different samples. It provides several normalization methods: 
++#' \code{“mediancenter”} as default method to equalize median of intensity distribution, 
++#' \code{“quantile”} to adjust distributions to have the same statistical properties 
++#' i.e. quantiles, \code{“TIC”} to normalize mass spectra based on total ion 
++#' current (TIC) assuming that the same amount of protein was injected for each 
++#' MS run, and lastly \code{“iRT”} to normalize intensities based on injected 
++#' indexed retention time (iRT) standards. 
++#' 
++#' In addition to the normalization functionality, this function also counts 
++#' the number of peptides corresponding to the same protein and outputs in 
++#' column \code{numPerProt}. 
++#' 
+ #' @param input_dt data table or data frame in wide representation. The data typically 
+ #' contains \code{"PeptideIon"}, \code{"ProteinName"} and sample names in columns and 
+ #' measurements of each peptide or precursor ions in rows. 
+@@ -87,13 +107,13 @@ summarize_data <- function(input_dt) {
+ #' time (iRT) standards \code{"iRT"}. The default is \code{"mediancenter"} and denote 
+ #' \code{"none"} if normalization is not necessary.
+ #' 
+-#' @return data.table data.frame containing normalized measurement data  
++#' @return data.table data.frame containing normalized measurement data and a column
++#' denoting number of peptides corresponding to the same protein 
+ #'
+ #' @export
+ #' 
+ #' @examples 
+-#' all_peptideIons_normalized <- normalize_data(all_peptideIons, replaceNA="keep", 
+-#' normalization="none")
++#' peptideIon_n <- normalize_data(peptideIon_st, replaceNA="keep", normalization="none")
+ #' 
+ normalize_data <- function(input_dt, replaceNA="keep", normalization="mediancenter"){
+   
+@@ -186,7 +206,11 @@ normalize_data <- function(input_dt, replaceNA="keep", normalization="mediancent
+ }
+ 
+ 
+-#' Merge biological replicates 
++#' Statistics among biological replicates
++#' 
++#' @description A function to compute statistics of biological replicates under 
++#' column \code{“SampleName”}. The statistics include average intensity, 
++#' coefficient of variance (CV) and number of missing values (NAs) for each sample.   
+ #' 
+ #' @param wide data table or data frame in wide representation. The data typically 
+ #' contains \code{PeptideIon}, \code{ProteinName} and sample names in columns and 
+@@ -205,9 +229,8 @@ normalize_data <- function(input_dt, replaceNA="keep", normalization="mediancent
+ #' @export
+ #' 
+ #' @examples 
+-#' all_peptideIons_normalized <- normalize_data(all_peptideIons, replaceNA="keep", 
+-#' normalization="none")
+-#' cons_peptideIons <- merge_replicates(all_peptideIons_normalized, anno)
++#' peptideIon <- peptideIon_st[, -c(64:78)]
++#' cons_peptideIons <- merge_replicates(peptideIon, anno)
+ #' 
+ merge_replicates <- function(wide, sample_annotation = NULL, 
+                              bool_NA_means_requant = FALSE, averageFun = "mean") {
+@@ -301,6 +324,11 @@ merge_replicates <- function(wide, sample_annotation = NULL,
+ 
+ #' Filter for proteotypic peptides 
+ #' 
++#' @description A function to filter for proteotypic peptides indicated as 1/ 
++#' under \code{ProteinName}. For any given protein, only a few proteotypic peptides 
++#' are uniquely and consistently identified and these represent peptides 
++#' most confidently observed in the current MS-based proteomics workflow.  
++#' 
+ #' @param input_dt data table or data frame in wide representation. The data typically 
+ #' contains \code{"PeptideIon"}, \code{"ProteinName"} and sample names in columns and 
+ #' measurements of each peptide or precursor ions in rows. 
+@@ -313,7 +341,7 @@ merge_replicates <- function(wide, sample_annotation = NULL,
+ #' @return data.table data.frame containing only proteotypic peptides 
+ #'
+ #' @export
+-#' @examples proteotypic_peptide_matrix <- keep_proteotypic_only(all_peptideIons)
++#' @examples proteotypic <- keep_proteotypic_only(peptideIon_st)
+ #' 
+ keep_proteotypic_only <- function(input_dt) {
+ 
+diff --git a/R/quantification.R b/R/quantification.R
+index 0ca642e..fa44757 100644
+--- a/R/quantification.R
++++ b/R/quantification.R
+@@ -1,23 +1,33 @@
+-#' Infer protein abudnace from peptide measurements  
++#' Infer protein abundance from peptide measurements  
++#' 
++#' @description A function infer protein abundance from peptide/fragment-level 
++#' measurements. The users can denote parameters such as the number of peptides 
++#' to be utilized for protein inference (\code{topN}), the method to aggregate 
++#' peptide/fragment intensities (\code{aggfun}) and whether to weight intensity 
++#' of each peptide by their posterior probability in estimating protein abundance 
++#' (\code{bool_weighted_by_prob}). This function then outputs estimated protein 
++#' intensities for each sample. 
+ #' 
+ #' @param input_dt data table or data frame in wide representation. The data typically 
+ #' contains \code{PeptideIon}, \code{ProteinName} and sample names in columns and 
+ #' measurements of each peptide or precursor ions in rows
++#' @param input_rank_index name of a column to rank the protein by. The default 
++#' column is \code{"prob"} which depicts the probability of being peptide 
++#' representative of protein 
+ #' @param topN number of peptides utilized to infer protein abundance for each protein 
+ #' @param aggfun method to aggregate peptide measurements to estimate protein abundance.
+ #' Options include \code{"mean"} and \code{"sum"}
+ #' @param bool_weighted_by_prob boolean value (\code{TRUE} or \code{FALSE}) determining 
+ #' whether to weight the intensity by the posterior probability of being a representative 
+-#' peptide
++#' peptide.
+ #'
+ #' @export
+ #' 
+ #' @examples 
+-#' peptideIons_features <- calc_features(all_peptideIons)
+-#' peptideIons_features_select <- calc_features(peptideIons_features)
++#' d_feature <- calc_features(peptideIon_st)
++#' d_feature_select <- perform_selection(d_feature)
+ #' 
+-#' peptide_to_protein <- pept2prot(peptideIons_features_select, 
+-#' "prob", 3, aggfun="sum", bool_weighted_by_prob=T), anno)
++#' protein_m <- pept2prot(d_feature_select, "prob", 3, aggfun="sum", bool_weighted_by_prob=T)
+ #' 
+ pept2prot <- function(input_dt, input_rank_index = "prob", 
+                       topN = 3, aggfun = "mean", bool_weighted_by_prob = TRUE) {
+@@ -75,18 +85,41 @@ pept2prot <- function(input_dt, input_rank_index = "prob",
+ 
+ 
+ 
+-#' Title
+-#'
++#' Log2 tranform peptide intensity measurements and infer protein abunance 
++#' 
++#' @description A function infer protein abundance from peptide/fragment-level 
++#' measurements after log2 tranformation. The users can denote parameters 
++#' such as the number of peptides to be utilized for protein inference 
++#' (\code{topN}), the method to aggregate peptide/fragment intensities 
++#' (\code{aggfun}) and whether to weight intensity of each peptide by 
++#' their posterior probability in estimating protein abundance
++#' (\code{bool_weighted_by_prob}). This function then outputs estimated protein 
++#' intensities for each sample. 
++#' 
+ #' @param input_dt data table or data frame in wide representation. The data typically 
+ #' contains \code{PeptideIon}, \code{ProteinName} and sample names in columns and 
+ #' measurements of each peptide or precursor ions in rows
+-#' @param input_index 
++#' @param input_rank_index name of a column to rank the protein by. The default 
++#' column is \code{"prob"} which depicts the probability of being peptide 
++#' representative of protein 
+ #' @param topN number of peptides utilized to infer protein abundance for each protein 
++#' @param aggfun method to aggregate peptide measurements to estimate protein abundance.
++#' Options include \code{"mean"} and \code{"sum"}
++#' @param bool_weighted_by_prob boolean value (\code{TRUE} or \code{FALSE}) determining 
++#' whether to weight the intensity by the posterior probability of being a representative 
++#' peptide
+ #'
+-#' @return data.table data.frame 
+-#' @export 
++#' @export
+ #' 
+-pept2prot_log2 <- function(input_dt, input_index, topN) {
++#' @examples 
++#' d_feature <- calc_features(peptideIon_st)
++#' d_feature_select <- perform_selection(d_feature)
++#' 
++#' protein_log <- pept2prot_log2(d_feature_select, 
++#' input_rank_index = "prob", 3, aggfun="sum", bool_weighted_by_prob=T)
++#' 
++pept2prot_log2 <- function(input_dt, input_rank_index = "prob", 
++                           topN = 3, aggfun = "mean", bool_weighted_by_prob = TRUE) {
+   
+   select <- copy(input_dt)
+   
+@@ -94,21 +127,48 @@ pept2prot_log2 <- function(input_dt, input_index, topN) {
+     #    select[which(is.na(select[, anno$Injection[i], with=F])), anno$Injection[i] := get(paste0("mean_intensity_", anno$SampleName[i])) ]
+   }
+   
+-  select <- select[, rank := rank( - as.numeric(get(input_index)), na.last = T), by=ProteinName]
++  select <- select[, rank := rank( - as.numeric(get(input_rank_index)), na.last = T), by=ProteinName]
+   
+   select <- select[rank <= topN, ]
+   
+-  select[, numPerProt := length( get(names(select)[1]) ), by=(ProteinName)]
++  select[, numPerProt := length( get(names(select)[1]) ), by=ProteinName]
+   select[, protQuantProb := as.numeric(mean(prob)), by=ProteinName]
+   
+   #select[, ProbPerProt = as.numeric(mean(Prob)), by=ProteinName]
+   
+-  long <- melt(select, id.vars=c(names(input_dt)[1], "ProteinName", "numPerProt", "protQuantProb"), measure.vars=anno$InjectionName, variable.name="run_id", value.name="Intensity")
++  long <- melt(select, id.vars = c(names(input_dt)[1], "ProteinName", "numPerProt", "protQuantProb", "prob")
++               #, measure.vars = paste0("Intensity_", anno$InjectionName)
++               , measure.vars = names(select)[which(grepl("^Intensity_", names(select)))]
++               , variable.name = "run_id"
++               , value.name = "Intensity" )
+   
+-  long_combined <- long[, .(Quant = as.numeric(mean_na(log2(Intensity)))), by=.(ProteinName, numPerProt, protQuantProb, run_id)] #wenguang: here, as.numeric is necessary, otherwise errors will occur "Column 1 of result for group 2 is type 'logical' but expecting type 'double'. Column types must be consistent for each group." This is because mean_na will return a number or NA, and they belong to two different classes...
++  long$Intensity <- as.numeric(mean_na(log2(long$Intensity + 1)))
+   
+-  combined <- dcast(long_combined, ProteinName + numPerProt + protQuantProb ~ run_id, value.var="Quant")
++  if(aggfun=="mean") {
++    #wenguang: here, as.numeric is necessary, otherwise errors will occur "Column 1 of result for group 2 is type 'logical' but expecting type 'double'. Column types must be consistent for each group." This is because mean_na will return a number or NA, and they belong to two different classes...
++    if(bool_weighted_by_prob == TRUE) {
++      long_combined <- long[, .(Quant = as.numeric(sum_na(Intensity * prob) / sum_na( sign(Intensity) * prob) )), by=.(ProteinName, numPerProt, protQuantProb, run_id)]
++    } else {
++      long_combined <- long[, .(Quant = as.numeric(mean_na(Intensity))), by=.(ProteinName, numPerProt, protQuantProb, run_id)] 
++    }
++    
++    
++  } else if (aggfun=="sum") {
++    #wenguang: please note that using sum function, na will be automatically replaced with zero.
++    #long_combined <- long[, .(Quant = as.numeric(sum_na(Intensity))), by=.(ProteinName, numPerProt, protQuantProb, run_id)] 
++    #long_combined <- long[, .(Quant = as.numeric(2^mean_na(log2(Intensity)))), by=.(ProteinName, numPerProt, protQuantProb, run_id)] 
++    #long_combined <- long[, .(Quant = as.numeric(sum_na(Intensity * prob) / sum_na(prob))), by=.(ProteinName, numPerProt, protQuantProb, run_id)] 
++    
++    if(bool_weighted_by_prob == TRUE) {
++      long_combined <- long[, .(Quant = as.numeric( sum_na(Intensity * prob) )), by=.(ProteinName, numPerProt, protQuantProb, run_id)]
++    } else {
++      long_combined <- long[, .(Quant = as.numeric( sum_na(Intensity) )), by=.(ProteinName, numPerProt, protQuantProb, run_id)] 
++    }
++    
++  }
+   
++  combined <- dcast(long_combined, ProteinName + numPerProt + protQuantProb ~ run_id, value.var="Quant")
++
+   return(combined)
+   
+ }
+@@ -117,6 +177,10 @@ pept2prot_log2 <- function(input_dt, input_index, topN) {
+ 
+ #' Impute missing values 
+ #' 
++#' @description A function to impute for missing value by fitting data to a 
++#' uniform distribution between minimum 0.1CV and minimum 
++#' 1.1CV and infer the intensity of missing values. 
++#' 
+ #' @param input_dt data table or data frame in wide representation. The data typically 
+ #' contains \code{PeptideIon}, \code{ProteinName} and sample names in columns and 
+ #' measurements of each peptide or precursor ions in rows. 
+@@ -127,9 +191,10 @@ pept2prot_log2 <- function(input_dt, input_index, topN) {
+ #' @export
+ #' 
+ #' @examples 
+-#' peptideIons_features <- calc_features(all_peptideIons)
+-#' peptideIons_features_select <- calc_features(peptideIons_features)
+-#' Imputated <- impute_missing_values(test_yesFiltered, c(3:17))
++#' d_feature <- calc_features(peptideIon_st)
++#' d_feature_select <- perform_selection(d_feature)
++#' 
++#' imputated <- impute_missing_values(d_feature_select, c(3:17))
+ #' 
+ impute_missing_values <- function(input_dt, input_index) {
+   
+diff --git a/R/selecter.R b/R/selecter.R
+index b3ef8e8..dd90efd 100644
+--- a/R/selecter.R
++++ b/R/selecter.R
+@@ -1,5 +1,12 @@
+ #' Compute metrics describing relationship among peptides of the same protein
+ #' 
++#' @description A function to compute feature i.e. peptide statistics including 
++#' average intensity, coefficient of variance (CV), number of missing values, 
++#' average score, standard deviation, median Pearson correlation coefficient (PCC), 
++#' median Spearman correlation coefficient (SCC) and median absolute deviation (MAD). 
++#' The function also outputs a set of scaled statistics, where numeric values are 
++#' centered by subtracting the mean and scaled by dividing standard deviation. 
++#' 
+ #' @param input_dt data table or data frame in wide representation. The data typically 
+ #' contains \code{"PeptideIon"}, \code{"ProteinName"} and sample names in columns and 
+ #' measurements of each peptide or precursor ions in rows. 
+@@ -7,7 +14,7 @@
+ #' @return  data.table data.frame containing feature statistics 
+ #' @export
+ #' 
+-#' @examples peptideIons_features <- calc_features(all_peptideIons)
++#' @examples  d_feature <- calc_features(peptideIon_st)
+ #' 
+ calc_features <- function(input_dt) {
+   
+@@ -133,10 +140,13 @@ calc_features <- function(input_dt) {
+ 
+ #' Generate linear discriminant analysis (LDA) model 
+ #' 
++#' @description A function to generate linear discriminant analysis (LDA) model 
++#' by using a subset of feature (peptide) statistics. This function utilizes 
++#' \code{lda()} function in \code{MASS}. 
++#' 
+ #' @param input_dt data table or data frame in wide representation. The data typically 
+ #' contains \code{"PeptideIon"}, \code{"ProteinName"} and sample names in columns and 
+ #' measurements of each peptide or precursor ions in rows. 
+-#'
+ #' @param input_features a vector of features to be used for training. The examples 
+ #' include \code{scaled_mean_intensity_all}, \code{scaled_cv_intensity_all}, 
+ #' \code{scaled_numNA_intensity_all}, \code{scaled_averaged_score_all}, 
+@@ -145,12 +155,22 @@ calc_features <- function(input_dt) {
+ #' @export
+ #' 
+ #' @examples 
+-#' peptideIons_features <- calc_features(all_peptideIons)
+-#' index_feature_selected <- c("scaled_mean_intensity_all", "scaled_cv_intensity_all", 
+-#' "scaled_numNA_intensity_all", "scaled_averaged_score_all", 
+-#' "scaled_median_PCC", "scaled_sd_width_all", "label")
++#' d_feature <- calc_features(peptideIon_st)
+ #' 
+-#' model_lda_ecoli <- get_lda_model(peptideIons_features, index_feature_selected)
++#' ecoli_std <- c(2, 3, 4, 6, 8)
++#' index_mean_int <- which(grepl("^mean_intensity", names(d_feature)))
++#' d_feature[, cor_std := 0]
++#' d_feature$cor_std <- apply(d_feature[, index_mean_int, with=F], 1,
++#'  function(x) cor(x, ecoli_std, use="p"))
++#' d_feature$cor_std[apply(d_feature[, index_mean_int, with=F], 1, 
++#'  function(x) count_pairwise_number(x, ecoli_std)) < 4] <- NA
++#' d_feature[, label := "bad"]
++#' d_feature[ cor_std > 0.95, ]$label <- "good"
++#' 
++#' index_features <- c("scaled_mean_intensity_all", "scaled_cv_intensity_all", 
++#'                     "scaled_numNA_intensity_all", "scaled_averaged_score_all", 
++#'                      "scaled_median_PCC", "scaled_sd_width_all", "label")
++#' model_lda <- get_lda_model(d_feature, index_features)
+ #' 
+ get_lda_model <- function(input_dt, input_features) {
+   
+@@ -160,7 +180,14 @@ get_lda_model <- function(input_dt, input_features) {
+ }
+ 
+ 
+-#' Compute posterior probability of being representative petpide 
++#' Compute probability of being representative peptide 
++#' 
++#' @description A function to compute the probability of being representative 
++#' peptide. It utilizes \code{predict()} from \code{stats} to make prediction
++#' based on a linear discriminant analysis (LDA) model, typically generated 
++#' from a quantitative gold standard dataset. The function outputs the posterior
++#' probability that describes the likelihood of the peptide intensity being
++#' representative of the intensity of its corresponding protein. 
+ #' 
+ #' @param input_dt data table or data frame in wide representation. The data typically 
+ #' contains \code{"PeptideIon"}, \code{"ProteinName"} and sample names in columns and 
+@@ -176,8 +203,8 @@ get_lda_model <- function(input_dt, input_features) {
+ #' @export
+ #' 
+ #' @examples 
+-#' peptideIons_features <- calc_features(all_peptideIons)
+-#' peptideIons_features_select <- perform_selection(peptideIons_features)
++#' d_feature <- calc_features(peptideIon_st)
++#' d_select <- perform_selection(d_feature)
+ #' 
+ perform_selection <- function(input_dt) {
+   
+@@ -216,8 +243,36 @@ perform_selection <- function(input_dt) {
+ }
+ 
+ 
+-
++#' Filter for representative peptide 
++#' 
++#' @description A function to filter peptides based on probability of 
++#' being a representative peptide. It utilizes \code{predict()} from \code{stats} 
++#' to make prediction based on a linear discriminant analysis (LDA) model, typically generated 
++#' from a quantitative gold standard dataset. The function outputs the posterior
++#' probability that describes the likelihood of the peptide intensity being
++#' representative of the intensity of its corresponding protein. 
++#' The data table is filtered to only contain representative peptides, 
++#' having posterior probability higher than a given cutoff threshold. 
++#' 
++#' @param input_dt data table or data frame in wide representation. The data typically 
++#' contains \code{"PeptideIon"}, \code{"ProteinName"} and sample names in columns and 
++#' measurements of each peptide or precursor ions in rows. 
++#' 
++#' Additionally, the data table includes metrics computed from \code{calc_features()} 
++#' such as \code{scaled_mean_intensity_all}, \code{scaled_cv_intensity_all} 
++#' \code{scaled_numNA_intensity_all} and etc which are utilized to compute 
++#' a posterior probability of being the representative peptides.  
++#'
++#' @param cutoff_prob a numeric value denoting the posterior probability 
++#' threshold to filter peptides by.
++#' @return  data.table data.frame containing posterior probability. 
++#' 
+ #' @export
++#' 
++#' @examples 
++#' d_feature <- calc_features(peptideIon_st)
++#' d_select <- perform_prediction_and_filtering(d_feature)
++#' 
+ perform_prediction_and_filtering <- function(input_dt, cutoff_prob = 0.2) {
+   
+   #Wenugang: these two rules still need to be checked... as I think there is room to improve...
+diff --git a/R/statisticalTest.R b/R/statisticalTest.R
+index 9af2655..a4e79f4 100644
+--- a/R/statisticalTest.R
++++ b/R/statisticalTest.R
+@@ -1,5 +1,8 @@
+ #' Perform PECA test
+ #' 
++#' @description A function to perform probe-level expression change averaging (PECA)
++#' to identify expression change between two groups of samples for each protein.
++#' 
+ #' @param input_file data table or data frame in wide representation. The data typically 
+ #' contains \code{"PeptideIon"}, \code{"ProteinName"} and sample names in columns and 
+ #' protein measurements in rows. The input data is usually an output from 
+@@ -12,7 +15,7 @@
+ #'
+ #' @export
+ #' 
+-#' @examples peca_result <- perform_peca_tests(protein_matrix)
++#' @examples peca_result <- perform_peca_tests(protein_Filtered_top3_sum_ImputedWeighted, anno)
+ #' 
+ perform_peca_tests <- function(input_file, sample_annotation, input_test="modt",
+                                input_bool_paired=FALSE) {
+@@ -56,6 +59,10 @@ perform_peca_tests <- function(input_file, sample_annotation, input_test="modt",
+ 
+ #' Perform t.test 
+ #' 
++#' A function to perform Student's t-test to identify differentially expressed proteins. 
++#' The significance of an expression change is determned by adjusted p-values 
++#' of the t-statistics.
++#' 
+ #' @param input_dt data table or data frame in wide representation. The data typically 
+ #' contains \code{"PeptideIon"}, \code{"ProteinName"} and sample names in columns and 
+ #' protein measurements in rows. The input data is usually an output from 
+@@ -70,7 +77,7 @@ perform_peca_tests <- function(input_file, sample_annotation, input_test="modt",
+ #' \code{p.adjust()} for details. 
+ #'
+ #' @export
+-#' @examples t_test_result <- perform_t_tests(protein_matrix)
++#' @examples t_test_result <- perform_t_tests(protein_Filtered_top3_sum_ImputedWeighted, anno)
+ #' 
+ perform_t_tests <- function(input_dt, sample_annotation, input_bool_paired=FALSE, 
+                             input_mtc_method="bonferroni") {
+@@ -117,6 +124,13 @@ perform_t_tests <- function(input_dt, sample_annotation, input_bool_paired=FALSE
+ 
+ #' Performed modified t.test
+ #' 
++#' @description A function to perform modified t-test. \code{lmFit()} first fits 
++#' a linear model to the expression data for each protein and the coefficients of 
++#' the fitted models describde differences between two compared groups. Given 
++#' the linear model, the \code{eBayes()} computes moderated t-statistics, moderated 
++#' F-statistics and log-odds of differential expression by empirical Baes moderation 
++#' of standard errors. 
++#' 
+ #' @param input_dt data table or data frame in wide representation. The data typically 
+ #' contains \code{"PeptideIon"}, \code{"ProteinName"} and sample names in columns and 
+ #' protein measurements in rows. The input data is usually an output from 
+@@ -132,7 +146,7 @@ perform_t_tests <- function(input_dt, sample_annotation, input_bool_paired=FALSE
+ #'
+ #' @export
+ #' 
+-#' @examples modt_test_result <- perform_modt_tests(protein_matrix)
++#' @examples modt_test_result <- perform_modt_tests(protein_Filtered_top3_sum_ImputedWeighted, anno)
+ #' 
+ perform_modt_tests <- function(input_dt, sample_annotation, input_bool_paired=FALSE, input_mtc_method="BH") {
+   
+@@ -199,6 +213,9 @@ perform_modt_tests <- function(input_dt, sample_annotation, input_bool_paired=FA
+ 
+ #' Perform ANOVA
+ #'
++#' @description A function to perform Analysis of variance (ANOVA) test to identify
++#' differentially expressed proteins between different sample groups. 
++#' 
+ #' @param input_dt @param input_dt data table or data frame in wide representation. The data typically 
+ #' contains \code{"PeptideIon"}, \code{"ProteinName"} and sample names in columns and 
+ #' protein measurements in rows. The input data is usually an output from 
+@@ -212,7 +229,7 @@ perform_modt_tests <- function(input_dt, sample_annotation, input_bool_paired=FA
+ #' 
+ #' @export 
+ #'
+-#' @examples anova_results <- perform_anova(protein_matrix)
++#' @examples anova_results <- perform_anova(protein_Filtered_top3_sum_ImputedWeighted, anno)
+ #' 
+ perform_anova <- function(input_dt, sample_annotation) {
+   
+diff --git a/R/wrapper.R b/R/wrapper.R
+index 4f0c421..d77f5ee 100644
+--- a/R/wrapper.R
++++ b/R/wrapper.R
+@@ -1,4 +1,8 @@
+-#' Wrapper function from importing peptide data to infering protein abundance
++#' Guidance wrapper function
++#' 
++#' @description A wrapper function to import, normalize, calculate features and 
++#' infer protein abundance, returning a protein data table containing protein 
++#' intensities for each sample. 
+ #' 
+ #' @param data A data frame containing the SWATH-MS data. This data typically
+ #' contains peptide precursors in each row with corresponding \code{ProteinName}, 
+@@ -27,7 +31,9 @@
+ #' \code{"none"} if normalization is not necessary.
+ #' @param filter_prob a numeric value in range of 0 to 1 denoting posterior 
+ #' probability threshold to filter peptides by.
+-#' @param input_rank_index 
++#' @param input_rank_index name of a column to rank the protein by. 
++#' The default column is "prob" which depicts the probability of being peptide 
++#' representative of protein.
+ #' @param topN number of peptides utilized to infer protein abundance for each protein 
+ #' @param aggfun method to aggregate peptide measurements to estimate protein abundance.
+ #' Options include \code{"mean"} and \code{"sum"}
+@@ -41,12 +47,16 @@
+ #' filename will look like \code{"/scratch/71239421.tmpdir/xuep_J180621_SW_3.mzXML.gz"} 
+ #' and \code{remove_prefixInFileName = TRUE} will result in \code{"xuep_J180621_SW_3.mzXML.gz"}
+ #'
+-#' @example
+-#' guidance <- dia_guidance(search_results= "data/QGS_SWATH_data", 
+-#' sample_annotation="data/QGS_sample_annotation", level="PeptideIon")
++#' @examples 
++#' guidance <- dia_guidance(data= "data/QGS_SWATH_data", data_type = "openswath",
++#' sample_annotation="data/QGS_sample_annotation", level="PeptideIon",
++#' replaceNA="keep", bool_NA_means_requant = FALSE, 
++#' averageFun = "mean", normalization="none", filter_prob = 0.25, 
++#' input_rank_index = "prob", topN = 3, aggfun = "sum", 
++#' bool_weighted_by_prob = TRUE, bool.removeDecoy = T, remove_prefixInFileName = FALSE)
+ #'                 
+ #' @export
+-dia_guidance <- function(data = NULL, data_fromEuler = NULL, sample_annotation = NULL, 
++dia_guidance <- function(data, data_type = "openswath", sample_annotation = NULL, 
+                          level = "PeptideIon", 
+                          replaceNA="keep", bool_NA_means_requant = FALSE, 
+                          averageFun = "mean",
+@@ -55,24 +65,20 @@ dia_guidance <- function(data = NULL, data_fromEuler = NULL, sample_annotation =
+                          bool_weighted_by_prob = TRUE, bool.removeDecoy = T, 
+                          remove_prefixInFileName = FALSE){
+   
+-  if(!is.null(data)){
+-    peptide <- import_openswath(search_results= data, 
+-                                    sample_annotation = sample_annotation, 
+-                                    level=level) 
+-    all_peptide <- long2wide(peptide)
+-  }
+-  
+-  if(!is.null(data_fromEuler)){
+-    all_peptide <- import_openswath_matrix_fromEulerPortal(
+-      search_results=data_fromEuler, sample_annotation=sample_annotation) 
+-  }
+-
+-  if(!is.null(data) & !is.null(data_fromEuler)){
+-    stop("Input one dataset only")
++  if(data_type=="openswath") {
++    peptideIons <- import_openswath(search_results=data, sample_annotation=sample_annotation, level=level
++                                    , bool.removeDecoy=bool.removeDecoy, remove_prefixInFileName=remove_prefixInFileName) 
++  } else if(data_type=="openswath_fromEulerPortal") {
++    peptideIons <- import_openswath_matrix_fromEulerPortal(search_results=data, sample_annotation=sample_annotation)
++  } else if(data_type=="spectronaut") {
++    peptideIons <- import_spectronaut_matrix(search_results=data, sample_annotation=sample_annotation)
++  } else {
++    stop("Please select a valid type for imported data to be kept in Prom. Options:  \"openswath(default)\", \"spectronaut\", \"openswath_fromEulerPortal\"")
+   }
+   
+-  # normalize data (if necessary)
+-  all_peptide_normalized <- normalize_data(all_peptide, replaceNA= replaceNA, 
++  # normalize data 
++  all_peptideIons <- long2wide(peptideIons)
++  all_peptide_normalized <- normalize_data(all_peptideIons, replaceNA= replaceNA, 
+                                                normalization=normalization)
+   
+   # merge replicates - CHECK!! THE STEP, SAMPLENAME NOT VALID 
+diff --git a/data/all_peptideIons.rda b/data/all_peptideIons.rda
+deleted file mode 100644
+index 9804750..0000000
+Binary files a/data/all_peptideIons.rda and /dev/null differ
+diff --git a/data/peptideIon_st.rda b/data/peptideIon_st.rda
+new file mode 100644
+index 0000000..4da6721
+Binary files /dev/null and b/data/peptideIon_st.rda differ
+diff --git a/data/protein_Filtered_top3_sum_ImputedWeighted.rda b/data/protein_Filtered_top3_sum_ImputedWeighted.rda
+new file mode 100644
+index 0000000..30b19a2
+Binary files /dev/null and b/data/protein_Filtered_top3_sum_ImputedWeighted.rda differ
+diff --git a/data/sample_annotation.rda b/data/sample_annotation.rda
+new file mode 100644
+index 0000000..2764ec1
+Binary files /dev/null and b/data/sample_annotation.rda differ
+diff --git a/man/calc_features.Rd b/man/calc_features.Rd
+index 1e2fb26..1027b7a 100644
+--- a/man/calc_features.Rd
++++ b/man/calc_features.Rd
+@@ -15,9 +15,14 @@ measurements of each peptide or precursor ions in rows.}
+ data.table data.frame containing feature statistics
+ }
+ \description{
+-Compute metrics describing relationship among peptides of the same protein
++A function to compute feature i.e. peptide statistics including 
++average intensity, coefficient of variance (CV), number of missing values, 
++average score, standard deviation, median Pearson correlation coefficient (PCC), 
++median Spearman correlation coefficient (SCC) and median absolute deviation (MAD). 
++The function also outputs a set of scaled statistics, where numeric values are 
++centered by subtracting the mean and scaled by dividing standard deviation.
+ }
+ \examples{
+-peptideIons_features <- calc_features(all_peptideIons)
++ d_feature <- calc_features(peptideIon_st)
+ 
+ }
+diff --git a/man/count_pairwise_number.Rd b/man/count_pairwise_number.Rd
+index ae0a7d9..10facdc 100644
+--- a/man/count_pairwise_number.Rd
++++ b/man/count_pairwise_number.Rd
+@@ -7,10 +7,16 @@
+ count_pairwise_number(input_vector_a, input_vector_b)
+ }
+ \arguments{
+-\item{input_vector_a}{vectors containing a sequence of numbers}
++\item{input_vector_a}{vectors containing a sequence of numeric values}
+ 
+-\item{input_vector_b}{vectors containing a sequence of numbers}
++\item{input_vector_b}{vectors containing a sequence of numeric values}
+ }
+ \description{
+-Number of intersection betwen numeric groups
++A function to calculate the number of intersecting values 
++between two numeric vectors.
++}
++\examples{
++vector1 <- c(1, 2, 5, 100, 200, 50000)
++vector2 <- c(1, 2, 4, 100, 500, 40000)
++count_pairwise_number(vector1, vector2)
+ }
+diff --git a/man/count_pairwise_number_matrix.Rd b/man/count_pairwise_number_matrix.Rd
+index f32b138..504c99f 100644
+--- a/man/count_pairwise_number_matrix.Rd
++++ b/man/count_pairwise_number_matrix.Rd
+@@ -2,13 +2,14 @@
+ % Please edit documentation in R/basic.R
+ \name{count_pairwise_number_matrix}
+ \alias{count_pairwise_number_matrix}
+-\title{Title}
++\title{Number of intersection between samples within a matrix}
+ \usage{
+ count_pairwise_number_matrix(input_matrix)
+ }
+ \arguments{
+-\item{input_matrix}{}
++\item{input_matrix}{matrix containing a numeric values}
+ }
+ \description{
+-Title
++A function to calculate the number of intersecting numeric values 
++between columns of a matrix.
+ }
+diff --git a/man/cv_na.Rd b/man/cv_na.Rd
+index 7e5b939..f866b24 100644
+--- a/man/cv_na.Rd
++++ b/man/cv_na.Rd
+@@ -2,7 +2,7 @@
+ % Please edit documentation in R/basic.R
+ \name{cv_na}
+ \alias{cv_na}
+-\title{Computes coefficient of variation (CV) excluding missing values}
++\title{Computes coefficient of variation (CV)}
+ \usage{
+ cv_na(x)
+ }
+@@ -13,5 +13,10 @@ cv_na(x)
+ a numeric value
+ }
+ \description{
+-Computes coefficient of variation (CV) excluding missing values
++A function to compute coefficient of variance (CV) of a numeric vector 
++after exclusion of missing values
++}
++\examples{
++vector <- c(1, 2, 4, NA, 2, 5, 6)
++cv_na(vector)
+ }
+diff --git a/man/dia_guidance.Rd b/man/dia_guidance.Rd
+index 565271e..6a7b5b7 100644
+--- a/man/dia_guidance.Rd
++++ b/man/dia_guidance.Rd
+@@ -2,10 +2,10 @@
+ % Please edit documentation in R/wrapper.R
+ \name{dia_guidance}
+ \alias{dia_guidance}
+-\title{Wrapper function from importing peptide data to infering protein abundance}
++\title{Guidance wrapper function}
+ \usage{
+-dia_guidance(data = NULL, data_fromEuler = NULL,
+-  sample_annotation = NULL, level = "PeptideIon", replaceNA = "keep",
++dia_guidance(data, data_type = "openswath", sample_annotation = NULL,
++  level = "PeptideIon", replaceNA = "keep",
+   bool_NA_means_requant = FALSE, averageFun = "mean",
+   normalization = "mediancenter", filter_prob = 0.25,
+   input_rank_index = "prob", topN = 3, aggfun = "sum",
+@@ -18,11 +18,6 @@ contains peptide precursors in each row with corresponding \code{ProteinName},
+ \code{Intensity}, \code{RT}, \code{Score} and etc in columns. The data can be loaded
+ from local directory.}
+ 
+-\item{data_fromEuler}{A data frame containing the SWATH-MS data. This data typically
+-contains peptide ions in each row with corresponding \code{ProteinName}, 
+-\code{Intensity}, \code{RT}, \code{Score} and etc in columns. The data can be loaded
+-from local directory.}
+-
+ \item{sample_annotation}{data matrix with \code{SampleName}, biological covariates 
+ (biological replicates) and technical covariates (technical replicates, batches, etc)}
+ 
+@@ -49,7 +44,9 @@ time (iRT) standards \code{"iRT"}. The default is \code{"mediancenter"} and deno
+ \item{filter_prob}{a numeric value in range of 0 to 1 denoting posterior 
+ probability threshold to filter peptides by.}
+ 
+-\item{input_rank_index}{}
++\item{input_rank_index}{name of a column to rank the protein by. 
++The default column is "prob" which depicts the probability of being peptide 
++representative of protein.}
+ 
+ \item{topN}{number of peptides utilized to infer protein abundance for each protein}
+ 
+@@ -67,7 +64,23 @@ if the decoy peptides should be removed from the imported data}
+ remove unnecessary prefix from euler portal file name. For example, a typical 
+ filename will look like \code{"/scratch/71239421.tmpdir/xuep_J180621_SW_3.mzXML.gz"} 
+ and \code{remove_prefixInFileName = TRUE} will result in \code{"xuep_J180621_SW_3.mzXML.gz"}}
++
++\item{data_fromEuler}{A data frame containing the SWATH-MS data. This data typically
++contains peptide ions in each row with corresponding \code{ProteinName}, 
++\code{Intensity}, \code{RT}, \code{Score} and etc in columns. The data can be loaded
++from local directory.}
+ }
+ \description{
+-Wrapper function from importing peptide data to infering protein abundance
++A wrapper function to import, normalize, calculate features and 
++infer protein abundance, returning a protein data table containing protein 
++intensities for each sample.
++}
++\examples{
++guidance <- dia_guidance(data= "data/QGS_SWATH_data", data_type = "openswath",
++sample_annotation="data/QGS_sample_annotation", level="PeptideIon",
++replaceNA="keep", bool_NA_means_requant = FALSE, 
++averageFun = "mean", normalization="none", filter_prob = 0.25, 
++input_rank_index = "prob", topN = 3, aggfun = "sum", 
++bool_weighted_by_prob = TRUE, bool.removeDecoy = T, remove_prefixInFileName = FALSE)
++                
+ }
+diff --git a/man/get_lda_model.Rd b/man/get_lda_model.Rd
+index 1f56f7b..22b1e49 100644
+--- a/man/get_lda_model.Rd
++++ b/man/get_lda_model.Rd
+@@ -17,14 +17,26 @@ include \code{scaled_mean_intensity_all}, \code{scaled_cv_intensity_all},
+ \code{scaled_median_PCC}, \code{scaled_sd_width_all} and \code{label}.}
+ }
+ \description{
+-Generate linear discriminant analysis (LDA) model
++A function to generate linear discriminant analysis (LDA) model 
++by using a subset of feature (peptide) statistics. This function utilizes 
++\code{lda()} function in \code{MASS}.
+ }
+ \examples{
+-peptideIons_features <- calc_features(all_peptideIons)
+-index_feature_selected <- c("scaled_mean_intensity_all", "scaled_cv_intensity_all", 
+-"scaled_numNA_intensity_all", "scaled_averaged_score_all", 
+-"scaled_median_PCC", "scaled_sd_width_all", "label")
++d_feature <- calc_features(peptideIon_st)
+ 
+-model_lda_ecoli <- get_lda_model(peptideIons_features, index_feature_selected)
++ecoli_std <- c(2, 3, 4, 6, 8)
++index_mean_int <- which(grepl("^mean_intensity", names(d_feature)))
++d_feature[, cor_std := 0]
++d_feature$cor_std <- apply(d_feature[, index_mean_int, with=F], 1,
++ function(x) cor(x, ecoli_std, use="p"))
++d_feature$cor_std[apply(d_feature[, index_mean_int, with=F], 1, 
++ function(x) count_pairwise_number(x, ecoli_std)) < 4] <- NA
++d_feature[, label := "bad"]
++d_feature[ cor_std > 0.95, ]$label <- "good"
++
++index_features <- c("scaled_mean_intensity_all", "scaled_cv_intensity_all", 
++                    "scaled_numNA_intensity_all", "scaled_averaged_score_all", 
++                     "scaled_median_PCC", "scaled_sd_width_all", "label")
++model_lda <- get_lda_model(d_feature, index_features)
+ 
+ }
+diff --git a/man/import_openswath.Rd b/man/import_openswath.Rd
+index c7f6562..6dce4e8 100644
+--- a/man/import_openswath.Rd
++++ b/man/import_openswath.Rd
+@@ -2,7 +2,7 @@
+ % Please edit documentation in R/Importer.R
+ \name{import_openswath}
+ \alias{import_openswath}
+-\title{import openSWATH output data with sample annotation}
++\title{Import openSWATH data table}
+ \usage{
+ import_openswath(search_results, bool.removeDecoy = T,
+   level = "PeptideIon", sample_annotation = NULL,
+@@ -33,7 +33,12 @@ and \code{remove_prefixInFileName = TRUE} will result in \code{"xuep_J180621_SW_
+ data.table data.frame containing SWATH-MS data and sample annotation
+ }
+ \description{
+-import openSWATH output data with sample annotation
++A function to import openSWATH data and filter for relevant columns. 
++The imported data table contains columns denoting name of peptide ion, 
++corresponding protein name, injection name, sample name, intensity values, 
++retention time, score and width of spectral peaks. In particular for transition-level 
++data, the table contains aggregate fragment annotation and aggregated peak area 
++in place of peak width.
+ }
+ \examples{
+ peptideIons <- import_openswath(search_results= "data/QGS_SWATH_data", 
+diff --git a/man/import_openswath_matrix_fromEulerPortal.Rd b/man/import_openswath_matrix_fromEulerPortal.Rd
+index c420e0e..1e73336 100644
+--- a/man/import_openswath_matrix_fromEulerPortal.Rd
++++ b/man/import_openswath_matrix_fromEulerPortal.Rd
+@@ -2,7 +2,7 @@
+ % Please edit documentation in R/Importer.R
+ \name{import_openswath_matrix_fromEulerPortal}
+ \alias{import_openswath_matrix_fromEulerPortal}
+-\title{Import data matrix from Eular portal}
++\title{Import openSWATH data table from Eular portal}
+ \usage{
+ import_openswath_matrix_fromEulerPortal(search_results,
+   sample_annotation = NULL)
+@@ -20,10 +20,13 @@ from local directory.}
+ data.table data containing raw openSWATH matrix
+ }
+ \description{
+-Import data matrix from Eular portal
++A function to import a full openSWATH data table, 
++typically pre-processed or pre-filtered for downstream analysis. 
++The imported data table contains columns denoting peptide name, corresponding 
++protein name, intensity, retention time and score of each peptide.
+ }
+ \examples{
+-all_peptideIons <- SWATH_data <- import_openswath_matrix_fromEulerPortal(
++all_peptideIons <- import_openswath_matrix_fromEulerPortal(
+ search_results="data/YS_SWATH_data", 
+ sample_annotation="data/YS_sample_annotation")
+ 
+diff --git a/man/import_spectronaut_matrix.Rd b/man/import_spectronaut_matrix.Rd
+index 3bcea7e..b4cb8b3 100644
+--- a/man/import_spectronaut_matrix.Rd
++++ b/man/import_spectronaut_matrix.Rd
+@@ -2,7 +2,7 @@
+ % Please edit documentation in R/Importer.R
+ \name{import_spectronaut_matrix}
+ \alias{import_spectronaut_matrix}
+-\title{Import data matrix output from Spectronaut}
++\title{Import Spectronaut data table}
+ \usage{
+ import_spectronaut_matrix(search_results, sample_annotation = NULL)
+ }
+@@ -16,5 +16,15 @@ from local directory.}
+ (biological replicates) and technical covariates (technical replicates, batches, etc)}
+ }
+ \description{
+-Import data matrix output from Spectronaut
++A function to import a full Spectronaut data table, typically 
++pre-processed or pre-filtered for downstream analysis. The imported data 
++table contains columns denoting peptide name, corresponding protein name, 
++intensity, retention time and score of each peptide. From the Spectronaut 
++output, this function takes PEP Quantity value as Intensity and EG q-value 
++as Score.
++}
++\examples{
++peptideIons <- import_spectronaut_matrix(search_results= "data/QGS_SWATH_data", 
++sample_annotation="data/QGS_sample_annotation")
++
+ }
+diff --git a/man/impute_missing_values.Rd b/man/impute_missing_values.Rd
+index aa58e59..eb4aa25 100644
+--- a/man/impute_missing_values.Rd
++++ b/man/impute_missing_values.Rd
+@@ -17,11 +17,14 @@ measurements of each peptide or precursor ions in rows.}
+ data.table data.frame
+ }
+ \description{
+-Impute missing values
++A function to impute for missing value by fitting data to a 
++uniform distribution between minimum 0.1CV and minimum 
++1.1CV and infer the intensity of missing values.
+ }
+ \examples{
+-peptideIons_features <- calc_features(all_peptideIons)
+-peptideIons_features_select <- calc_features(peptideIons_features)
+-Imputated <- impute_missing_values(test_yesFiltered, c(3:17))
++d_feature <- calc_features(peptideIon_st)
++d_feature_select <- perform_selection(d_feature)
++
++imputated <- impute_missing_values(d_feature_select, c(3:17))
+ 
+ }
+diff --git a/man/keep_proteotypic_only.Rd b/man/keep_proteotypic_only.Rd
+index 79e3020..3e6aae8 100644
+--- a/man/keep_proteotypic_only.Rd
++++ b/man/keep_proteotypic_only.Rd
+@@ -20,9 +20,12 @@ by \code{keep_proteotypic_only()}}
+ data.table data.frame containing only proteotypic peptides
+ }
+ \description{
+-Filter for proteotypic peptides
++A function to filter for proteotypic peptides indicated as 1/ 
++under \code{ProteinName}. For any given protein, only a few proteotypic peptides 
++are uniquely and consistently identified and these represent peptides 
++most confidently observed in the current MS-based proteomics workflow.
+ }
+ \examples{
+-proteotypic_peptide_matrix <- keep_proteotypic_only(all_peptideIons)
++proteotypic <- keep_proteotypic_only(peptideIon_st)
+ 
+ }
+diff --git a/man/l_count.Rd b/man/l_count.Rd
+index cb04297..5cb75a5 100644
+--- a/man/l_count.Rd
++++ b/man/l_count.Rd
+@@ -2,16 +2,21 @@
+ % Please edit documentation in R/basic.R
+ \name{l_count}
+ \alias{l_count}
+-\title{Count number of values in a vector}
++\title{Count TRUE values}
+ \usage{
+ l_count(x)
+ }
+ \arguments{
+-\item{x}{a vector (atomic or list) or an `expression` object.}
++\item{x}{a vector (atomic or list) in TRUE or FALSE}
+ }
+ \value{
+ a numeric value
+ }
+ \description{
+-Count number of values in a vector
++A function to count the number of TRUE values in a vector
++}
++\examples{
++vector <- c(TRUE, TRUE, FALSE, TRUE)
++l_count(vector)
++
+ }
+diff --git a/man/long2wide.Rd b/man/long2wide.Rd
+index a053cd0..821fb82 100644
+--- a/man/long2wide.Rd
++++ b/man/long2wide.Rd
+@@ -2,7 +2,7 @@
+ % Please edit documentation in R/normalizer.R
+ \name{long2wide}
+ \alias{long2wide}
+-\title{Convert from long to wide representation}
++\title{Convert from long to wide data}
+ \usage{
+ long2wide(input_dt, global_level = "PeptideIon")
+ }
+@@ -22,7 +22,12 @@ data.table data.frame in a wide format representation containing
+ measurements of each peptide or precursor ions in rows.
+ }
+ \description{
+-Convert from long to wide representation
++A function to convert from long to wide representation. 
++A typical input data table contains columns denoting name of a peptide, 
++its corresponding protein name, sample name, intensity, retention time and 
++width of spectral peaks. The \code{long2wide()} converts this long format data 
++into wide representation having intensity, score, RT and width of each sample 
++in each column. Each row will represent a unique peptide.
+ }
+ \examples{
+ peptideIons <- import_openswath(search_results= "data/QGS_SWATH_data", 
+diff --git a/man/mean_na.Rd b/man/mean_na.Rd
+index c0ff3e0..afdc686 100644
+--- a/man/mean_na.Rd
++++ b/man/mean_na.Rd
+@@ -2,7 +2,7 @@
+ % Please edit documentation in R/basic.R
+ \name{mean_na}
+ \alias{mean_na}
+-\title{Computes average excluding missing values}
++\title{Computes mean}
+ \usage{
+ mean_na(x)
+ }
+@@ -13,5 +13,10 @@ mean_na(x)
+ a numeric value
+ }
+ \description{
+-Computes average excluding missing values
++A function to compute average of a numeric vector 
++after exclusion of missing values
++}
++\examples{
++vector <- c(1, 2, 4, NA, 2, 5, 6)
++mean_na(vector)
+ }
+diff --git a/man/median_na.Rd b/man/median_na.Rd
+index f7809d7..c43d552 100644
+--- a/man/median_na.Rd
++++ b/man/median_na.Rd
+@@ -2,7 +2,7 @@
+ % Please edit documentation in R/basic.R
+ \name{median_na}
+ \alias{median_na}
+-\title{Computes median excluding missing values}
++\title{Computes median}
+ \usage{
+ median_na(x)
+ }
+@@ -13,5 +13,10 @@ median_na(x)
+ a numeric value
+ }
+ \description{
+-Computes median excluding missing values
++A function to compute median of a numeric vector 
++after exclusion of missing values
++}
++\examples{
++vector <- c(1, 2, 4, NA, 2, 5, 6)
++median_na(vector)
+ }
+diff --git a/man/merge_replicates.Rd b/man/merge_replicates.Rd
+index 6ca4274..65b0977 100644
+--- a/man/merge_replicates.Rd
++++ b/man/merge_replicates.Rd
+@@ -2,7 +2,7 @@
+ % Please edit documentation in R/normalizer.R
+ \name{merge_replicates}
+ \alias{merge_replicates}
+-\title{Merge biological replicates}
++\title{Statistics among biological replicates}
+ \usage{
+ merge_replicates(wide, sample_annotation = NULL,
+   bool_NA_means_requant = FALSE, averageFun = "mean")
+@@ -27,11 +27,12 @@ data.table data.frame containing statistics of biological replicates, such
+ as \code{mean_intensity_A}, \code{cv_intensity_A} and \code{numNA_intensity_A}.
+ }
+ \description{
+-Merge biological replicates
++A function to compute statistics of biological replicates under 
++column \code{“SampleName”}. The statistics include average intensity, 
++coefficient of variance (CV) and number of missing values (NAs) for each sample.
+ }
+ \examples{
+-all_peptideIons_normalized <- normalize_data(all_peptideIons, replaceNA="keep", 
+-normalization="none")
+-cons_peptideIons <- merge_replicates(all_peptideIons_normalized, anno)
++peptideIon <- peptideIon_st[, -c(64:78)]
++cons_peptideIons <- merge_replicates(peptideIon, anno)
+ 
+ }
+diff --git a/man/normalize_data.Rd b/man/normalize_data.Rd
+index 57fe711..5fa1aa8 100644
+--- a/man/normalize_data.Rd
++++ b/man/normalize_data.Rd
+@@ -22,13 +22,24 @@ time (iRT) standards \code{"iRT"}. The default is \code{"mediancenter"} and deno
+ \code{"none"} if normalization is not necessary.}
+ }
+ \value{
+-data.table data.frame containing normalized measurement data
++data.table data.frame containing normalized measurement data and a column
++denoting number of peptides corresponding to the same protein
+ }
+ \description{
+-Normalize data
++A function to normalize peptide/fragment-level intensity across 
++different samples. It provides several normalization methods: 
++\code{“mediancenter”} as default method to equalize median of intensity distribution, 
++\code{“quantile”} to adjust distributions to have the same statistical properties 
++i.e. quantiles, \code{“TIC”} to normalize mass spectra based on total ion 
++current (TIC) assuming that the same amount of protein was injected for each 
++MS run, and lastly \code{“iRT”} to normalize intensities based on injected 
++indexed retention time (iRT) standards. 
++
++In addition to the normalization functionality, this function also counts 
++the number of peptides corresponding to the same protein and outputs in 
++column \code{numPerProt}.
+ }
+ \examples{
+-all_peptideIons_normalized <- normalize_data(all_peptideIons, replaceNA="keep", 
+-normalization="none")
++peptideIon_n <- normalize_data(peptideIon_st, replaceNA="keep", normalization="none")
+ 
+ }
+diff --git a/man/pairwise_length_matrix.Rd b/man/pairwise_length_matrix.Rd
+new file mode 100644
+index 0000000..8f98ee1
+--- /dev/null
++++ b/man/pairwise_length_matrix.Rd
+@@ -0,0 +1,15 @@
++% Generated by roxygen2: do not edit by hand
++% Please edit documentation in R/basic.R
++\name{pairwise_length_matrix}
++\alias{pairwise_length_matrix}
++\title{Number of intersection within a matrix}
++\usage{
++pairwise_length_matrix(input_matrix)
++}
++\arguments{
++\item{input_matrix}{a matrix containing numeric values}
++}
++\description{
++A function to calculate the number of intersecting values 
++between rows of input matrix
++}
+diff --git a/man/pairwise_length_vector.Rd b/man/pairwise_length_vector.Rd
+index 0303d46..a47bb45 100644
+--- a/man/pairwise_length_vector.Rd
++++ b/man/pairwise_length_vector.Rd
+@@ -2,7 +2,7 @@
+ % Please edit documentation in R/basic.R
+ \name{pairwise_length_vector}
+ \alias{pairwise_length_vector}
+-\title{Number of intersection between two groups}
++\title{Number of intersection}
+ \usage{
+ pairwise_length_vector(input_a, input_b)
+ }
+@@ -14,5 +14,12 @@ containing a sequence of elements (conceptually).}
+ containing a sequence of elements (conceptually).}
+ }
+ \description{
+-Number of intersection between two groups
++A function to calculate the number of intersecting 
++values between two vectors, excluding missing values
++}
++\examples{
++vector1 <- c(1, 2, 4, NA, 2, 5, 6)
++vector2 <- c(1, 2, 4, NA, 6, 7, 8)
++pairwise_length_vector(vector1, vector2)
++
+ }
+diff --git a/man/pept2prot.Rd b/man/pept2prot.Rd
+index 236ad8f..4ba1c63 100644
+--- a/man/pept2prot.Rd
++++ b/man/pept2prot.Rd
+@@ -2,7 +2,7 @@
+ % Please edit documentation in R/quantification.R
+ \name{pept2prot}
+ \alias{pept2prot}
+-\title{Infer protein abudnace from peptide measurements}
++\title{Infer protein abundance from peptide measurements}
+ \usage{
+ pept2prot(input_dt, input_rank_index = "prob", topN = 3,
+   aggfun = "mean", bool_weighted_by_prob = TRUE)
+@@ -12,6 +12,10 @@ pept2prot(input_dt, input_rank_index = "prob", topN = 3,
+ contains \code{PeptideIon}, \code{ProteinName} and sample names in columns and 
+ measurements of each peptide or precursor ions in rows}
+ 
++\item{input_rank_index}{name of a column to rank the protein by. The default 
++column is \code{"prob"} which depicts the probability of being peptide 
++representative of protein}
++
+ \item{topN}{number of peptides utilized to infer protein abundance for each protein}
+ 
+ \item{aggfun}{method to aggregate peptide measurements to estimate protein abundance.
+@@ -19,16 +23,21 @@ Options include \code{"mean"} and \code{"sum"}}
+ 
+ \item{bool_weighted_by_prob}{boolean value (\code{TRUE} or \code{FALSE}) determining 
+ whether to weight the intensity by the posterior probability of being a representative 
+-peptide}
++peptide.}
+ }
+ \description{
+-Infer protein abudnace from peptide measurements
++A function infer protein abundance from peptide/fragment-level 
++measurements. The users can denote parameters such as the number of peptides 
++to be utilized for protein inference (\code{topN}), the method to aggregate 
++peptide/fragment intensities (\code{aggfun}) and whether to weight intensity 
++of each peptide by their posterior probability in estimating protein abundance 
++(\code{bool_weighted_by_prob}). This function then outputs estimated protein 
++intensities for each sample.
+ }
+ \examples{
+-peptideIons_features <- calc_features(all_peptideIons)
+-peptideIons_features_select <- calc_features(peptideIons_features)
++d_feature <- calc_features(peptideIon_st)
++d_feature_select <- perform_selection(d_feature)
+ 
+-peptide_to_protein <- pept2prot(peptideIons_features_select, 
+-"prob", 3, aggfun="sum", bool_weighted_by_prob=T), anno)
++protein_m <- pept2prot(d_feature_select, "prob", 3, aggfun="sum", bool_weighted_by_prob=T)
+ 
+ }
+diff --git a/man/pept2prot_log2.Rd b/man/pept2prot_log2.Rd
+index e19ebd0..c890f8b 100644
+--- a/man/pept2prot_log2.Rd
++++ b/man/pept2prot_log2.Rd
+@@ -2,22 +2,44 @@
+ % Please edit documentation in R/quantification.R
+ \name{pept2prot_log2}
+ \alias{pept2prot_log2}
+-\title{Title}
++\title{Log2 tranform peptide intensity measurements and infer protein abunance}
+ \usage{
+-pept2prot_log2(input_dt, input_index, topN)
++pept2prot_log2(input_dt, input_rank_index = "prob", topN = 3,
++  aggfun = "mean", bool_weighted_by_prob = TRUE)
+ }
+ \arguments{
+ \item{input_dt}{data table or data frame in wide representation. The data typically 
+ contains \code{PeptideIon}, \code{ProteinName} and sample names in columns and 
+ measurements of each peptide or precursor ions in rows}
+ 
+-\item{input_index}{}
++\item{input_rank_index}{name of a column to rank the protein by. The default 
++column is \code{"prob"} which depicts the probability of being peptide 
++representative of protein}
+ 
+ \item{topN}{number of peptides utilized to infer protein abundance for each protein}
+-}
+-\value{
+-data.table data.frame
++
++\item{aggfun}{method to aggregate peptide measurements to estimate protein abundance.
++Options include \code{"mean"} and \code{"sum"}}
++
++\item{bool_weighted_by_prob}{boolean value (\code{TRUE} or \code{FALSE}) determining 
++whether to weight the intensity by the posterior probability of being a representative 
++peptide}
+ }
+ \description{
+-Title
++A function infer protein abundance from peptide/fragment-level 
++measurements after log2 tranformation. The users can denote parameters 
++such as the number of peptides to be utilized for protein inference 
++(\code{topN}), the method to aggregate peptide/fragment intensities 
++(\code{aggfun}) and whether to weight intensity of each peptide by 
++their posterior probability in estimating protein abundance
++(\code{bool_weighted_by_prob}). This function then outputs estimated protein 
++intensities for each sample.
++}
++\examples{
++d_feature <- calc_features(peptideIon_st)
++d_feature_select <- perform_selection(d_feature)
++
++protein_log <- pept2prot_log2(d_feature_select, 
++input_rank_index = "prob", 3, aggfun="sum", bool_weighted_by_prob=T)
++
+ }
+diff --git a/man/perform_anova.Rd b/man/perform_anova.Rd
+index 4d3df50..4ecae73 100644
+--- a/man/perform_anova.Rd
++++ b/man/perform_anova.Rd
+@@ -20,9 +20,10 @@ data.table data.frame containing statistics of parametric and
+ non-parametric anova results
+ }
+ \description{
+-Perform ANOVA
++A function to perform Analysis of variance (ANOVA) test to identify
++differentially expressed proteins between different sample groups.
+ }
+ \examples{
+-anova_results <- perform_anova(protein_matrix)
++anova_results <- perform_anova(protein_Filtered_top3_sum_ImputedWeighted, anno)
+ 
+ }
+diff --git a/man/perform_modt_tests.Rd b/man/perform_modt_tests.Rd
+index ab542c1..d9f784f 100644
+--- a/man/perform_modt_tests.Rd
++++ b/man/perform_modt_tests.Rd
+@@ -24,9 +24,14 @@ protein measurements in rows. The input data is usually an output from
+ \code{p.adjust()} for details.}
+ }
+ \description{
+-Performed modified t.test
++A function to perform modified t-test. \code{lmFit()} first fits 
++a linear model to the expression data for each protein and the coefficients of 
++the fitted models describde differences between two compared groups. Given 
++the linear model, the \code{eBayes()} computes moderated t-statistics, moderated 
++F-statistics and log-odds of differential expression by empirical Baes moderation 
++of standard errors.
+ }
+ \examples{
+-modt_test_result <- perform_modt_tests(protein_matrix)
++modt_test_result <- perform_modt_tests(protein_Filtered_top3_sum_ImputedWeighted, anno)
+ 
+ }
+diff --git a/man/perform_peca_tests.Rd b/man/perform_peca_tests.Rd
+index 5cd4897..60877a2 100644
+--- a/man/perform_peca_tests.Rd
++++ b/man/perform_peca_tests.Rd
+@@ -22,9 +22,10 @@ protein measurements in rows. The input data is usually an output from
+ \item{input_bool_paired}{a logical indicating whether a paired test is performed}
+ }
+ \description{
+-Perform PECA test
++A function to perform probe-level expression change averaging (PECA)
++to identify expression change between two groups of samples for each protein.
+ }
+ \examples{
+-peca_result <- perform_peca_tests(protein_matrix)
++peca_result <- perform_peca_tests(protein_Filtered_top3_sum_ImputedWeighted, anno)
+ 
+ }
+diff --git a/man/perform_prediction_and_filtering.Rd b/man/perform_prediction_and_filtering.Rd
+new file mode 100644
+index 0000000..071e7e9
+--- /dev/null
++++ b/man/perform_prediction_and_filtering.Rd
+@@ -0,0 +1,39 @@
++% Generated by roxygen2: do not edit by hand
++% Please edit documentation in R/selecter.R
++\name{perform_prediction_and_filtering}
++\alias{perform_prediction_and_filtering}
++\title{Filter for representative peptide}
++\usage{
++perform_prediction_and_filtering(input_dt, cutoff_prob = 0.2)
++}
++\arguments{
++\item{input_dt}{data table or data frame in wide representation. The data typically 
++contains \code{"PeptideIon"}, \code{"ProteinName"} and sample names in columns and 
++measurements of each peptide or precursor ions in rows. 
++
++Additionally, the data table includes metrics computed from \code{calc_features()} 
++such as \code{scaled_mean_intensity_all}, \code{scaled_cv_intensity_all} 
++\code{scaled_numNA_intensity_all} and etc which are utilized to compute 
++a posterior probability of being the representative peptides.}
++
++\item{cutoff_prob}{a numeric value denoting the posterior probability 
++threshold to filter peptides by.}
++}
++\value{
++data.table data.frame containing posterior probability.
++}
++\description{
++A function to filter peptides based on probability of 
++being a representative peptide. It utilizes \code{predict()} from \code{stats} 
++to make prediction based on a linear discriminant analysis (LDA) model, typically generated 
++from a quantitative gold standard dataset. The function outputs the posterior
++probability that describes the likelihood of the peptide intensity being
++representative of the intensity of its corresponding protein. 
++The data table is filtered to only contain representative peptides, 
++having posterior probability higher than a given cutoff threshold.
++}
++\examples{
++d_feature <- calc_features(peptideIon_st)
++d_select <- perform_prediction_and_filtering(d_feature)
++
++}
+diff --git a/man/perform_selection.Rd b/man/perform_selection.Rd
+index 8675290..cfabe56 100644
+--- a/man/perform_selection.Rd
++++ b/man/perform_selection.Rd
+@@ -2,7 +2,7 @@
+ % Please edit documentation in R/selecter.R
+ \name{perform_selection}
+ \alias{perform_selection}
+-\title{Compute posterior probability of being representative petpide}
++\title{Compute probability of being representative peptide}
+ \usage{
+ perform_selection(input_dt)
+ }
+@@ -20,10 +20,15 @@ a posterior probability of being the representative peptides.}
+ data.table data.frame containing posterior probability.
+ }
+ \description{
+-Compute posterior probability of being representative petpide
++A function to compute the probability of being representative 
++peptide. It utilizes \code{predict()} from \code{stats} to make prediction
++based on a linear discriminant analysis (LDA) model, typically generated 
++from a quantitative gold standard dataset. The function outputs the posterior
++probability that describes the likelihood of the peptide intensity being
++representative of the intensity of its corresponding protein.
+ }
+ \examples{
+-peptideIons_features <- calc_features(all_peptideIons)
+-peptideIons_features_select <- perform_selection(peptideIons_features)
++d_feature <- calc_features(peptideIon_st)
++d_select <- perform_selection(d_feature)
+ 
+ }
+diff --git a/man/perform_t_tests.Rd b/man/perform_t_tests.Rd
+index ee8749d..cdcec22 100644
+--- a/man/perform_t_tests.Rd
++++ b/man/perform_t_tests.Rd
+@@ -24,9 +24,11 @@ protein measurements in rows. The input data is usually an output from
+ \code{p.adjust()} for details.}
+ }
+ \description{
+-Perform t.test
++A function to perform Student's t-test to identify differentially expressed proteins. 
++The significance of an expression change is determned by adjusted p-values 
++of the t-statistics.
+ }
+ \examples{
+-t_test_result <- perform_t_tests(protein_matrix)
++t_test_result <- perform_t_tests(protein_Filtered_top3_sum_ImputedWeighted, anno)
+ 
+ }
+diff --git a/man/plot_bar_intensity_n_probability.Rd b/man/plot_bar_intensity_n_probability.Rd
+index 593e0fa..a57f3ba 100644
+--- a/man/plot_bar_intensity_n_probability.Rd
++++ b/man/plot_bar_intensity_n_probability.Rd
+@@ -5,7 +5,7 @@
+ \title{Visualize intensity and posterior probability in barplots}
+ \usage{
+ plot_bar_intensity_n_probability(case, cutoff_prob = 0.3,
+-  plot_intensity = T, plot_prob = T)
++  bool_isPeptideIon = TRUE, plot_intensity = T, plot_prob = T)
+ }
+ \arguments{
+ \item{case}{data table or data frame in wide representation. The data typically 
+@@ -13,8 +13,8 @@ contains \code{"PeptideIon"}, \code{"ProteinName"} and sample names in columns a
+ measurements of each peptide or precursor ions in rows. 
+ 
+ To visualize profile of peptides corresponding to the same protein, 
+-peptides corresponding to one protein are pre-filtered for clearer 
+-visualizations.}
++recommend to prepare a data table filtered on peptides 
++corresponding to a protein of interest}
+ 
+ \item{cutoff_prob}{a numeric value denoting posterior probability threshold
+ to keep or remove peptides.}
+@@ -25,7 +25,8 @@ to keep or remove peptides.}
+ barplots}
+ }
+ \description{
+-Visualize intensity and posterior probability in barplots
++A function to visualize average peptide intensity and 
++posterior probability of being the representative peptide via barplots.
+ }
+ \examples{
+ peptideIons_features <- calc_features(all_peptideIons)
+@@ -33,6 +34,6 @@ peptideIons_features_select <- perform_selection(peptideIons_features)
+ 
+ prot_name <- c("1/O75976")
+ test_prot <- test[test$ProteinName==prot_name, ]
+-plot_bar_intensity_n_probability(test_prot)
++p <- plot_bar_intensity_n_probability(test_prot)
+ 
+ }
+diff --git a/man/plot_cor_heatmap.Rd b/man/plot_cor_heatmap.Rd
+index 66375e5..0ecf529 100644
+--- a/man/plot_cor_heatmap.Rd
++++ b/man/plot_cor_heatmap.Rd
+@@ -12,14 +12,15 @@ contains \code{"PeptideIon"}, \code{"ProteinName"} and sample names in columns a
+ measurements of each peptide or precursor ions in rows. 
+ 
+ To visualize profile of peptides corresponding to the same protein, 
+-peptides corresponding to one protein are pre-filtered for clearer 
+-visualizations.}
++recommend to prepare a data table filtered on peptides 
++corresponding to a protein of interest}
+ 
+ \item{cutoff_prob}{a numeric value denoting posterior probability threshold
+ to keep or remove peptides.}
+ }
+ \description{
+-Visualize correlation heatmap
++A function to visualize heatmap representing correlation between 
++different peptides corresponding to either the same or different proteins.
+ }
+ \examples{
+ peptideIons_features <- calc_features(all_peptideIons)
+@@ -27,6 +28,6 @@ peptideIons_features_select <- perform_selection(peptideIons_features)
+ 
+ prot_name <- c("1/O75976")
+ test_prot <- test[test$ProteinName==prot_name, ]
+-plot_cor_heatmap(test_prot)
++p <- plot_cor_heatmap(test_prot)
+ 
+ }
+diff --git a/man/plot_density.Rd b/man/plot_density.Rd
+index 45311df..10c26d9 100644
+--- a/man/plot_density.Rd
++++ b/man/plot_density.Rd
+@@ -25,10 +25,12 @@ plots. Examples include \code{"feature_mean_intensity_all"},
+ \item{title}{title of density plot}
+ }
+ \description{
+-Plot density distribution of peptide features
++A function to visualize distribution of computed features through 
++density plots. These features include average intensity, coefficient of variance 
++and standard deviation.
+ }
+ \examples{
+ peptideIons_features <- calc_features(all_peptideIons)
+-plot_density(peptideIons_features, feature = "feature_mean_intensity_all")
++p <- plot_density(peptideIons_features, feature = "feature_mean_intensity_all")
+ 
+ }
+diff --git a/man/plot_peptide_intensity.Rd b/man/plot_peptide_intensity.Rd
+index 20b7216..63bb242 100644
+--- a/man/plot_peptide_intensity.Rd
++++ b/man/plot_peptide_intensity.Rd
+@@ -4,22 +4,24 @@
+ \alias{plot_peptide_intensity}
+ \title{Visualize peptide intensity}
+ \usage{
+-plot_peptide_intensity(case, cutoff_prob = 0.3)
++plot_peptide_intensity(case, cutoff_prob = 0.3,
++  bool_isPeptideIon = TRUE)
+ }
+ \arguments{
+ \item{case}{data table or data frame in wide representation. The data typically 
+ contains \code{"PeptideIon"}, \code{"ProteinName"} and sample names in columns and 
+-measurements of each peptide or precursor ions in rows. 
+-
+-To visualize profile of peptides corresponding to the same protein, 
+-peptides corresponding to one protein are pre-filtered for clearer 
+-visualizations.}
++measurements of each peptide or precursor ions in rows. For a clear visualization
++of peptide profile, recommend to prepare a data table filtered on peptides 
++corresponding to a protein of interest}
+ 
+ \item{cutoff_prob}{a numeric value denoting posterior probability threshold
+ to keep or remove peptides.}
+ }
+ \description{
+-Visualize peptide intensity
++Visualize peptide intensities in different samples by a line graph. 
++Colors denote different peptides, dotted represent removed peptides based on 
++posterior probability of LDA algorithm and triangle dots denote requant 
++measurements (m-score = 2).
+ }
+ \examples{
+ peptideIons_features <- calc_features(all_peptideIons)
+@@ -27,6 +29,6 @@ peptideIons_features_select <- perform_selection(peptideIons_features)
+ 
+ prot_name <- c("1/O75976")
+ test_prot <- test[test$ProteinName==prot_name, ]
+-plot_peptide_intensity(test_prot)
++p <- plot_peptide_intensity(test_prot)
+ 
+ }
+diff --git a/man/sd_na.Rd b/man/sd_na.Rd
+index ed04e1a..c4b2b52 100644
+--- a/man/sd_na.Rd
++++ b/man/sd_na.Rd
+@@ -2,7 +2,7 @@
+ % Please edit documentation in R/basic.R
+ \name{sd_na}
+ \alias{sd_na}
+-\title{Computes standard deviation excluding missing values}
++\title{Computes standard deviation}
+ \usage{
+ sd_na(x)
+ }
+@@ -13,5 +13,10 @@ sd_na(x)
+ a numeric value
+ }
+ \description{
+-Computes standard deviation excluding missing values
++A function to compute standard deviation of a numeric vector 
++after exclusion of missing values
++}
++\examples{
++vector <- c(1, 2, 4, NA, 2, 5, 6)
++sd_na(vector)
+ }
+diff --git a/man/sum_na.Rd b/man/sum_na.Rd
+index 808844b..8007d1f 100644
+--- a/man/sum_na.Rd
++++ b/man/sum_na.Rd
+@@ -2,7 +2,7 @@
+ % Please edit documentation in R/basic.R
+ \name{sum_na}
+ \alias{sum_na}
+-\title{Computes sum excluding missing values}
++\title{Computes sum}
+ \usage{
+ sum_na(x)
+ }
+@@ -13,5 +13,10 @@ sum_na(x)
+ a numeric value
+ }
+ \description{
+-Computes sum excluding missing values
++A function to compute sum of a numeric vector 
++after exclusion of missing values
++}
++\examples{
++vector <- c(1, 2, 4, NA, 2, 5, 6)
++sum_na(vector)
+ }
+diff --git a/man/u_count.Rd b/man/u_count.Rd
+index aa3263b..16c4db9 100644
+--- a/man/u_count.Rd
++++ b/man/u_count.Rd
+@@ -13,5 +13,10 @@ u_count(x)
+ a numeric value
+ }
+ \description{
+-Count number of unique values
++A function to count the number of unique values in a numeric 
++or character vector
++}
++\examples{
++vector <- c("c", "d", "v", "d", "t", "c", "a")
++u_count(vector)
+ }
+diff --git a/man/write_protein_table.Rd b/man/write_protein_table.Rd
+index 820432e..b58c744 100644
+--- a/man/write_protein_table.Rd
++++ b/man/write_protein_table.Rd
+@@ -2,7 +2,7 @@
+ % Please edit documentation in R/Writer.R
+ \name{write_protein_table}
+ \alias{write_protein_table}
+-\title{Export protein table to tsv or csv file}
++\title{Export data table}
+ \usage{
+ write_protein_table(input_dt, file_name = "protein_table",
+   format = "tsv", ...)
+@@ -21,10 +21,10 @@ write_protein_table(input_dt, file_name = "protein_table",
+ csv or tsv output
+ }
+ \description{
+-Export protein table to tsv or csv file
++Export data table e.g. protein table to a tsv or csv file.
+ }
+ \examples{
+-\dontrun{write_protein_table(protein_matrix, 
+-file_name = "example_protein_table")}
++\dontrun{write_protein_table(protein_Filtered_top3_sum_ImputedWeighted, 
++file_name = "protein_Filtered_top3_sum_ImputedWeighted", format = "tsv")}
+ 
+ }
+diff --git a/tests/testthat/test-normalizer.R b/tests/testthat/test-normalizer.R
+new file mode 100644
+index 0000000..aef70ed
+--- /dev/null
++++ b/tests/testthat/test-normalizer.R
+@@ -0,0 +1,78 @@
++context("normalizer")
++
++peptideIons <- import_openswath(search_results= "data/QGS_SWATH_data", 
++                                sample_annotation="data/QGS_sample_annotation", 
++                                level="PeptideIon")
++all_peptideIons <- long2wide(peptideIons)
++
++
++test_that("long2wide", {
++  expect_equivalent(dim(all_peptideIons)[1], 52)
++  expect_equivalent(dim(all_peptideIons)[2], 62)
++  
++  colnames <- colnames(all_peptideIons)
++  
++  expect_equivalent(colnames[1:2], c("PeptideIon", "ProteinName"))
++  expect_equivalent(colnames[3], "Intensity_lgillet_J170408_001")
++  expect_equivalent(colnames[18], "Score_lgillet_J170408_001")
++  expect_equivalent(colnames[33], "RT_lgillet_J170408_001")
++  expect_equivalent(colnames[48], "Width_lgillet_J170408_001" )
++  
++})
++
++test_that("normalize_data", {
++  all_peptideIons_normalized <- normalize_data(all_peptideIons, replaceNA="keep", 
++                                               normalization="none")
++  
++  expect_equivalent(dim(all_peptideIons_normalized)[1], 52)
++  expect_equivalent(dim(all_peptideIons_normalized)[2], 78)
++  
++  colnames <- colnames(all_peptideIons_normalized)
++  
++  expect_equivalent(colnames[1:2], c("PeptideIon", "ProteinName"))
++  expect_equivalent(colnames[3], "Intensity_lgillet_J170408_001")
++  expect_equivalent(colnames[18], "Score_lgillet_J170408_001")
++  expect_equivalent(colnames[33], "RT_lgillet_J170408_001")
++  expect_equivalent(colnames[48], "Width_lgillet_J170408_001" )
++  expect_equivalent(colnames[63], "numPerProt" )
++  
++})
++
++
++test_that("merge_replicates", {
++  all_peptideIons_normalized <- normalize_data(all_peptideIons, replaceNA="keep", 
++                                               normalization="none")
++  cons_peptideIons <- merge_replicates(all_peptideIons_normalized, anno)
++  
++  expect_equivalent(dim(cons_peptideIons)[1], 52)
++  expect_equivalent(dim(cons_peptideIons)[2], 78)
++  
++  colnames <- colnames(cons_peptideIons)
++  
++  expect_equivalent(colnames[1:2], c("PeptideIon", "ProteinName"))
++  expect_equivalent(colnames[3], "Intensity_lgillet_J170408_001")
++  expect_equivalent(colnames[18], "Score_lgillet_J170408_001")
++  expect_equivalent(colnames[33], "RT_lgillet_J170408_001")
++  expect_equivalent(colnames[48], "Width_lgillet_J170408_001" )
++  expect_equivalent(colnames[63], "numPerProt" )
++  expect_equivalent(colnames[64:66], c("mean_intensity_A", "cv_intensity_A", "numNA_intensity_A"))
++
++})
++
++
++test_that("merge_replicates", {
++  data("all_peptideIons")
++  proteotypic_peptide_matrix <- keep_proteotypic_only(all_peptideIons)
++  
++  
++  expect_equivalent(dim(proteotypic_peptide_matrix)[1], 52)
++  expect_equivalent(dim(proteotypic_peptide_matrix)[2], 62)
++  
++  expect_equivalent(length(which(grepl("1/sp", proteotypic_peptide_matrix$ProteinName))), 
++                    dim(proteotypic_peptide_matrix)[1]) 
++  
++})
++
++
++
++
+diff --git a/tests/testthat/test-quantification.R b/tests/testthat/test-quantification.R
+new file mode 100644
+index 0000000..78a119a
+--- /dev/null
++++ b/tests/testthat/test-quantification.R
+@@ -0,0 +1,49 @@
++context("quantification")
++
++d_feature <- calc_features(peptideIon_st)
++d_feature_select <- perform_selection(d_feature)
++
++test_that("pept2prot", {
++  protein_m <- pept2prot(d_feature_select, "prob", 3, aggfun="sum", bool_weighted_by_prob=T)
++  
++  expect_equivalent(dim(protein_m)[1], 9)
++  expect_equivalent(dim(protein_m)[2], 18)
++  
++  colnames <- colnames(protein_m)
++  expect_equivalent(colnames[1:2], c("ProteinName", "numPerProt"))
++  expect_equivalent(colnames[4],  "Intensity_lgillet_J170408_001")
++  
++  expect_equivalent(round(mean(as.matrix(protein_m[,3:18]), na.rm=TRUE),2), 33409.88)
++
++})
++
++
++
++test_that("pept2prot", {
++  protein_log <- pept2prot_log2(d_feature_select, 
++                                input_rank_index = "prob", 3, aggfun="sum", bool_weighted_by_prob=T)  
++  expect_equivalent(dim(protein_log)[1], 9)
++  expect_equivalent(dim(protein_log)[2], 18)
++  
++  colnames <- colnames(protein_log)
++  expect_equivalent(colnames[1:2], c("ProteinName", "numPerProt"))
++  expect_equivalent(colnames[4],  "Intensity_lgillet_J170408_001")
++  
++  expect_equivalent(round(mean(as.matrix(protein_log[,3:18]), na.rm=TRUE),2), 18.35)
++  
++})
++
++
++
++test_that("impute_missing_values", {
++  imputated <- impute_missing_values(d_feature_select, c(3:17))
++  
++  expect_equivalent(round(mean(as.matrix(d_feature_select[,3:18]), na.rm=TRUE),2), 18879.38)
++  expect_equivalent(round(mean(is.na(d_feature_select)), 5), 0.16559)
++  
++  expect_equivalent(round(mean(as.matrix(imputated[,3:18]), na.rm=TRUE),2), 15915.01)
++  expect_equivalent(round(mean(is.na(imputated)), 5), 0.13441)
++  
++})
++
++
+diff --git a/tests/testthat/test-selecter.R b/tests/testthat/test-selecter.R
+new file mode 100644
+index 0000000..c0169da
+--- /dev/null
++++ b/tests/testthat/test-selecter.R
+@@ -0,0 +1,76 @@
++context("selecter")
++
++
++test_that("calc_features", {
++  d_feature <- calc_features(peptideIon_st)
++  
++  expect_equivalent(colnames(d_feature)[1:2], c("PeptideIon", "ProteinName" ))
++  expect_equivalent(colnames(d_feature)[79:94], 
++                    c( "feature_mean_intensity_all",  "feature_cv_intensity_all", 
++                       "feature_numNA_intensity_all", "feature_averaged_score_all",
++                       "feature_sd_width_all",        "feature_median_PCC" , 
++                       "feature_median_SCC",          "feature_MAD_dist" , 
++                       "median_PCC_PerProt", "scaled_mean_intensity_all",
++                       "scaled_cv_intensity_all", "scaled_numNA_intensity_all", 
++                       "scaled_averaged_score_all", "scaled_sd_width_all",  
++                       "scaled_median_PCC","scaled_MAD_dist"))
++  
++  expect_equivalent(summary(as.matrix(d_feature$feature_mean_intensity_all))[1], "Min.   : 2383  ")
++  expect_equivalent(summary(as.matrix(d_feature$feature_mean_intensity_all))[2],  "1st Qu.: 6347  ")
++  expect_equivalent(summary(as.matrix(d_feature$feature_mean_intensity_all))[4], "Mean   :16927  ")
++  
++})
++
++
++test_that("perform_prediction_and_filtering", {
++  d_feature <- calc_features(peptideIon_st)
++  d_select <- perform_prediction_and_filtering(d_feature)
++
++  expect_equivalent(colnames(d_select)[1:2], c("PeptideIon", "ProteinName" ))
++  expect_equivalent(colnames(d_select)[79:95], 
++                    c( "feature_mean_intensity_all",  "feature_cv_intensity_all", 
++                       "feature_numNA_intensity_all", "feature_averaged_score_all",
++                       "feature_sd_width_all",        "feature_median_PCC" , 
++                       "feature_median_SCC",          "feature_MAD_dist" , 
++                       "median_PCC_PerProt", "scaled_mean_intensity_all",
++                       "scaled_cv_intensity_all", "scaled_numNA_intensity_all", 
++                       "scaled_averaged_score_all", "scaled_sd_width_all",  
++                       "scaled_median_PCC","scaled_MAD_dist", "prob"))
++  
++  expect_equivalent(summary(as.matrix(d_select$prob))[1], "Min.   :0.2026  ")
++  expect_equivalent(summary(as.matrix(d_select$prob))[2],  "1st Qu.:0.4008  ")
++  expect_equivalent(summary(as.matrix(d_select$prob))[4],  "Mean   :0.6021  ")
++  
++})
++
++
++test_that("get_lda_model", {
++  d_feature <- calc_features(peptideIon_st)
++  
++  ecoli_std <- c(2, 3, 4, 6, 8)
++  index_mean_int <- which(grepl("^mean_intensity", names(d_feature)))
++  d_feature[, cor_std := 0]
++  d_feature$cor_std <- apply(d_feature[, index_mean_int, with=F], 1, function(x) cor(x, ecoli_std, use="p"))
++  d_feature$cor_std[apply(d_feature[, index_mean_int, with=F], 1, function(x) count_pairwise_number(x, ecoli_std)) < 4] <- NA
++  d_feature[, label := "bad"]
++  d_feature[ cor_std > 0.95, ]$label <- "good"
++  
++  index_features <- c("scaled_mean_intensity_all", "scaled_cv_intensity_all", 
++                      "scaled_numNA_intensity_all", "scaled_averaged_score_all", 
++                      "scaled_median_PCC", "scaled_sd_width_all", "label")
++  model_lda <- get_lda_model(d_feature, index_features)
++  
++  expect_equivalent(names(model_lda$prior), c( "bad","good"))
++  expect_equivalent(round(model_lda$prior[1], 2), 0.56)
++  expect_equivalent(round(model_lda$prior[2],2), 0.44)
++  
++  expect_equivalent(dimnames(model_lda$means)[[2]], 
++                    c("scaled_mean_intensity_all", "scaled_cv_intensity_all",
++                      "scaled_numNA_intensity_all", "scaled_averaged_score_all", 
++                      "scaled_median_PCC", "scaled_sd_width_all")) 
++  
++  expect_equivalent(round(model_lda$means[1],2), -0.5)
++  expect_equivalent(round(model_lda$scaling[2], 2), -0.08)
++  expect_equivalent(round(model_lda$scaling[3], 2), -0.03)
++ 
++})
+diff --git a/tests/testthat/test-statisticalTest.R b/tests/testthat/test-statisticalTest.R
+new file mode 100644
+index 0000000..a91fbec
+--- /dev/null
++++ b/tests/testthat/test-statisticalTest.R
+@@ -0,0 +1,70 @@
++context("statisticalTest")
++
++library(PECA)
++library(genefilter)
++library(limma)
++
++library(data.table)
++library(MASS)
++library(ggplot2)
++library(grid)
++library(gplots)
++library(plyr)
++library(GGally)
++library(ggfortify)
++library(gridExtra)
++library(Prom)
++require(plotrix)
++
++
++test_that("perform_peca_tests", {
++  
++  # peca_result <- perform_peca_tests(protein_Filtered_top3_sum_ImputedWeighted, anno)
++  # this function is currently buggy fl
++  
++  
++})
++
++
++
++test_that("perform_t_tests", {
++  t_test_result <- perform_t_tests(protein_Filtered_top3_sum_ImputedWeighted, anno)
++  
++  colnames(t_test_result)[1] <- "ProteinName" 
++  colnames(t_test_result)[7:8] <- c("p.value", "pval_adj" )
++
++  expect_equivalent(round(mean(t_test_result$statistic, na.rm = TRUE), 2), -4.39)
++  expect_equivalent(round(mean(t_test_result$p.value, na.rm = TRUE), 2), 0.23)
++  expect_equivalent(round(mean(t_test_result$pval_adj, na.rm = TRUE), 2), 0.53)
++  
++})
++
++
++
++test_that("perform_modt_tests", {
++  modt_test_result <- perform_modt_tests(protein_Filtered_top3_sum_ImputedWeighted, anno)
++  
++  colnames(modt_test_result)[1] <- "ProteinName" 
++  colnames(modt_test_result)[7:8] <- c("p.value", "pval_adj" )
++  
++  expect_equivalent(round(mean(modt_test_result$statistic, na.rm = TRUE), 2), 3.14)
++  expect_equivalent(round(mean(modt_test_result$p.value, na.rm = TRUE), 2), 0.2)
++  expect_equivalent(round(mean(modt_test_result$pval_adj, na.rm = TRUE), 2), 0.25)
++  
++})
++
++
++test_that("perform_anova", {
++  anova_results <- perform_anova(protein_Filtered_top3_sum_ImputedWeighted, anno)
++  
++  colnames(anova_results)[1] <- "ProteinName" 
++  colnames(anova_results)[34:37] <- c("parametric_Fvalue", "parametric_pvalue",
++                                      "KruskalWallis_chiSquared", "KruskalWallis_pvalue" )
++  
++  expect_equivalent(round(mean(anova_results$parametric_Fvalue, na.rm = TRUE), 2), 34.94)
++  expect_equivalent(round(mean(anova_results$parametric_pvalue, na.rm = TRUE), 2), 0.18)
++  expect_equivalent(round(mean(anova_results$KruskalWallis_chiSquared, na.rm = TRUE), 2), 9.05)
++  expect_equivalent(round(mean(anova_results$KruskalWallis_pvalue, na.rm = TRUE), 2), 0.19)
++  
++})
++
+diff --git a/tests/testthat/test-visualizer.R b/tests/testthat/test-visualizer.R
+new file mode 100644
+index 0000000..8e7f6d4
+--- /dev/null
++++ b/tests/testthat/test-visualizer.R
+@@ -0,0 +1,86 @@
++context("visualizer")
++
++library(gridExtra)
++library(grid)
++
++peptideIons <- import_openswath_matrix_fromEulerPortal(search_results= "data/YS_SWATH_data", 
++                                sample_annotation="data/YS_sample_annotation")
++peptideIon_n <- normalize_data(peptideIons, replaceNA="keep", normalization="none")
++d <- merge_replicates(peptideIon_n, anno)
++d_feature <- calc_features(d)
++d_feature_select <- perform_selection(d_feature)
++prot_name <- "1/P25391"
++test_prot <- d_feature_select[d_feature_select$ProteinName==prot_name, ]
++
++
++test_that("plot_protein_profile", {
++  p <- plot_protein_profile(test_prot, cutoff_prob = 0.3)
++  
++  expect_equivalent(p$layout$t, c(1,2)) 
++  expect_equivalent(p$layout$l, c(1, 1)) 
++  
++  expect_equivalent(class(p$grobs[[2]]), c("gtable", "gTree",  "grob",   "gDesc" ))
++  expect_equivalent(p$grobs[[2]]$layout$z, c(1, 2, 3))
++})
++
++
++test_that("plot_peptide_intensity", {
++  p <- plot_peptide_intensity(test_prot)
++  
++  expect_equivalent(summary(p$plot_env$a_reorder)[1],  "Min.   :0.2800  ")
++  expect_equivalent(summary(p$plot_env$a_reorder)[2],   "1st Qu.:0.7650  ")
++  expect_equivalent(summary(p$plot_env$a_reorder)[4],  "Mean   :0.7255  ")
++  
++  expect_equivalent( p$plot_env$bool_isPeptideIon, TRUE)
++  expect_equivalent( p$plot_env$cutoff_prob, 0.3)
++  expect_equivalent(p$plot_env$tmp_injections[1], "lgillet_J170408_001")
++  
++  expect_equivalent(p$labels$x, "Injections")
++  expect_equivalent( p$labels$y, "log2(Intensity)")
++  expect_equivalent(p$labels$colour, "PeptideIon")
++  expect_equivalent( p$labels$group,  "PeptideIon")
++  
++})
++
++
++test_that("plot_cor_heatmap", {
++  p <- plot_cor_heatmap(test_prot)
++
++  expect_equivalent(summary(p$plot_env$a_reorder)[1],  "Min.   :0.2800  ")
++  expect_equivalent(summary(p$plot_env$a_reorder)[2],   "1st Qu.:0.7650  ")
++  expect_equivalent(summary(p$plot_env$a_reorder)[4],  "Mean   :0.7255  ")
++  
++  expect_equivalent(p$layers[[2]]$aes_params$colour, "white")
++  expect_equivalent(p$layers[[2]]$aes_params$size, 2.5)
++  
++  expect_equivalent(p$labels$x, "peptideIon")
++  expect_equivalent(p$labels$fill, "Correlation")
++  expect_equivalent(p$labels$label, "Correlation")
++  
++})
++
++
++test_that("plot_bar_intensity_n_probability", {
++  p <- plot_bar_intensity_n_probability(test_prot)
++  
++  expect_equivalent(p$layout$t, c(1,2))
++  expect_equivalent(p$layout$l, c(1,1))
++  expect_equivalent(p$name, "arrange")
++  
++})
++
++
++test_that("plot_density", {
++  p <- plot_density(d_feature_select, feature = "feature_mean_intensity_all")
++  
++  expect_equivalent(p$labels$x, "feature_mean_intensity_all")
++  expect_equivalent(p$labels$y, "density")
++  expect_equivalent(p$plot_env$feature,"feature_mean_intensity_all")
++  
++  expect_equivalent(p$layers[[1]]$aes_params$alpha, 0.8)
++  
++})
++
++
++
++
+diff --git a/tests/testthat/test-wrapper.R b/tests/testthat/test-wrapper.R
+new file mode 100644
+index 0000000..847c400
+--- /dev/null
++++ b/tests/testthat/test-wrapper.R
+@@ -0,0 +1,24 @@
++context("wrapper")
++
++roundup_to <- function(x, to = 10, up = FALSE){
++  if(up) round(.Machine$double.eps^0.5 + x/to)*to else round(x/to)*to
++}
++
++test_that("dia_guidance", {
++  guidance <- dia_guidance(data= "data/QGS_SWATH_data", data_type = "openswath",
++                           sample_annotation="data/QGS_sample_annotation", level="PeptideIon",
++                           replaceNA="keep", bool_NA_means_requant = FALSE, 
++                           averageFun = "mean", normalization="none", filter_prob = 0.25, 
++                           input_rank_index = "prob", topN = 3, aggfun = "sum", 
++                           bool_weighted_by_prob = TRUE, bool.removeDecoy = T, remove_prefixInFileName = FALSE)
++  
++  expect_equivalent(colnames(guidance)[1:2], c( "ProteinName", "numPerProt" ))
++  expect_equivalent(colnames(guidance)[4], "Intensity_lgillet_J170408_001")
++  expect_equivalent(  colnames(guidance)[31:33], c("mean_intensity_E","cv_intensity_E", "numNA_intensity_E" ))
++
++  expect_equivalent(roundup_to(mean(as.matrix(guidance$mean_intensity_D)), to = 100), 44500)
++  expect_equivalent(roundup_to(mean(as.matrix(guidance$cv_intensity_D)), to = 0.1), 0.1)
++  expect_equivalent(round(mean(as.matrix(guidance$numNA_intensity_C))), 0)
++
++})
++
+diff --git a/vignettes/guidance_vignette.Rmd b/vignettes/guidance_vignette.Rmd
+index 94ac2a6..13c186e 100644
+--- a/vignettes/guidance_vignette.Rmd
++++ b/vignettes/guidance_vignette.Rmd
+@@ -11,7 +11,7 @@ vignette: >
+   %\VignetteEncoding{UTF-8}
+   %\usepackage[utf8]{inputenc}
+ abstract: |
+-  This vignette describes how to apply `DIA-guidance` package to estimate protein abundances from DIA/SWATH-MS measurements. The DIA-guidance employs an automated machine learning based approach to extract and integrate information from multiple dimensions of DIA dataset and select peptides (or transitions) that reliably and accurately reflect abundances of their corresponding proteins. It have shown improved quantitative accuracy, consistency and reproducibility for targeted mass spectrometry. 
++  This vignette describes how to apply `DIA-guidance` package to estimate protein abundances from DIA/SWATH-MS measurements. The DIA-guidance employs an automated machine learning based approach to extract and integrate information from multiple dimensions of DIA dataset and select peptides (or transitions) that reliably and accurately reflect abundances of their corresponding proteins. It has shown improved quantitative accuracy, consistency and reproducibility for targeted mass spectrometry. 
+   
+   The workflow overall consists of three major steps – data import, peptide/fragment ion selection and abundance summarization. After that, it interfaces seamlessly with several widely used downstream statistical tools in the research community. This package was designed and programmed in a way that allows an easy and friendly use for researchers without extensive programming skills but with very basic R knowledge. 
+ 
+@@ -55,7 +55,6 @@ knitr::include_graphics("guidance_workflow.png")
+ 
+ Thus, we believe that `DIA-guidance` will be a valuable tool to accurately infer protein abundances from DIA/SWATH-MS measurements, particularly useful to quantify proteins with smaller abundance changes, and is readily applicable for popular life science research such as large-scale sample profiling, biomarker discovery and personalized medicine. 
+ 
+-\pagebreak
+ 
+ ## Implementation of linear discriminant analysis (LDA) model for feature selection
+ The highlight of the package is implementation of automated machine learning approach to integrate multiple features to infer protein abundance. We employed linear discriminant analysis (LDA) model to predict for peptides that accurately reflect the abundance of their corresponding proteins.
+@@ -64,7 +63,7 @@ In essence, the LDA algorithm finds directions, or linear discriminates, that ma
+ 
+ We provide LDA models trained with quantitative golden standard (QGS) dataset. The QGS is designed in a defined ratio of *E.coli*, mouse and human proteins (Figure 2). In particular, each sample contains differnet ratio of *E.coli* and mouse proteins to display differential expressions in *E.coli* and mouse proteins but equal expression pattern of Human proteins. 
+ 
+-```{r QGS_dataset, include = TRUE, fig.align = "center", echo=FALSE, fig.cap="Design of Quantitative Golden Standard (QGS)", out.width = '60%'}
++```{r QGS_dataset, include = TRUE, fig.align = "center", echo=FALSE, fig.cap="Design of Quantitative Golden Standard (QGS)", out.width = '50%'}
+ knitr::include_graphics("QGS_design.png")
+ ```
+ 
+@@ -74,10 +73,10 @@ If users have own standard measurements and with to train own LDA models, refer
+ 
+ This vignette is organized into 4 sections:
+ 
+-1.	[Package installation and data import](#section_package_install): This section demonstrates how to load DIA/SWATH data and sample annotation for analysis using DIA-guidance workflow. We also provide a brief description about the example datasets in DIA-guidance/data. 
+-2.	[Analyze data](#section_analyze_data): This section is the most essential part of this vignette demonstrating a step-by-step workflow to normalize dataset, filter for proteolytic peptides, calculate feature statistics, estimate protein abundance and perform statistical tests on protein matrix. 
+-3.	[Visualization](#visualization): The novelty of this package is the use of LDA models to discriminate RARE (representative peptides) vs. non-RAREs. The characteristic of selected vs. non-selected peptides can be visualized using plotting tools provided in our package. 
+-4.	[Train linear discriminant analysis (LDA) models](#section_train_LDA): This sections demonstrates how to train a LDA model using a standard dataset using our QGS (quantitative golden standard) dataset as an example. 
++1.	[**Package installation and data import**](#section_package_install): This section demonstrates how to load DIA/SWATH data and sample annotation for analysis using DIA-guidance workflow. We also provide a brief description about the example datasets in DIA-guidance/data. 
++2.	[**Analyze data**](#section_analyze_data): This section is the most essential part of this vignette demonstrating a step-by-step workflow to normalize dataset, filter for proteolytic peptides, calculate feature statistics, estimate protein abundance and perform statistical tests on protein matrix. 
++3.	[**Visualization**](#visualization): The novelty of this package is the use of LDA models to discriminate RARE (representative peptides) vs. non-RAREs. The characteristic of selected vs. non-selected peptides can be visualized using plotting tools provided in our package. 
++4.	[**Train linear discriminant analysis (LDA) models**](#section_train_LDA): This sections demonstrates how to train a LDA model using a standard dataset using our QGS (quantitative golden standard) dataset as an example. 
+ 
+ \pagebreak
+ 
+@@ -108,33 +107,64 @@ library(ggfortify)
+ library(gridExtra)
+ library(Prom)
+ require(plotrix)
++library(knitr)
++library(dplyr)
++library(PECA)
++library(genefilter)
++library(limma)
+ ```
+ 
+ 
+ ## Example data
+-The example data is a subset of the OpenSWATH search results generated from the ... dataset [ref]. Details on which dataset to include in the package for demonstration purpose.  
++The example datasets deposited in this package are a reduced OpenSWATH data of Quantitative Gold Standard (QGS) [Shao et al.] and HeLa Kyoto cells treated with formaldehyde [Tan et al.]. 
++
+++ **Quantitative gold standard (QGS) data**: designed in a defined ratio of E.coli, mouse and human proteins (Figure 2). A complete QGS data has been used to train a LDA model to predict which peptides are representative of corresponding protein abundances. And the reduced QGS data is deposited in package to make a step-by-step demonstration of SWATH-guidance workflow. 
+++ **Formaldehyde-treated HeLa Kyoto cell data**: designed to study whether formaldehyde selectively depletes components of human cellular proteome. This data is deposited in package to illustrate visualization options when m-score values are available. 
+ 
+-(I think we need a reduced SWTAH data that can be deposited in the package, but not QGS dataset)
+-(Wenguang: can we use the subset, e.g., ~10 E coli. proteins from QGS datasets?)
+ 
+ ## Importing the data 
+-The package provides `import_openswath()` function to import DIA/SWATH-MS search results and the associated sample annotation table:
++The package provides three functions to import data:
++
++1. `import_openswath()` function to import SWATH data and associated sample annotation table. The user can import DIA/SWATH-MS results of different levels by specifying `level` to `"PeptideIon"` (by default),`"Transition"`, `"Peptide"`or `"PeptideWithMod"`. Note that downstream analysis may be different depending on peptide/fragment level of imported data. 
++
++The imported data table contains columns denoting peptide name, corresponding protein name, intensity, retention time and score of each peptide.
+ ```{r load_data, fig.show='hold'}
+-# load data from directory 
+-peptideIons <- import_openswath(search_results= "S:/SWATH-guidance/feature_alignment.csv", 
+-                                sample_annotation="S:/SWATH-guidance/sample_annotation", 
+-                                level="PeptideIon") 
++# load SWATH data and sample annotation
++peptideIons <- import_openswath(search_results= "../data/QGS_SWATH_data", 
++                                sample_annotation="../data/QGS_sample_annotation", 
++                                level="PeptideIon")
++
++kable(peptideIons[1:5, 1:6])
+ ```
+ 
+-The user can import DIA/SWATH-MS results of different levels by specifically denoting `level` to `"PeptideIon"` (by default),`"Transition"`, `"Peptide"`or `"PeptideWithMod"`. Note that downstream analysis may be different depending on peptide/fragment level of imported data. 
++\pagebreak
++
++2. `import_openswath_matrix_fromEulerPortal()` function to import SWATH data, typically pre-processed or pre-filtered for downstream analysis, and associated sample annotation table. (explanation of the format of importing data and how it is different from import_openswath)
++```{r load_data_eularportal, fig.show='hold'}
++all_peptideIons_YS <- import_openswath_matrix_fromEulerPortal(
++  search_results="../data/YS_SWATH_data", 
++  sample_annotation="../data/YS_sample_annotation")
++
++kable(all_peptideIons_YS[1:5, 1:5])
++```
++
++
++3. `import_spectronaut_matrix()` function to import a Spectronaut data table, typically pre-processed or pre-filtered for downstream analysis. 
++```{r load_data_spectronaut, fig.show='hold'}
++# import spectronaut data
++peptideIons_spect <- import_spectronaut_matrix(search_results= "../data/QGS_SWATH_data", 
++                                         sample_annotation="../data/QGS_sample_annotation")
++#kable(peptideIons_spect[1:5, ])
++```
+ 
+-Alternatively, to import directly DIA/SWATH-MS results processed via Euler portal [ref], the user can use the function `import_openswath_matrix_fromEulerPortal`
+ 
+ ## Preparing the data
+-The original DIA/SWATH-MS data (e.g. search results from OpenSWATH) is presented in long format, i.e., each row is one variable per peptide. To facilitate downstream analysis to normalize, compute features and select peptides/transitions, we provide a simple utility function `long2wide()` to convert from long to wide format data i.e. one peptide's variables in a single row.  
++The DIA/SWATH-MS data (e.g. search results from OpenSWATH) is presented in long format, i.e., each row is one variable per peptide. To facilitate downstream analysis to normalize, compute features and select peptides/transitions, we provide a simple utility function `long2wide()` to convert from long to wide format data i.e. one peptide's variables in a single row.  
+ 
+ ```{r long2wide, fig.show='hold'}
+ all_peptideIons <- long2wide(peptideIons)
++
++kable(all_peptideIons[1:5, 1:3])
+ ```
+ 
+ \pagebreak
+@@ -145,57 +175,68 @@ We hereby show a step-by-step demonstration to normalize peptide/fragment-level
+ ## Normalize data
+ The `normalize_data()` provides options to normalize intensities across different samples by `"mediancenter"` (by default),`"quantile"`, `"TIC"` or`"iRT"`. If there is no need to normalize intensities, can denote `normalization = "none”`. 
+ 
+-Quantile normalization and median-centering are two commonly used methods for normalizing proteomics data. The TIC normalization is based on total ion current (TIC), where all mass spectra are divided by their TIC assuming that the same amount of protein was injected for each MS run, resulting in the same integrated area under the spectrum. TIC normalization is useful across samples containing similar cell types, but when comparing widely different tissues types, TIC-corrected expression levels may not be applicable. For samples with injected iRT (indexed retention time) standards, the data can also be normalized against the measurements of iRT peptides. 
+++ Quantile normalization and median-centering are two commonly used methods for normalizing proteomics data. 
+++ The TIC normalization is based on total ion current (TIC), where all mass spectra are divided by their TIC assuming that the same amount of protein was injected for each MS run, resulting in the same integrated area under the spectrum. TIC normalization is useful across samples containing similar cell types, but when comparing widely different tissues types, TIC-corrected expression levels may not be applicable. 
+++ For samples with injected iRT (indexed retention time) standards, the data can also be normalized against the measurements of iRT peptides. 
+ 
+ For missing values (NAs), users can also specify how to treat those via `replaceNA =` either to `"remove"` or `"keep"` (by default), alternatively users have the options to replace NAs by `"zero"` or `“min_intensity"`. 
+ 
+-*(Wenguang: shall we have some explanations for each parameters?)*
+-
+ ```{r normalize_data, fig.show='hold'}
+ all_peptideIons_normalized <- normalize_data(all_peptideIons, replaceNA="keep", 
+                                              normalization="mediancenter")
+ ```
+ 
+-## Filter proteotypic peptides
++
++## Compute statistics among biological replicates
+ The `merge_replicate()` merges biological replicates under column name `“SampleName”` and computes average intensity, coefficient of variation (CV) and number of missing values for each sample. This function is applicable for both peptide and protein data tables, particularly useful in [protein abundance estimation step](#protein_inference)
+ 
+-From a list of detected peptides, we recommend filtering proteotypic peptides for protein inference. For any given protein, only a few proteotypic peptides are uniquely and consistently identified [5](#ref_5), thus these peptides represent those most confidently observed current MS-based proteomics methods. 
++```{r merge_replicates, fig.show='hold'}
++cons_peptideIons <- merge_replicates(all_peptideIons_normalized, anno)
++
++setdiff(colnames(cons_peptideIons), colnames(all_peptideIons_normalized))
++```
+ 
++```{r merge_replicate_table, fig.show='hold'}
++# data table illstrating subset of computed values:
++kable(cons_peptideIons[1:5, c("PeptideIon", "mean_intensity_A", 
++                              "cv_intensity_A" , "numNA_intensity_A"), with = FALSE])
++```
++
++\pagebreak
++
++## Filter proteotypic peptides
++From a list of detected peptides, we recommend filtering proteotypic peptides for protein inference. For any given protein, only a few proteotypic peptides are uniquely and consistently identified [5](#ref_5), thus these peptides represent those most confidently observed current MS-based proteomics methods. 
+ ```{r filter_proteotypic, fig.show='hold'}
+-cons_peptideIons <- merge_replicates(all_peptideIons_normalized, anno)
+ cons_peptideIons <- cons_peptideIons[which(grepl("^1/", cons_peptideIons$ProteinName)), ]
+ ```
+ 
++
+ ## Calculate features
+-In addition to the features that describes the resprobudility, `calc_feature()` computes the metric that describes the relationship among peptides corresponding to the same protein. These features include average intensity, coefficient of variation (CV), number of missing values, average score, standard deviation, median Pearson correlation coefficient (PCC), median spearman correlation coefficient (SCC) and median absolute deviation (MAD). We also display scaled statistics after normalization, where the numeric values are centered by subtracting the mean and scaled by dividing their standard deviation. In this way, the weights of each feature can be directly compared each other, which indicate their relatively discriminative power to diffenticiate good and bad features.
++`calc_feature()` computes the metric that describes the relationship among peptides corresponding to the same protein. These features include: 
+ 
+-From the full list of computed statistics, we utilize selected features to establish LDA models.
+++ Average intensity, average score, standard deviation, median;
+++ Coefficient of variation (CV), number of missing value;
+++ Pearson correlation coefficient (PCC), median spearman correlation coefficient (SCC) and median absolute deviation (MAD).
++
++We also display scaled statistics after normalization, where the numeric values are centered by subtracting the mean and scaled by dividing standard deviation. In this way, the weights of each feature can be directly compared each other, which indicate their relatively discriminative power to differentiate good and bad features. From the full list of computed statistics, we utilize selected features to establish LDA models.
+ 
+ ```{r calculate_feature, fig.show='hold'}
+ cons_peptideIons_features <- calc_features(cons_peptideIons)
+ 
+-# following statistics are computed for each peptide: 
+-setdiff(colnames(cons_peptideIons_features), colnames(cons_peptideIons))
++kable(cons_peptideIons_features[1:5, c("PeptideIon", "feature_mean_intensity_all" , 
++                 "feature_cv_intensity_all", "scaled_median_PCC"), with = FALSE])
+ ```
+ 
+-Demonstration of a few features in table:
+-
+-```{r calculate_feature_table, fig.show='hold', echo=FALSE}
+-# data table illstrating subset of computed values:
+-library(knitr)
+-library(dplyr)
+-kable(cons_peptideIons_features[1:5,] %>%
+-        select(c("PeptideIon", "feature_mean_intensity_all" , "feature_cv_intensity_all")))
+-```
+ 
+ The feature-level statistics can be visualized using `ggplot2` into barplots, correlation matrix, trend lines and etc. In addiiton, we provide `plot_density()`, `plot_heatmap()`, `plot_bar_intensity_n_probability()` and `plot_protein_profile()` to visualize quantitative pattern of a feature (refer to [Part 4: Visualization for details](#visualization)). Here is an example demonstration of visualizing density distribution of average intensity using `plot_density()`. 
+ 
+-```{r calculate_feature_plot, fig.show='hold', fig.align='center', fig.height=2.5, fig.width=4}
++```{r calculate_feature_plot, fig.show='hold', fig.align='center', fig.width=3, fig.height=2}
+ # visualize average peptide intensities through density plot:
+-plot_density(cons_peptideIons_features, feature = "feature_mean_intensity_all")
++plot_density(cons_peptideIons_features, feature = "feature_mean_intensity_all", font.size = 10)
++plot_density(cons_peptideIons_features, feature = "scaled_sd_width_all", font.size = 10)
++
+ ```
+ 
+-\pagebreak
+ 
+ ## Perform selection on features 
+ After calculating feature statistics, we implemented linear discriminant analysis (LDA) model to combine sub-scores describing various features into a posterior probability of being a RARE (reproducible abundance representative entities). These RAREs are subset of peptides that accurately and reliably reflects the abundance of their corresponding proteins. 
+@@ -204,12 +245,13 @@ In this package, we trained the LDA models from the QGS datasets and set them as
+ For more details about training user-specific models if necessary, please see [Part 5](#section_train_LDA)). 
+ 
+ The function `perform_selection()` calculates the posterior probability using trained LDA model deposited in `DIA-guidance/data`:
+-```{r perform_selection, fig.show='hold',fig.align='center', fig.height=3, fig.width=4.5}
++```{r perform_selection, fig.show='hold',fig.align='center', fig.height=2.5, fig.width=4}
+ # calculate posterior probability
+ test <- perform_selection(cons_peptideIons_features) 
+ 
+ # histogram of posterior probaility
+-hist(test$prob, main = "Histogram of posterior probability", xlab="Posterior probability")
++hist(test$prob, main = "Histogram of posterior probability", xlab="Posterior probability",
++     cex.lab=0.8, cex.axis=0.8, cex.main=0.85)
+ ```
+ 
+ The histogram shows probability of the peptide being a RARE, evaluated by sub-scores describing various features addressing accuracy and reproducibility of the peptide measurements.  The posterior probability histogram of all peptide features typically shows a binomial distribution, suggesting that the model have successfully separated the RAREs from non-RAREs. 
+@@ -218,6 +260,7 @@ The histogram shows probability of the peptide being a RARE, evaluated by sub-sc
+ 
+ ## Estimate protein abundance 
+ 
++
+ ### Select peptides by probability threshold
+ To estimate protein abundances in a robust manner, the users can use the predicted posterior probability (0.2 by default) to perform an optimal selection of peptide features that accurately and reliably represent their respective protein concentrations.
+ 
+@@ -226,12 +269,18 @@ Filter peptides by posterior probability: users can increase this threshold to i
+ test_yesFiltered <- test[prob > 0.2, ]
+ ```
+ 
++
+ ### Impute missing values
+ In targeted mass spectrometry, it is rational and important to generate a quantitative protein matrix that contains a least number of missing values. Thus, we provide `impute_missing_values()` to impute values following a uniform distribution between minimum $0.1 \times CV$ and minimum $1.1 \times CV$
+ ```{r protein_infer_impute, fig.show='hold'}
+ test_yesFiltered_yesImputated <- impute_missing_values(test_yesFiltered, c(3:17))
++
++# percentage of missing values before and after imputation
++mean(is.na(test_yesFiltered))
++mean(is.na(test_yesFiltered_yesImputated))
+ ```
+ 
++
+ ### Parameter adjustment for protein abundance inference {#protein_inference}
+ After selecting, the user can apply the funcation `pept2prot()` to summerize protein abundance using peptide/fragment-level intensities. We provide a number of parameters that allows the user to choose under different conditions. 
+ 
+@@ -243,9 +292,13 @@ The default parameters for protein abundance summerization step are as follows.
+ ```{r protein_infer_default, fig.show='hold'}
+ prot_inf_table <- merge_replicates(pept2prot(
+   test_yesFiltered_yesImputated, "prob", 3, aggfun="sum", bool_weighted_by_prob=T), anno)
++```
++
+ 
+-# the protein table contains following variables:
+-colnames(prot_inf_table)
++```{r protein_infer_intensity, fig.show='hold'}
++# estimated protein abundance:
++kable(prot_inf_table[1:5, c( "ProteinName", "numPerProt",  "protQuantProb",
++                             "Intensity_lgillet_J170408_001"), with = FALSE])
+ ```
+ 
+ \pagebreak
+@@ -253,52 +306,71 @@ colnames(prot_inf_table)
+ ```{r protein_infer_default_table, fig.show='hold'}
+ # example statistics of protein abundance:
+ kable(prot_inf_table[1:5, c("ProteinName", "mean_intensity_A", "cv_intensity_A", 
+-                      "numNA_intensity_A"), with = FALSE])
++                            "numNA_intensity_A"), with = FALSE])
+ ```
+ 
++
+ ## Statistical tests
+ 
+ After the estimation of protein abundance, we provide statistical tools to analyze differential expression pattern from proteomic datasets. These tools include Student’s t-test, ANOVA, bayesian extension of t- and F-statistics and PECA. 
+ 
+-+ `perform_t_test()` calculates differential protein expression by Student’s test using `rowttests()` in `genefilter` package. The significance of an expression change is determined based on adjusted p-values of the t-statistics. 
++### Perform t-test
++`perform_t_test()` calculates differential protein expression by Student’s test using `rowttests()` in `genefilter` package. The significance of an expression change is determined based on adjusted p-values of the t-statistics. 
+ 
+-```{r statistical_t_tests, fig.show='hold', echo= FALSE, eval = FALSE, fig.width=3, fig.height=2}
++```{r statistical_t_tests, fig.show='hold', fig.align='center', fig.width=3.5, fig.height=2.5 }
+ # t-test 
+ t_test_result <- perform_t_tests(prot_inf_table, anno)
+ 
+ # distribution of adjusted p values 
+-hist <- hist(t_test_result$pval_adj)
+-breaks <- hist$breaks
+-counts <- hist$counts
+-
+-library(plotrix)  
+-gap.barplot(hist$counts, gap=c(800,79000),xlab="Counts",ytics=c(0,600,79100, 79400),
+-            ylab="Frequency",main="Barplot with gap",xtics=hist$breaks)
++hist(t_test_result$pval_adj, xlab = "adjusted p values", 
++     main = "Histogram of p values from t-test",
++     cex.lab=0.8, cex.axis=0.8, cex.main=0.85)
+ 
+ ```
+ 
+-+ `perform_modt_test()` calculates empirical bayes statistics for differential expression between sample groups based on `lmFit()` and `eBayes()`.  
+-    + `lmFit()` fits a linear model to the expression data for each protein. The coefficients of the fitted models describe differences between the two compared sample groups. 
+-    + Given the linear model fit, the `eBayes()` function computes moderated t-statistics, moderated F-statistics and log-odds of differential expression by empirical Bayes moderation of standard errors. This extension is analogous to relationship between t-tests and F-statistics in conventional anova except that the residual mean squares and residual degree of freedom have been moderated between rows. 
++\pagebreak
++
++### Perform modifited t-test 
++`perform_modt_test()` calculates empirical bayes statistics for differential expression between sample groups based on `lmFit()` and `eBayes()`.  
+ 
+-```{r statistical_mot_tests, fig.show='hold', echo= FALSE, eval = FALSE}
+-# t-test 
+++ `lmFit()` fits a linear model to the expression data for each protein. The coefficients of the fitted models describe differences between the two compared sample groups. 
+++ Given the linear model fit, the `eBayes()` function computes moderated t-statistics, moderated F-statistics and log-odds of differential expression by empirical Bayes moderation of standard errors. This extension is analogous to relationship between t-tests and F-statistics in conventional anova except that the residual mean squares and residual degree of freedom have been moderated between rows. 
++
++```{r statistical_mot_tests, fig.show='hold', fig.align='center', fig.width=3.5, fig.height=2.5}
++# modified t-test 
+ modt_result <- perform_modt_tests(prot_inf_table, anno)
++
++# distribution of adjusted p values 
++hist(modt_result$pval_adj, xlab = "adjusted p values", 
++     main = "Histogram of p values from modified t-test",
++     cex.lab=0.8, cex.axis=0.8, cex.main=0.85)
+ ```
+ 
+-+ `perform_anova()` calculates differential expression pattern of differnet sample groups for each protein based on `aov()` for parametric ANOVA and `kruskal.test()` in `stats` package for nonparametric ANOVA tests. 
++### Perform ANOVA
++`perform_anova()` calculates differential expression pattern of different sample groups for each protein based on `aov()` for parametric ANOVA and `kruskal.test()` in `stats` package for nonparametric ANOVA tests. 
+ 
+-```{r statistical_anova_tests, fig.show='hold', echo= FALSE, eval = FALSE}
++```{r statistical_anova_tests, fig.show='hold', fig.align='center',fig.width=3, fig.height=2.5}
+ # t-test 
+ anova_result <- perform_anova(prot_inf_table, anno)
++
++# distribution of adjusted p values 
++hist(anova_result$parametric_pvalue, xlab = "adjusted p values", 
++     main = "Histogram of p values from parametric test",
++     cex.lab=0.8, cex.axis=0.8, cex.main=0.85)
++hist(anova_result$KruskalWallis_pvalue, xlab = "adjusted p values", 
++     main = "Histogram of p values from KruskalWallis test",
++     cex.lab=0.8, cex.axis=0.8, cex.main=0.85)
++
+ ```
+ 
+-+ `perform_peca()` conducts probe-level expression change averaging (PECA) using `PECA_tsv()` to identify expression change between two groups of samples for each protein. 
+-    + PECA calculates the probe-level expression changes using the ordinary or modified t-statistics, the ordinary using `rowttests()` in `genefilter` package and modified t-statistics using linear modeling approach in `limma` package. The significance of an expression change is determined by the analytical p-value.
++### Perform PECA
++`perform_peca()` conducts probe-level expression change averaging (PECA) using `PECA_tsv()` to identify expression change between two groups of samples for each protein. 
++
++PECA calculates the probe-level expression changes using the ordinary or modified t-statistics, the ordinary using `rowttests()` in `genefilter` package and modified t-statistics using linear modeling approach in `limma` package. The significance of an expression change is determined by the analytical p-value.
+ 
+-```{r statistical_peca_tests, fig.show='hold', echo= FALSE, eval = FALSE}
+-# PECA
+-peca_result <- perform_peca_tests(prot_inf_table, anno)
++```{r statistical_peca_tests, fig.show='hold', echo= FALSE, eval = FALSE, fig.align='center'}
++# PECA 
++# peca_result <- perform_peca_tests(prot_inf_table, anno) #currently buggy
+ ```
+ 
+ 
+@@ -308,55 +380,62 @@ peca_result <- perform_peca_tests(prot_inf_table, anno)
+ 
+ After feature selection, users can visualize protein profiles, together with its generated peptides, across multiple conditions by `plot_protein_profile()`. This function visualizes features, such as metrics of reproducibility, correlation coefficient, averaged intensity, as well as posterior probabilities of each peptide with the indicator (dash or solid line) of which peptides have been kept or removed through the selection. 
+ 
+-For visualization purpose, we utilize dataset wth requant values 
+-```{r data_for_visualization, fig.show='hold', eval=FALSE}
+-all_peptideIons <- SWATH_data <- import_openswath_matrix_fromEulerPortal(
+-  search_results="data/QGS_SWATH_data", 
+-  sample_annotation="data/QGS_sample_annotation")
++For visualization purpose, we utilize dataset with requant values 
++```{r data_for_visualization, fig.show='hold',  message=FALSE, warning=FALSE}
++# import data on formaldehyde-treated HeLa Kyoto cell
++peptideIons <- import_openswath_matrix_fromEulerPortal(
++  search_results= "../data/YS_SWATH_data", sample_annotation="../data/YS_sample_annotation")
++anno <- as.data.frame(read.table(file="../data/YS_sample_annotation", 
++                                 fill=T, header=T, stringsAsFactors=F))
++peptideIon_n <- normalize_data(peptideIons, replaceNA="keep", normalization="none")
+ 
+-all_peptideIons_normalized <- normalize_data(all_peptideIons, replaceNA="keep", 
+-                                             normalization="TIC")
+-
+-cons_peptideIons <- merge_replicates(all_peptideIons_normalized, anno, 
+-                                     bool_NA_means_requant = T)
+-
+-cons_peptideIons <- cons_peptideIons[which(grepl("^1/", cons_peptideIons$ProteinName)), ]
+-
+-cons_peptideIons_features <- calc_features(cons_peptideIons)
++# compute and select based on feature statistics 
++d <- merge_replicates(peptideIon_n, anno, bool_NA_means_requant = TRUE)
++d_feature <- calc_features(d)
++d_feature_select <- perform_selection(d_feature)
+ 
+-test <- perform_selection(cons_peptideIons_features)
+ ```
+ 
++## Plot peptide profile 
++The `plot_protein_profile()` is all-in-one function to visualize peptide profiles. 
+ ```{r all_feature_plots, fig.show='hold', eval=FALSE}
+ # peptides corresponding to the protein of interest  
+-prot_name <- c("1/O75976")
++prot_name <- "1/P25391"
++test_prot <- d_feature_select[d_feature_select$ProteinName==prot_name, ]
+ 
+ # In practice  for high-qulity illustrations, we recommend following command to save figure in pdf:
+ pdf("example_protein_profiles.pdf", width=7.5*3, height=4.1*2)
+-
+-test_prot <- test[test$ProteinName==prot_name, ]
+ plot_protein_profile(test_prot)
+-
+ dev.off()
+ ```
+ 
+-These features can be plotted separately by `plot_bar_intensity_n_probability()`, `plot_cor_heatmap()` and `plot_peptide_intensity()`.
++\pagebreak
+ 
+-```{r feature_plots, fig.show='hold', fig.align='center', fig.height=4, fig.width=8}
+-# peptides corresponding to the protein of interest 
+-prot_name <- c("1/O75976")
+-test_prot <- test[test$ProteinName==prot_name, ]
++## Plot intensity and posterior probability 
++Alternatively, users can choose to only plot features of their interest. The `plot_bar_intensity_n_probability()` function allows visualization of peptide intensity and probability of being representative peptide by barplots.  
++
++```{r feature_plots, fig.show='hold', fig.align='center', fig.height=6, fig.width=8}
++# peptides corresponding to the protein of interest  
++prot_name <- "1/P25391"
++test_prot <- d_feature_select[d_feature_select$ProteinName==prot_name, ]
+ 
+ # Barplot of average intensity and posterior probability of individual peptides
+ plot_bar_intensity_n_probability(test_prot)
+ ```
++
+ \pagebreak
+ 
++## Plot correlation heatmap 
++The `plot_cor_heatmap()` function displays correlation among peptides of interest. Peptides corresponding to the same protein typically show high correlation. 
++
+ ```{r heatmap, fig.show='hold', fig.align='center', fig.height=3, fig.width=6}
+ # Heatmap demonstrating correlation between peptides: 
+ plot_cor_heatmap(test_prot)
+ ```
+ 
++## Plot peptide intensity 
++The `plot_peptide_intensity()` function visualizes peptide intensities by line graphs. Colors denote different peptides, dotted represent removed peptides based on posterior probability of LDA algorithm and triangle dots denote requant measurements (m-score = 2). 
++
+ ```{r intensity, fig.show='hold', fig.align='center', fig.height=4, fig.width=8}
+ # Plot peptide intensities for each sample: 
+ plot_peptide_intensity(test_prot)
+@@ -373,39 +452,40 @@ Here, we utilize the QGS dataset to demontrate how to train LDA models, consisti
+ To prepare for a training dataset, follow the data analysis steps in [Part 3](#section_analyze_data) up to feature calculation. Following `normalize_data()` and `calc_features()`, the dataset contains sample- and peptide-oriented features such as average sample intensity, sample CV, average peptide intensity, peptide CV, average peptide scores and etc. 
+ 
+ The workflow is shown below: 
+-```{r mean_intensity_from_feature, fig.show='hold', eval = FALSE}
++```{r mean_intensity_from_feature, fig.show='hold'}
++remove(list = ls())
+ 
+ # prepare data matrix 
+-peptideIons <- import_openswath(search_results= "data/QGS_SWATH_data", 
+-                                sample_annotation="data/QGS_sample_annotation", 
+-                                level="PeptideIon")
+-
+-all_peptideIons <- long2wide(peptideIons)
++pep_d <- import_openswath(search_results= "../data/QGS_SWATH_data", 
++                          sample_annotation="../data/QGS_sample_annotation", 
++                          level="PeptideIon")
++pep_d <- long2wide(pep_d)
+ 
+ # normalize and merge replicates
+-all_peptideIons_normalized <- normalize_data(all_peptideIons, replaceNA="keep", normalization="none")
+-cons_peptideIons <- merge_replicates(all_peptideIons_normalized, anno)
++pep_dn <- normalize_data(pep_d, replaceNA="keep", normalization="none")
++cons_pep_dn <- merge_replicates(pep_dn, anno)
+ 
+ # calculate features
+-cons_peptideIons <- cons_peptideIons[which(grepl("^1/", cons_peptideIons$ProteinName)), ]
+-cons_peptideIons_features <- calc_features(cons_peptideIons)
++cons_pep_dn <- cons_pep_dn[which(grepl("^1/", cons_pep_dn$ProteinName)), ]
++cons_pep_dn_f <- calc_features(cons_pep_dn)
+ ```
+ 
+ ## Label as good (RAREs) vs. bad peptides based on feature statistics
+ Previously, we observed that the feature describing intensity correlation, or the relationship between peptides generated from the same protein, demonstrated different behaviors for E.coli proteins (those with different expression) and Human proteins (with expected equal expression). Thus, the intensity correlation has been the key feature for identifying the RAREs. 
+ 
+-&nbsp;
+ To train for E.coli model, denote known ratio of *E.coli* proteins in each sample and subset peptides that correspond to *E.coli* proteins: 
+ ```{r ecoli_train_subset, fig.show='hold'}
+ ecoli_std <- c(2,3,4,6,8)
+-ecoli <- cons_peptideIons_features[grepl("ECOL", cons_peptideIons_features$ProteinName), ]
++ecoli <- cons_pep_dn_f[grepl("ECOL", cons_pep_dn_f$ProteinName), ]
+ ```
+ 
+-&nbsp;
+-Compute correlation between the true standard quantity and average intensity on the measurement. Then, if the number of overlapping intensity is less than 4, the correlation is denoted as NA. Alternatively, compute the error (or diffrence) in true and measured abudance: 
++Compute correlation between the true standard quantity and average intensity on the measurement. Then, if the number of overlapping intensity is less than 4, the correlation is denoted as NA. Alternatively, compute the error (or difference) in true and measured abudance.
++
++\pagebreak
++
+ ```{r ecoli_train, fig.show='hold'}
+ # average intensity of differnet sample for each peptide:
+-index_mean_int <- which(grepl("^mean_intensity", names(cons_peptideIons_features)))
++index_mean_int <- which(grepl("^mean_intensity", names(cons_pep_dn_f)))
+ 
+ # compute correlation between known and measured amount:
+ ecoli[, cor_std := 0]
+@@ -427,19 +507,20 @@ ecoli$error <- apply( cbind(
+ ```
+ 
+ &nbsp;
++
+ Then, based on the values of intensity correlation or deviation from true measurement, the peptide is classified as good or bad peptide that reliably represent intensity of corresponding protein. 
+ ```{r ecoli_classify, fig.show='hold', fig.align='center', fig.width=3, fig.height=2}
+ ecoli[, label := "bad"]
+ 
+-# Identify "good" peptides (RAREs) by error or correlation threhols: 
++# Identify "good" peptides (RAREs) by error or correlation threholds: 
+ #ecoli[ cor_std > 0.95, ]$label <- "good"
+ ecoli[ error < 0.28, ]$label <- "good"
+ ecoli$label <- as.factor(ecoli$label)
+ ```
+ 
+-&nbsp;
++
+ The difference in feature statistics of "good" and "bad" peptides can be visualized using `plot_density()`:
+-```{r good_bad_visualize, fig.show='hold', fig.align='center', fig.width=3, fig.height=2}
++```{r good_bad_visualize, fig.show='hold', fig.align='center', fig.width=3, fig.height=2.5}
+ # Density plot of average intensity of good and bad peptides:
+ plot_density(ecoli, feature = "scaled_mean_intensity_all", fill = "label", 
+              title = "Average intensity")
+@@ -464,13 +545,25 @@ The properties of LDA model can be visualized by:
+ # Average feature statistics of good vs. bad peptides in LDA model:
+ means <- model_lda_ecoli$means
+ means_long <- melt(means); colnames(means_long) <- c("peptide", "feature", "value")
++
++means_long$feature <- as.character(means_long$feature)
++rows <- which(means_long$feature %in% c("scaled_cv_intensity_all",  
++              "scaled_numNA_intensity_all", "scaled_sd_width_all"))
++for(row in rows){
++  means_long$feature[row] <- paste0("-", means_long$feature[row])
++  means_long$value[row] <- means_long$value[row]*(-1)
++}
++
++# Barplot of group means:
+ ggplot(data=means_long, aes(x=feature, y=value, fill=peptide)) +
+   geom_bar(stat="identity", position=position_dodge()) +
+   theme(axis.text.x = element_text(angle = 45, hjust = 1), 
+         axis.text = element_text(size=10)) + 
+   ggtitle("Group means")
++
+ ```
+ 
++
+ \pagebreak
+ 
+ ```{r plot_coefficients_model, fig.show='hold', fig.align='center', fig.width=5, fig.height=3}
+@@ -515,3 +608,4 @@ citation('DIA-guidance')
+  
+ (Wenguang: chloe, this is a very nice review. And the classic one is https://www.ncbi.nlm.nih.gov/pubmed/16009968. Sorry that I forget to send you in time. I will write the function for proteotyptic filtering.)
+ 
++[Tan et al.] https://www.sciencedirect.com/science/article/pii/S0092867417305378
